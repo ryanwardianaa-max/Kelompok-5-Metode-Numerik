@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 :root{--surface:#fff;--low:#edf2f7;--dim:#f7fafc;--text:#1a202c;--muted:#4a5568;--ink:#222;--blue:#4299e1;--yellow:#faae2b;--pink:#fe98a3;--red:#e53e3e;--green:#38a169;--shadow:.35rem .35rem 0 #222;font-family:'IBM Plex Mono',monospace;color:var(--text);background:#fff;font-synthesis:none}
 *{box-sizing:border-box}
-html,body,#root{max-width:100%;overflow-x:hidden}
+html,body,#root{max-width:100vw;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 body{margin:0;background-image:linear-gradient(#edf2f755 1px,transparent 1px),linear-gradient(90deg,#edf2f755 1px,transparent 1px);background-size:28px 28px}
 button,input{font:inherit}
 button,.button{min-height:38px;border:1.5px solid var(--ink);border-radius:8px;background:white;padding:6px 12px;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
@@ -226,23 +226,48 @@ th{background:var(--low);position:sticky;top:0}
 
 /* Responsive */
 @media(hover:none),(pointer:coarse){.cursor-dot,.cursor-trail{display:none!important}}
-@media(max-width:800px){
+@media(max-width:768px){
+  header{height:52px;padding:0 14px;gap:8px}
+  .brand-unsil{gap:0;min-width:0;font-size:.92rem;white-space:nowrap}
+  .brand-unsil .unsil-header-logo{width:auto!important;height:28px!important;margin-right:8px!important;filter:none}
+  .brand-unsil span{overflow:hidden;text-overflow:ellipsis}
+  header .badge{display:inline-block;padding:3px 8px;font-size:.65rem;white-space:nowrap}
+  header .session{display:none}
+  header .icon{min-width:36px;min-height:36px}
+  nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);z-index:100;justify-content:space-around;gap:0;background:rgba(255,255,255,.94);border-top:2px solid var(--ink);border-bottom:0;backdrop-filter:blur(8px)}
+  nav button{min-width:0;min-height:60px;flex:1;font-size:.68rem;flex-direction:column;gap:2px;padding:5px 2px;border:0;border-top:3px solid transparent}
+  nav button.active{border-top-color:var(--blue);border-bottom:0;background:var(--low)}
+  nav button svg{width:18px;height:18px}
+  main{width:100%;padding:14px 12px calc(80px + env(safe-area-inset-bottom));min-height:calc(100dvh - 52px)}
+  footer{margin-bottom:calc(60px + env(safe-area-inset-bottom))}
   .presets{grid-template-columns:1fr 1fr}
-  .arenaform .math-input{grid-column:1/-1}
-  header{padding:10px}
-  nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:58px;z-index:30}
-  nav button{min-width:0;flex:1;font-size:.62rem;flex-direction:column;gap:2px;padding:3px}
-  main{padding:16px 12px 75px}
-  .slide{aspect-ratio:auto;min-height:70vh;grid-template-columns:1fr}
-  .slide aside{display:none}
-  .slide>div:not(.progress){padding:20px}
-  .deckbar{flex-wrap:wrap}
-  .deckbar button{font-size:.7rem;padding:6px}
-  .drawer{inset:56px 0 58px 15%}
+  .slide,.slide.cover-slide{aspect-ratio:auto;min-height:auto;height:auto!important;grid-template-columns:1fr;overflow:visible;border-radius:12px}
+  .slide>div:not(.progress),.slide.cover-slide>div:not(.progress){padding:16px 14px}
+  .slide h1{font-size:1.35rem}
+  .slide ul{font-size:.82rem}
+  .slide aside{display:flex;border-left:0;border-top:2px solid var(--ink);padding:14px;gap:12px;background:var(--low);overflow:visible}
+  .slide-visual{padding:10px}
+  .slide-visual svg{max-height:120px}
+  .cover-members,.profiles{grid-template-columns:1fr;gap:8px}
+  .cover-members article{grid-template-columns:auto minmax(0,1fr);padding:9px 10px}
+  .cover-members .member-badge{grid-column:2}
+  .deckbar{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:8px}
+  .deckbar button{width:100%;font-size:.68rem;padding:6px 4px}
+  .drawer{inset:52px 0 calc(60px + env(safe-area-inset-bottom)) 0;width:100%;z-index:99;border-left:0;padding:14px;align-content:start}
+  .drawer button{min-height:44px}
   .labgrid{grid-template-columns:1fr}
-  .plot{height:280px}
+  .formgrid{grid-template-columns:1fr}
+  .math-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+  .math-tools button{width:100%;min-width:0;min-height:40px;padding:4px 2px;font-size:.72rem}
+  .plot{width:100%;height:260px}
+  .plottools button{min-width:40px;min-height:40px}
+  .play{flex-wrap:wrap;padding:10px;gap:6px}
+  .play input{flex-basis:calc(100% - 100px);min-width:120px}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tablehead{flex-wrap:wrap}
+  .tablehead h2{flex-basis:100%}
   .arenaform{grid-template-columns:1fr 1fr}
-  .arenaform label:nth-child(-n+2),.arenaform .primary{grid-column:1/-1}
+  .arenaform .math-input,.arenaform label:nth-child(-n+2),.arenaform .primary{grid-column:1/-1}
   .metrics,.glossary{grid-template-columns:1fr}
   .inspector{grid-template-columns:1fr}
   .pagehead{align-items:flex-start;gap:12px}
@@ -250,35 +275,32 @@ th{background:var(--low);position:sticky;top:0}
   .search{width:100%}
   .pagehead:has(.search){flex-direction:column}
   .search input{width:100%}
-  .slide.special{max-height:calc(100dvh - 220px);min-height:55dvh}
+  .team{padding:14px}
+  .team-identity{align-items:flex-start;padding:12px}
+  .glossary .katex-display{max-width:100%;overflow-x:auto}
+  .slide.special{max-height:none;min-height:auto;overflow:visible}
   .slide.special>div:not(.progress){padding:16px 14px}
+  .slide.special .katex-display,.quiz .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden}
   .step{min-height:130px;padding:12px}
-  .step-controls{position:sticky;bottom:0;background:white;padding:6px 0}
+  .step-controls{position:sticky;bottom:calc(60px + env(safe-area-inset-bottom));background:white;padding:6px 0;z-index:5}
   .step-controls button{font-size:.65rem;padding:6px}
   .options{grid-template-columns:1fr}
   .quiz article{padding:10px}
-  .slide h1{font-size:1.6rem}
-  .slide .katex-display{overflow-x:auto}
-  .formgrid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:700px){
-  .brand{font-size:.72rem}
   .brand .developer-logo{width:30px;height:30px}
-  .brand-unsil .unsil-header-logo{width:26px;height:26px}
-  .brand-unsil .brand-text{font-size:.78rem}
-  .cover-members,.profiles{grid-template-columns:1fr}
   .course{display:grid}
-  .cover-members article{grid-template-columns:auto minmax(0,1fr)}
-  .cover-members .member-badge{grid-column:2}
   .slide.special>div:not(.progress){padding:18px 12px}
   .step-controls{flex-direction:column}
-  .team-identity{padding:12px}
   .profiles article{min-width:0}
 }
 @media(max-width:430px){
-  header .badge{display:none}
+  header{padding-inline:8px;gap:5px}
+  .brand-unsil{font-size:.78rem}
+  header .badge{padding:3px 5px;font-size:.58rem}
   .cover-members article{padding:10px}
   footer{align-items:flex-start;flex-direction:column}
+  .math-tools{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media(prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;transition:none!important}
