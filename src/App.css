@@ -41,9 +41,11 @@ footer{display:flex;align-items:center;justify-content:center;padding:20px;backg
 .slide li::marker{color:var(--blue)}
 
 /* Slide Aside (Visual & Takeaway) */
-.slide aside{background:var(--low);border-left:2px solid var(--ink);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;overflow:hidden}
-.slide aside strong{font-size:0.95rem;line-height:1.45;color:var(--text);display:block;margin:6px 0}
-.slide aside small{font-size:0.75rem;color:var(--muted)}
+.slide aside{background:var(--low);border-left:2px solid var(--ink);padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;overflow:hidden}
+.slide-takeaway{background:white;border:2px solid var(--ink);border-radius:12px;padding:14px 16px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:8px}
+.takeaway-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.slide-takeaway strong{font-size:0.88rem;line-height:1.45;color:var(--text);display:block;margin:0;font-weight:600}
+.nav-hint{font-size:0.72rem;color:var(--muted);font-weight:500}
 .sticker{background:var(--yellow);border:1.5px solid var(--ink);border-radius:4px;padding:3px 8px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;width:max-content;display:inline-block;box-shadow:2px 2px 0 var(--ink)}
 
 /* Slide Visual SVGs */
