@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# Kelompok 4 - Metode Numerik (Kelas C)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**Mata Kuliah:** Metode Numerik (KP21517001)  
+**Program Studi:** Pendidikan Matematika, FKIP Universitas Siliwangi  
+**Pertemuan:** 05  
+**Topik:** Solusi Persamaan & Sistem Persamaan Nirlanjar (Newton-Raphson, Secant, & SPNL)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Anggota Kelompok 4
+1. **Ryan Wardiana** (NPM 232151098) - *Ketua / Lead*
+2. **Najla Aisyah** (NPM 232151087) - *Anggota*
+3. **Nabila Fitria Nuroktavianty Rosadi** (NPM 232151088) - *Anggota*
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Fitur Aplikasi Web Presentasi & Lab Interaktif
+1. **Interactive Slide Deck:** 18 slide terstruktur dengan derivasi rumus bertahap (Deret Taylor Orde-1, Beda Hingga Tali Busur, Matriks Jacobian SPNL, Teorema Kontraksi Titik Tetap).
+2. **Numerical Lab Simulator:** Simulator kanvas interaktif untuk menguji fungsi sembarang, melacak iterasi tabel, grafik kurva, dan ekspor CSV data hampiran.
+3. **Head-to-Head Arena:** Uji komparasi laju konvergensi antar metode secara bersamaan dengan grafik logaritmik galat.
+4. **Knowledge Base & Quiz:** Glosarium istilah numerik, daftar referensi pustaka ilmiah, kuis interaktif 3 babak, serta kartu profil tim.
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Menjalankan Secara Lokal
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Build produksi:
+```bash
+npm run build
+```
