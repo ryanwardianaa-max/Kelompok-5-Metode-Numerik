@@ -388,7 +388,7 @@ function Cover(){
    <strong>{identity.course}</strong>
    <span>{identity.code} · {identity.program}</span>
    <span>{identity.faculty}</span>
-   <div style={{marginTop:'8px',display:'inline-flex',gap:'8px',alignItems:'center'}}>
+   <div style={{marginTop:'8px',display:'flex',justifyContent:'center',gap:'8px',alignItems:'center'}}>
     <span style={{background:'rgba(5, 150, 105, 0.15)',color:'#059669',padding:'4px 12px',borderRadius:'9999px',fontWeight:800,fontSize:'0.82rem',letterSpacing:'0.04em'}}>
      {identity.group}
     </span>

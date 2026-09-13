@@ -83,10 +83,11 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .slide.cover-slide small{display:inline-block;margin-bottom:4px;letter-spacing:.15em;text-align:center}
 .slide.cover-slide h1{text-align:center;margin:0 0 14px 0;font-size:clamp(1.4rem,2.4vw,2.2rem);width:100%}
 .cover{max-width:760px;width:100%;margin:0 auto;display:grid;gap:12px}
-.course{display:grid;gap:3px;padding:10px 16px;border:2px solid var(--ink);border-radius:10px;background:#bee3f8;box-shadow:var(--shadow);line-height:1.35;text-align:left;font-size:.82rem}
+.course{display:grid;gap:4px;padding:12px 16px;border:2px solid var(--ink);border-radius:10px;background:#bee3f8;box-shadow:var(--shadow);line-height:1.35;text-align:center;justify-items:center;font-size:.82rem}
 .course strong{font-size:1rem}
 .cover-members{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .cover-members article{padding:8px 12px;border:2px solid var(--ink);border-radius:8px;box-shadow:2.5px 2.5px 0 var(--ink);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:left}
+.cover-members article:nth-child(3):last-child{grid-column:1 / span 2;width:100%;max-width:380px;justify-self:center}
 .cover-members article div{display:grid;gap:2px;min-width:0}
 .cover-members article strong{font-size:.88rem}
 .cover-members article span{font-size:.75rem}
@@ -204,6 +205,7 @@ th{background:var(--low);position:sticky;top:0}
 .team-identity strong{margin-top:2px;font-size:.88rem;color:var(--text)}
 .profiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .profiles article{padding:14px 18px;border:2px solid var(--ink);border-radius:10px;box-shadow:3px 3px 0 var(--ink);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+.profiles article:nth-child(3):last-child{grid-column:1 / span 2;width:100%;max-width:420px;justify-self:center}
 .profiles article div{display:flex;flex-direction:column;gap:3px;min-width:0}
 .profiles article strong{font-family:Comfortaa,sans-serif;font-size:1rem;font-weight:700}
 .profiles article span{font-size:.78rem;color:var(--muted)}
@@ -249,6 +251,7 @@ th{background:var(--low);position:sticky;top:0}
   .slide-visual{padding:10px}
   .slide-visual svg{max-height:120px}
   .cover-members,.profiles{grid-template-columns:1fr;gap:8px}
+  .cover-members article:nth-child(3):last-child,.profiles article:nth-child(3):last-child{grid-column:auto;max-width:100%}
   .cover-members article{grid-template-columns:auto minmax(0,1fr);padding:9px 10px}
   .cover-members .member-badge{grid-column:2}
   .deckbar{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:8px}
