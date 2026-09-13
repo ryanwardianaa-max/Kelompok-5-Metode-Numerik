@@ -560,235 +560,241 @@ function Lab(){
 
 function SlideVisual({index,score}:{index:number;score:number}){
  return <div className="slide-visual">
-  <svg viewBox="0 0 200 120" role="img" aria-label="Ilustrasi Visual Slide">
+  <svg viewBox="0 0 280 150" role="img" aria-label="Ilustrasi Visual Slide">
    {/* Slide 0: Cover SPL & LU */}
    {index===0&&<g>
-    <rect x="20" y="24" width="65" height="65" rx="8" fill="#bee3f8" stroke="#222" strokeWidth="2.5"/>
-    <text x="52" y="63" textAnchor="middle" fontWeight="800" fontSize="24" fill="#1e3a8a">L</text>
-    <text x="100" y="62" textAnchor="middle" fontWeight="800" fontSize="22" fill="#222">×</text>
-    <rect x="115" y="24" width="65" height="65" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2.5"/>
-    <text x="147" y="63" textAnchor="middle" fontWeight="800" fontSize="24" fill="#065f46">U</text>
-    <rect x="55" y="96" width="90" height="20" rx="6" fill="#feebc8" stroke="#222" strokeWidth="1.5"/>
-    <text x="100" y="110" textAnchor="middle" fontWeight="800" fontSize="10" fill="#7c2d12">A = L · U</text>
+    <rect x="35" y="20" width="85" height="75" rx="8" fill="#bee3f8" stroke="#222" strokeWidth="2.5"/>
+    <text x="77" y="66" textAnchor="middle" fontSize="28" fill="#1e3a8a">L</text>
+    <text x="140" y="65" textAnchor="middle" fontSize="24" fill="#222">×</text>
+    <rect x="160" y="20" width="85" height="75" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2.5"/>
+    <text x="202" y="66" textAnchor="middle" fontSize="28" fill="#065f46">U</text>
+    <rect x="75" y="110" width="130" height="28" rx="6" fill="#feebc8" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="128" textAnchor="middle" fontSize="13" fill="#7c2d12">A = L · U</text>
    </g>}
 
    {/* Slide 1: Mengapa SPL? Ax = b */}
    {index===1&&<g>
-    <rect x="15" y="20" width="75" height="80" rx="6" fill="#f8fafc" stroke="#222" strokeWidth="2"/>
-    <text x="52" y="44" textAnchor="middle" fontWeight="800" fontSize="12" fill="#1e3a8a">Matriks A</text>
-    <circle cx="34" cy="65" r="4" fill="#3b82f6"/><circle cx="52" cy="65" r="4" fill="#3b82f6"/><circle cx="70" cy="65" r="4" fill="#3b82f6"/>
-    <circle cx="34" cy="82" r="4" fill="#3b82f6"/><circle cx="52" cy="82" r="4" fill="#3b82f6"/><circle cx="70" cy="82" r="4" fill="#3b82f6"/>
-    <text x="100" y="66" textAnchor="middle" fontWeight="800" fontSize="16" fill="#222">·</text>
-    <rect x="110" y="20" width="30" height="80" rx="6" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
-    <text x="125" y="65" textAnchor="middle" fontWeight="800" fontSize="14" fill="#047857">x</text>
-    <text x="150" y="66" textAnchor="middle" fontWeight="800" fontSize="16" fill="#222">=</text>
-    <rect x="160" y="20" width="30" height="80" rx="6" fill="#fef3c7" stroke="#222" strokeWidth="2"/>
-    <text x="175" y="65" textAnchor="middle" fontWeight="800" fontSize="14" fill="#b45309">b</text>
+    <rect x="25" y="20" width="95" height="100" rx="8" fill="#f8fafc" stroke="#222" strokeWidth="2"/>
+    <text x="72" y="44" textAnchor="middle" fontSize="12" fill="#1e3a8a">Matriks A</text>
+    <circle cx="48" cy="68" r="5" fill="#3b82f6"/><circle cx="72" cy="68" r="5" fill="#3b82f6"/><circle cx="96" cy="68" r="5" fill="#3b82f6"/>
+    <circle cx="48" cy="94" r="5" fill="#3b82f6"/><circle cx="72" cy="94" r="5" fill="#3b82f6"/><circle cx="96" cy="94" r="5" fill="#3b82f6"/>
+    <text x="135" y="75" textAnchor="middle" fontSize="20" fill="#222">·</text>
+    <rect x="150" y="20" width="40" height="100" rx="8" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
+    <text x="170" y="74" textAnchor="middle" fontSize="16" fill="#047857">x</text>
+    <text x="205" y="75" textAnchor="middle" fontSize="18" fill="#222">=</text>
+    <rect x="220" y="20" width="40" height="100" rx="8" fill="#fef3c7" stroke="#222" strokeWidth="2"/>
+    <text x="240" y="74" textAnchor="middle" fontSize="16" fill="#b45309">b</text>
    </g>}
 
    {/* Slide 2: Kelemahan Gauss Naif - Poros Nol & Error */}
    {index===2&&<g>
-    <circle cx="100" cy="55" r="42" fill="#fee2e2" stroke="#dc2626" strokeWidth="2.5"/>
-    <path d="M 100 28 L 100 62" stroke="#b91c1c" strokeWidth="4.5" strokeLinecap="round"/>
-    <circle cx="100" cy="74" r="3.5" fill="#b91c1c"/>
-    <rect x="35" y="96" width="130" height="20" rx="5" fill="#ef4444" stroke="#222" strokeWidth="1.5"/>
-    <text x="100" y="110" textAnchor="middle" fontWeight="800" fontSize="10.5" fill="#fff">a_kk = 0 (DIV BY ZERO)</text>
+    <circle cx="140" cy="55" r="42" fill="#fee2e2" stroke="#dc2626" strokeWidth="2.5"/>
+    <path d="M 140 28 L 140 62" stroke="#b91c1c" strokeWidth="5" strokeLinecap="round"/>
+    <circle cx="140" cy="74" r="4" fill="#b91c1c"/>
+    <rect x="35" y="112" width="210" height="26" rx="6" fill="#ef4444" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="129" textAnchor="middle" fontSize="11" fill="#fff">Poros a_kk = 0 (Pembagian Nol)</text>
    </g>}
 
    {/* Slide 3: Tata Ancang Pivoting Sebagian */}
    {index===3&&<g>
-    <rect x="25" y="22" width="150" height="30" rx="6" fill="#fed7aa" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="42" textAnchor="middle" fontWeight="800" fontSize="11" fill="#7c2d12">Baris R_k (Poros Kecil)</text>
-    <path d="M 60 56 Q 50 68 60 80" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
-    <polygon points="63,77 60,84 55,79" fill="#ea580c"/>
-    <path d="M 140 80 Q 150 68 140 56" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
-    <polygon points="137,59 140,52 145,57" fill="#ea580c"/>
-    <text x="100" y="72" textAnchor="middle" fontWeight="800" fontSize="12" fill="#ea580c">TUKAR R_k ↔ R_p</text>
-    <rect x="25" y="86" width="150" height="30" rx="6" fill="#bbf7d0" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="106" textAnchor="middle" fontWeight="800" fontSize="11" fill="#14532d">Baris R_p (Max |a_ik| ★)</text>
+    <rect x="30" y="15" width="220" height="36" rx="8" fill="#fed7aa" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="38" textAnchor="middle" fontSize="12" fill="#7c2d12">Baris R_k (Poros Kecil)</text>
+    <path d="M 55 58 Q 45 74 55 90" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
+    <polygon points="58,87 55,94 50,89" fill="#ea580c"/>
+    <path d="M 225 90 Q 235 74 225 58" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
+    <polygon points="222,61 225,54 230,59" fill="#ea580c"/>
+    <text x="140" y="78" textAnchor="middle" fontSize="12" fill="#ea580c">TUKAR BARIS R_k ↔ R_p</text>
+    <rect x="30" y="98" width="220" height="36" rx="8" fill="#bbf7d0" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="121" textAnchor="middle" fontSize="12" fill="#14532d">Baris R_p (Max |a_ik|)</text>
    </g>}
 
    {/* Slide 4: Eliminasi Maju Menuju Segitiga Atas */}
    {index===4&&<g>
-    <rect x="30" y="15" width="140" height="90" rx="8" fill="#f8fafc" stroke="#222" strokeWidth="2"/>
-    <polygon points="32,17 168,17 168,103" fill="rgba(59, 130, 246, 0.25)"/>
-    <polygon points="32,19 32,103 166,103" fill="rgba(16, 185, 129, 0.25)"/>
-    <line x1="32" y1="17" x2="168" y2="103" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="4,3"/>
-    <text x="135" y="45" textAnchor="middle" fontWeight="800" fontSize="14" fill="#1e3a8a">u_ij</text>
-    <text x="65" y="88" textAnchor="middle" fontWeight="800" fontSize="16" fill="#047857">0 0 0</text>
-    <rect x="40" y="98" width="120" height="18" rx="4" fill="#059669" stroke="#222" strokeWidth="1"/>
-    <text x="100" y="111" textAnchor="middle" fontWeight="800" fontSize="9" fill="#fff">Segitiga Bawah Nol</text>
+    <rect x="40" y="12" width="200" height="100" rx="8" fill="#f8fafc" stroke="#222" strokeWidth="2"/>
+    <polygon points="42,14 238,14 238,110" fill="rgba(59, 130, 246, 0.25)"/>
+    <polygon points="42,16 42,110 236,110" fill="rgba(16, 185, 129, 0.25)"/>
+    <line x1="42" y1="14" x2="238" y2="110" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="5,4"/>
+    <text x="180" y="50" textAnchor="middle" fontSize="15" fill="#1e3a8a">u_ij</text>
+    <text x="95" y="92" textAnchor="middle" fontSize="17" fill="#047857">0 0 0</text>
+    <rect x="50" y="120" width="180" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="136" textAnchor="middle" fontSize="11" fill="#fff">Segitiga Bawah = Nol</text>
    </g>}
 
    {/* Slide 5: Contoh Eliminasi Gauss Modifikasi */}
    {index===5&&<g>
-    <rect x="15" y="18" width="75" height="75" rx="6" fill="#f1f5f9" stroke="#222" strokeWidth="2"/>
-    <text x="52" y="38" textAnchor="middle" fontWeight="800" fontSize="11" fill="#334155">[ A | b ]</text>
-    <line x1="62" y1="24" x2="62" y2="86" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="3,2"/>
-    <path d="M 98 55 L 115 55" stroke="#2563eb" strokeWidth="3" strokeLinecap="round"/>
-    <polygon points="113,50 122,55 113,60" fill="#2563eb"/>
-    <rect x="125" y="18" width="65" height="75" rx="6" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
-    <text x="157" y="38" textAnchor="middle" fontWeight="800" fontSize="11" fill="#047857">[ U | b' ]</text>
-    <polygon points="127,70 127,91 160,91" fill="#a7f3d0"/>
-    <text x="140" y="86" textAnchor="middle" fontWeight="800" fontSize="10" fill="#065f46">0</text>
-    <text x="100" y="110" textAnchor="middle" fontWeight="800" fontSize="10" fill="#1e293b">Substitusi Mundur</text>
+    <rect x="20" y="15" width="95" height="95" rx="8" fill="#f1f5f9" stroke="#222" strokeWidth="2"/>
+    <text x="67" y="40" textAnchor="middle" fontSize="13" fill="#334155">[ A | b ]</text>
+    <line x1="80" y1="22" x2="80" y2="102" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="3,2"/>
+    <path d="M 125 62 L 145 62" stroke="#2563eb" strokeWidth="3" strokeLinecap="round"/>
+    <polygon points="143,57 152,62 143,67" fill="#2563eb"/>
+    <rect x="160" y="15" width="95" height="95" rx="8" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
+    <text x="207" y="40" textAnchor="middle" fontSize="13" fill="#047857">[ U | b' ]</text>
+    <polygon points="162,75 162,108 215,108" fill="#a7f3d0"/>
+    <text x="185" y="98" textAnchor="middle" fontSize="13" fill="#065f46">0</text>
+    <rect x="50" y="120" width="180" height="24" rx="5" fill="#1e293b" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="136" textAnchor="middle" fontSize="11" fill="#fff">Substitusi Mundur</text>
    </g>}
 
    {/* Slide 6: Filosofi Dekomposisi LU */}
    {index===6&&<g>
-    <rect x="25" y="25" width="55" height="70" rx="6" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
-    <text x="52" y="65" textAnchor="middle" fontWeight="800" fontSize="20" fill="#991b1b">A</text>
-    <text x="92" y="64" textAnchor="middle" fontWeight="800" fontSize="18" fill="#222">=</text>
-    <polygon points="105,95 105,25 135,95" fill="#bee3f8" stroke="#222" strokeWidth="2"/>
-    <text x="116" y="75" textAnchor="middle" fontWeight="800" fontSize="16" fill="#1e3a8a">L</text>
-    <text x="146" y="64" textAnchor="middle" fontWeight="800" fontSize="16" fill="#222">·</text>
-    <polygon points="155,25 185,25 185,95" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
-    <text x="174" y="50" textAnchor="middle" fontWeight="800" fontSize="16" fill="#065f46">U</text>
-    <rect x="40" y="100" width="120" height="17" rx="4" fill="#312e81" stroke="#222" strokeWidth="1"/>
-    <text x="100" y="112" textAnchor="middle" fontWeight="700" fontSize="9" fill="#fff">Modular 2 Keping Segitiga</text>
+    <rect x="25" y="20" width="65" height="85" rx="8" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
+    <text x="57" y="70" textAnchor="middle" fontSize="24" fill="#991b1b">A</text>
+    <text x="105" y="68" textAnchor="middle" fontSize="20" fill="#222">=</text>
+    <polygon points="120,105 120,20 160,105" fill="#bee3f8" stroke="#222" strokeWidth="2"/>
+    <text x="135" y="80" textAnchor="middle" fontSize="18" fill="#1e3a8a">L</text>
+    <text x="175" y="68" textAnchor="middle" fontSize="20" fill="#222">·</text>
+    <polygon points="190,20 230,20 230,105" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
+    <text x="215" y="55" textAnchor="middle" fontSize="18" fill="#065f46">U</text>
+    <rect x="35" y="118" width="210" height="26" rx="6" fill="#1e3a8a" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="135" textAnchor="middle" fontSize="11" fill="#fff">Dua Modul Segitiga L dan U</text>
    </g>}
 
    {/* Slide 7: Keunggulan LU (O(n3) vs O(n2)) */}
    {index===7&&<g>
-    <rect x="25" y="20" width="55" height="85" rx="6" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
-    <text x="52" y="42" textAnchor="middle" fontWeight="800" fontSize="12" fill="#b91c1c">Gauss</text>
-    <text x="52" y="68" textAnchor="middle" fontWeight="800" fontSize="16" fill="#b91c1c">O(n³)</text>
-    <small><text x="52" y="90" textAnchor="middle" fontSize="8" fill="#7f1d1d">Ulang Total</text></small>
-    <text x="100" y="62" textAnchor="middle" fontWeight="800" fontSize="14" fill="#059669">VS</text>
-    <rect x="120" y="45" width="55" height="60" rx="6" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
-    <text x="147" y="65" textAnchor="middle" fontWeight="800" fontSize="12" fill="#047857">LU Sub</text>
-    <text x="147" y="85" textAnchor="middle" fontWeight="800" fontSize="16" fill="#047857">O(n²)</text>
-    <text x="147" y="98" textAnchor="middle" fontSize="8" fill="#064e3b">⚡ Cepat!</text>
+    <rect x="35" y="20" width="85" height="95" rx="8" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
+    <text x="77" y="48" textAnchor="middle" fontSize="13" fill="#b91c1c">Gauss</text>
+    <text x="77" y="78" textAnchor="middle" fontSize="20" fill="#b91c1c">O(n³)</text>
+    <text x="77" y="100" textAnchor="middle" fontSize="9" fill="#7f1d1d">Ulang Total</text>
+    <text x="140" y="68" textAnchor="middle" fontSize="16" fill="#059669">VS</text>
+    <rect x="160" y="38" width="85" height="77" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
+    <text x="202" y="62" textAnchor="middle" fontSize="13" fill="#047857">LU Sub</text>
+    <text x="202" y="88" textAnchor="middle" fontSize="18" fill="#047857">O(n²)</text>
+    <rect x="165" y="122" width="75" height="22" rx="5" fill="#059669" stroke="#222" strokeWidth="1"/>
+    <text x="202" y="137" textAnchor="middle" fontSize="11" fill="#fff">⚡ Cepat!</text>
    </g>}
 
    {/* Slide 8: Metode LU Gauss (Doolittle l_ii = 1) */}
    {index===8&&<g>
-    <rect x="45" y="18" width="110" height="80" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="36" textAnchor="middle" fontWeight="800" fontSize="11" fill="#065f46">Matriks L (Doolittle)</text>
-    <text x="65" y="58" fontWeight="800" fontSize="13" fill="#047857">1</text>
-    <text x="95" y="58" fontSize="13" fill="#94a3b8">0</text>
-    <text x="125" y="58" fontSize="13" fill="#94a3b8">0</text>
-    <text x="60" y="76" fontSize="11" fill="#ea580c">m₂₁</text>
-    <text x="95" y="76" fontWeight="800" fontSize="13" fill="#047857">1</text>
-    <text x="125" y="76" fontSize="13" fill="#94a3b8">0</text>
-    <text x="60" y="92" fontSize="11" fill="#ea580c">m₃₁</text>
-    <text x="90" y="92" fontSize="11" fill="#ea580c">m₃₂</text>
-    <text x="125" y="92" fontWeight="800" fontSize="13" fill="#047857">1</text>
-    <line x1="60" y1="48" x2="132" y2="95" stroke="#10b981" strokeWidth="2" strokeDasharray="3,2"/>
+    <rect x="35" y="8" width="210" height="134" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="28" textAnchor="middle" fontSize="12" fill="#065f46">Matriks Segitiga Bawah L</text>
+    <text x="80" y="58" fontSize="15" fill="#047857">1</text>
+    <text x="140" y="58" fontSize="15" fill="#94a3b8">0</text>
+    <text x="200" y="58" fontSize="15" fill="#94a3b8">0</text>
+    <text x="70" y="88" fontSize="13" fill="#ea580c">m₂₁</text>
+    <text x="140" y="88" fontSize="15" fill="#047857">1</text>
+    <text x="200" y="88" fontSize="15" fill="#94a3b8">0</text>
+    <text x="70" y="118" fontSize="13" fill="#ea580c">m₃₁</text>
+    <text x="130" y="118" fontSize="13" fill="#ea580c">m₃₂</text>
+    <text x="200" y="118" fontSize="15" fill="#047857">1</text>
+    <line x1="75" y1="46" x2="208" y2="124" stroke="#10b981" strokeWidth="2" strokeDasharray="4,3"/>
    </g>}
 
    {/* Slide 9: Struktur L dan U Sempurna */}
    {index===9&&<g>
-    <rect x="35" y="18" width="130" height="85" rx="8" fill="#fff" stroke="#222" strokeWidth="2.5"/>
-    <polygon points="37,20 163,20 163,101" fill="rgba(59, 130, 246, 0.3)"/>
-    <polygon points="37,22 37,101 161,101" fill="rgba(16, 185, 129, 0.3)"/>
-    <line x1="37" y1="20" x2="163" y2="101" stroke="#f59e0b" strokeWidth="2.5"/>
-    <text x="125" y="50" fontWeight="800" fontSize="18" fill="#1e3a8a">U</text>
-    <text x="65" y="80" fontWeight="800" fontSize="18" fill="#047857">L</text>
-    <rect x="50" y="98" width="100" height="18" rx="4" fill="#0f172a" stroke="#222" strokeWidth="1"/>
-    <text x="100" y="111" textAnchor="middle" fontWeight="700" fontSize="9" fill="#fff">A = L · U Tepat</text>
+    <rect x="45" y="15" width="190" height="98" rx="8" fill="#fff" stroke="#222" strokeWidth="2.5"/>
+    <polygon points="47,17 233,17 233,111" fill="rgba(59, 130, 246, 0.3)"/>
+    <polygon points="47,19 47,111 231,111" fill="rgba(16, 185, 129, 0.3)"/>
+    <line x1="47" y1="17" x2="233" y2="111" stroke="#f59e0b" strokeWidth="2.5"/>
+    <text x="180" y="55" fontSize="24" fill="#1e3a8a">U</text>
+    <text x="95" y="90" fontSize="24" fill="#047857">L</text>
+    <rect x="50" y="120" width="180" height="24" rx="5" fill="#0f172a" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="136" textAnchor="middle" fontSize="11" fill="#fff">A = L · U Terpenuhi</text>
    </g>}
 
    {/* Slide 10: Tahap 1 Substitusi Maju Ly = b */}
    {index===10&&<g>
-    <rect x="30" y="18" width="140" height="85" rx="8" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="38" textAnchor="middle" fontWeight="800" fontSize="12" fill="#065f46">Tahap 1: L · y = b</text>
-    <circle cx="55" cy="62" r="14" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
-    <text x="55" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#065f46">y₁</text>
-    <path d="M 72 62 L 88 62" stroke="#047857" strokeWidth="2.5" strokeLinecap="round"/>
-    <circle cx="105" cy="62" r="14" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
-    <text x="105" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#065f46">y₂</text>
-    <path d="M 122 62 L 138 62" stroke="#047857" strokeWidth="2.5" strokeLinecap="round"/>
-    <circle cx="155" cy="62" r="14" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
-    <text x="155" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#065f46">y₃</text>
-    <text x="100" y="94" textAnchor="middle" fontWeight="700" fontSize="10" fill="#047857">Alur Mengalir Maju (Atas ke Bawah)</text>
+    <rect x="25" y="10" width="230" height="130" rx="10" fill="#ecfdf5" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="34" textAnchor="middle" fontSize="13" fill="#065f46">Tahap 1: L · y = b</text>
+    <circle cx="65" cy="72" r="18" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
+    <text x="65" y="78" textAnchor="middle" fontSize="14" fill="#065f46">y₁</text>
+    <path d="M 88 72 L 112 72" stroke="#047857" strokeWidth="3" strokeLinecap="round"/>
+    <polygon points="109,67 118,72 109,77" fill="#047857"/>
+    <circle cx="140" cy="72" r="18" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
+    <text x="140" y="78" textAnchor="middle" fontSize="14" fill="#065f46">y₂</text>
+    <path d="M 163 72 L 187 72" stroke="#047857" strokeWidth="3" strokeLinecap="round"/>
+    <polygon points="184,67 193,72 184,77" fill="#047857"/>
+    <circle cx="215" cy="72" r="18" fill="#a7f3d0" stroke="#047857" strokeWidth="2"/>
+    <text x="215" y="78" textAnchor="middle" fontSize="14" fill="#065f46">y₃</text>
+    <text x="140" y="122" textAnchor="middle" fontSize="11" fill="#047857">Substitusi Maju (Atas ke Bawah)</text>
    </g>}
 
    {/* Slide 11: Tahap 2 Substitusi Mundur Ux = y */}
    {index===11&&<g>
-    <rect x="30" y="18" width="140" height="85" rx="8" fill="#eff6ff" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="38" textAnchor="middle" fontWeight="800" fontSize="12" fill="#1e3a8a">Tahap 2: U · x = y</text>
-    <circle cx="55" cy="62" r="14" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
-    <text x="55" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#1e3a8a">x₁</text>
-    <path d="M 88 62 L 72 62" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round"/>
-    <circle cx="105" cy="62" r="14" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
-    <text x="105" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#1e3a8a">x₂</text>
-    <path d="M 138 62 L 122 62" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round"/>
-    <circle cx="155" cy="62" r="14" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
-    <text x="155" y="67" textAnchor="middle" fontWeight="800" fontSize="11" fill="#1e3a8a">x₃</text>
-    <text x="100" y="94" textAnchor="middle" fontWeight="700" fontSize="10" fill="#1e40af">Alur Naik Mundur (Bawah ke Atas)</text>
+    <rect x="25" y="10" width="230" height="130" rx="10" fill="#eff6ff" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="34" textAnchor="middle" fontSize="13" fill="#1e3a8a">Tahap 2: U · x = y</text>
+    <circle cx="65" cy="72" r="18" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
+    <text x="65" y="78" textAnchor="middle" fontSize="14" fill="#1e3a8a">x₁</text>
+    <path d="M 112 72 L 88 72" stroke="#1d4ed8" strokeWidth="3" strokeLinecap="round"/>
+    <polygon points="91,67 82,72 91,77" fill="#1d4ed8"/>
+    <circle cx="140" cy="72" r="18" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
+    <text x="140" y="78" textAnchor="middle" fontSize="14" fill="#1e3a8a">x₂</text>
+    <path d="M 187 72 L 163 72" stroke="#1d4ed8" strokeWidth="3" strokeLinecap="round"/>
+    <polygon points="166,67 157,72 166,77" fill="#1d4ed8"/>
+    <circle cx="215" cy="72" r="18" fill="#bfdbfe" stroke="#1d4ed8" strokeWidth="2"/>
+    <text x="215" y="78" textAnchor="middle" fontSize="14" fill="#1e3a8a">x₃</text>
+    <text x="140" y="122" textAnchor="middle" fontSize="11" fill="#1e40af">Substitusi Mundur (Bawah ke Atas)</text>
    </g>}
 
    {/* Slide 12: Contoh Lengkap 3x3 */}
    {index===12&&<g>
-    <rect x="15" y="20" width="75" height="40" rx="6" fill="#d1fae5" stroke="#222" strokeWidth="1.5"/>
-    <text x="52" y="38" textAnchor="middle" fontWeight="800" fontSize="10" fill="#065f46">L · y = b</text>
-    <text x="52" y="52" textAnchor="middle" fontWeight="700" fontSize="9" fill="#047857">y = [5, -12, 2]</text>
-    <path d="M 95 40 L 105 40 L 105 75 L 115 75" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round"/>
-    <rect x="110" y="65" width="75" height="40" rx="6" fill="#dbeafe" stroke="#222" strokeWidth="1.5"/>
-    <text x="147" y="83" textAnchor="middle" fontWeight="800" fontSize="10" fill="#1e40af">U · x = y</text>
-    <text x="147" y="97" textAnchor="middle" fontWeight="700" fontSize="9" fill="#1d4ed8">x = [1, 1, 2] ★</text>
+    <rect x="20" y="15" width="105" height="50" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
+    <text x="72" y="38" textAnchor="middle" fontSize="12" fill="#065f46">L · y = b</text>
+    <text x="72" y="55" textAnchor="middle" fontSize="10" fill="#047857">y = [5, -12, 2]</text>
+    <path d="M 130 40 L 145 40 L 145 95 L 155 95" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round"/>
+    <rect x="155" y="70" width="105" height="50" rx="8" fill="#dbeafe" stroke="#222" strokeWidth="2"/>
+    <text x="207" y="93" textAnchor="middle" fontSize="12" fill="#1e40af">U · x = y</text>
+    <text x="207" y="110" textAnchor="middle" fontSize="10" fill="#1d4ed8">x = [1, 1, 2] ★</text>
    </g>}
 
    {/* Slide 13: Verifikasi Residu r = Ax - b */}
    {index===13&&<g>
-    <circle cx="100" cy="55" r="42" fill="#ecfdf5" stroke="#059669" strokeWidth="2.5"/>
-    <circle cx="100" cy="55" r="28" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5"/>
-    <circle cx="100" cy="55" r="14" fill="#34d399"/>
-    <path d="M 90 55 L 97 62 L 112 47" stroke="#064e3b" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-    <rect x="35" y="98" width="130" height="18" rx="4" fill="#059669" stroke="#222" strokeWidth="1"/>
-    <text x="100" y="111" textAnchor="middle" fontWeight="800" fontSize="9.5" fill="#fff">r = Ax - b ≈ 0 (VALID)</text>
+    <circle cx="140" cy="55" r="45" fill="#ecfdf5" stroke="#059669" strokeWidth="2.5"/>
+    <circle cx="140" cy="55" r="30" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5"/>
+    <circle cx="140" cy="55" r="15" fill="#34d399"/>
+    <path d="M 130 55 L 137 62 L 152 47" stroke="#064e3b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <rect x="40" y="115" width="200" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="131" textAnchor="middle" fontSize="11" fill="#fff">r = Ax - b ≈ 0 (VALID)</text>
    </g>}
 
    {/* Slide 14: Perbandingan Karakteristik Metode */}
    {index===14&&<g>
-    <rect x="15" y="20" width="50" height="75" rx="5" fill="#fee2e2" stroke="#222" strokeWidth="1.5"/>
-    <text x="40" y="38" textAnchor="middle" fontWeight="800" fontSize="9" fill="#991b1b">Naif</text>
-    <text x="40" y="60" textAnchor="middle" fontSize="18">⚠️</text>
-    <text x="40" y="85" textAnchor="middle" fontSize="8" fill="#7f1d1d">Rawan 0</text>
-    <rect x="75" y="20" width="50" height="75" rx="5" fill="#fef3c7" stroke="#222" strokeWidth="1.5"/>
-    <text x="100" y="38" textAnchor="middle" fontWeight="800" fontSize="9" fill="#92400e">Pivoting</text>
-    <text x="100" y="60" textAnchor="middle" fontSize="18">⚖️</text>
-    <text x="100" y="85" textAnchor="middle" fontSize="8" fill="#78350f">Stabil</text>
-    <rect x="135" y="20" width="50" height="75" rx="5" fill="#d1fae5" stroke="#222" strokeWidth="1.5"/>
-    <text x="160" y="38" textAnchor="middle" fontWeight="800" fontSize="9" fill="#065f46">LU</text>
-    <text x="160" y="60" textAnchor="middle" fontSize="18">🚀</text>
-    <text x="160" y="85" textAnchor="middle" fontSize="8" fill="#064e3b">Multi-b</text>
+    <rect x="20" y="20" width="70" height="95" rx="6" fill="#fee2e2" stroke="#222" strokeWidth="1.5"/>
+    <text x="55" y="44" textAnchor="middle" fontSize="11" fill="#991b1b">Naif</text>
+    <text x="55" y="75" textAnchor="middle" fontSize="24">⚠️</text>
+    <text x="55" y="102" textAnchor="middle" fontSize="9" fill="#7f1d1d">Rawan 0</text>
+    <rect x="105" y="20" width="70" height="95" rx="6" fill="#fef3c7" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="44" textAnchor="middle" fontSize="11" fill="#92400e">Pivoting</text>
+    <text x="140" y="75" textAnchor="middle" fontSize="24">⚖️</text>
+    <text x="140" y="102" textAnchor="middle" fontSize="9" fill="#78350f">Stabil</text>
+    <rect x="190" y="20" width="70" height="95" rx="6" fill="#d1fae5" stroke="#222" strokeWidth="1.5"/>
+    <text x="225" y="44" textAnchor="middle" fontSize="11" fill="#065f46">LU</text>
+    <text x="225" y="75" textAnchor="middle" fontSize="24">🚀</text>
+    <text x="225" y="102" textAnchor="middle" fontSize="9" fill="#064e3b">Multi-b</text>
    </g>}
 
    {/* Slide 15: Rangkuman & Glosarium Konsep Kunci */}
    {index===15&&<g>
-    <rect x="35" y="20" width="130" height="80" rx="8" fill="#fdf4ff" stroke="#222" strokeWidth="2"/>
-    <circle cx="70" cy="50" r="18" fill="#f5d0fe" stroke="#86198f" strokeWidth="2"/>
-    <text x="70" y="56" textAnchor="middle" fontWeight="800" fontSize="15" fill="#86198f">Σ</text>
-    <circle cx="130" cy="50" r="18" fill="#fed7aa" stroke="#c2410c" strokeWidth="2"/>
-    <text x="130" y="56" textAnchor="middle" fontWeight="800" fontSize="15" fill="#c2410c">LU</text>
-    <rect x="45" y="82" width="110" height="15" rx="4" fill="#a21caf"/>
-    <text x="100" y="93" textAnchor="middle" fontWeight="800" fontSize="8.5" fill="#fff">Fondasi Linear Numerik</text>
+    <rect x="35" y="15" width="210" height="90" rx="8" fill="#fdf4ff" stroke="#222" strokeWidth="2"/>
+    <circle cx="85" cy="50" r="22" fill="#f5d0fe" stroke="#86198f" strokeWidth="2"/>
+    <text x="85" y="57" textAnchor="middle" fontSize="18" fill="#86198f">Σ</text>
+    <circle cx="195" cy="50" r="22" fill="#fed7aa" stroke="#c2410c" strokeWidth="2"/>
+    <text x="195" y="57" textAnchor="middle" fontSize="16" fill="#c2410c">LU</text>
+    <rect x="45" y="115" width="190" height="24" rx="5" fill="#a21caf"/>
+    <text x="140" y="131" textAnchor="middle" fontSize="10.5" fill="#fff">Fondasi Linear Numerik</text>
    </g>}
 
    {/* Slide 16: Skor Kuis */}
    {index===16&&<g>
-    <circle cx="100" cy="55" r="42" fill="#fef3c7" stroke="#222" strokeWidth="2.5"/>
-    <circle cx="100" cy="55" r="32" fill="#faae2b" stroke="#222" strokeWidth="1.5"/>
-    <text x="100" y="48" textAnchor="middle" fontWeight="800" fontSize="12" fill="#78350f">SKOR KUIS</text>
-    <text x="100" y="70" textAnchor="middle" fontWeight="800" fontSize="20" fill="#222">{score} / 3</text>
-    <text x="100" y="110" textAnchor="middle" fontWeight="800" fontSize="10" fill="#ea580c">Evaluasi Materi Kelompok</text>
+    <circle cx="140" cy="58" r="48" fill="#fef3c7" stroke="#222" strokeWidth="2.5"/>
+    <circle cx="140" cy="58" r="38" fill="#faae2b" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="50" textAnchor="middle" fontSize="13" fill="#78350f">SKOR KUIS</text>
+    <text x="140" y="76" textAnchor="middle" fontSize="24" fill="#222">{score} / 3</text>
+    <text x="140" y="128" textAnchor="middle" fontSize="12" fill="#ea580c">Evaluasi Materi Kelompok</text>
    </g>}
 
    {/* Slide 17: Penutup & Pembagian Peran Tim */}
    {index===17&&<g>
-    <rect x="20" y="25" width="48" height="65" rx="6" fill="#feebc8" stroke="#222" strokeWidth="2"/>
-    <text x="44" y="55" textAnchor="middle" fontSize="20">👨‍💻</text>
-    <text x="44" y="78" textAnchor="middle" fontWeight="800" fontSize="8" fill="#7c2d12">Ryan</text>
-    <rect x="76" y="25" width="48" height="65" rx="6" fill="#ffbdc4" stroke="#222" strokeWidth="2"/>
-    <text x="100" y="55" textAnchor="middle" fontSize="20">👩‍🏫</text>
-    <text x="100" y="78" textAnchor="middle" fontWeight="800" fontSize="8" fill="#831843">Najla</text>
-    <rect x="132" y="25" width="48" height="65" rx="6" fill="#bee3f8" stroke="#222" strokeWidth="2"/>
-    <text x="156" y="55" textAnchor="middle" fontSize="20">👩‍💼</text>
-    <text x="156" y="78" textAnchor="middle" fontWeight="800" fontSize="8" fill="#1e3a8a">Nabila</text>
-    <rect x="35" y="98" width="130" height="18" rx="4" fill="#059669" stroke="#222" strokeWidth="1"/>
-    <text x="100" y="111" textAnchor="middle" fontWeight="800" fontSize="9.5" fill="#fff">Kelompok 4 Siap Presentasi</text>
+    <rect x="25" y="20" width="65" height="85" rx="8" fill="#feebc8" stroke="#222" strokeWidth="2"/>
+    <text x="57" y="55" textAnchor="middle" fontSize="24">👨‍💻</text>
+    <text x="57" y="85" textAnchor="middle" fontSize="11" fill="#7c2d12">Ryan</text>
+    <rect x="107" y="20" width="65" height="85" rx="8" fill="#ffbdc4" stroke="#222" strokeWidth="2"/>
+    <text x="140" y="55" textAnchor="middle" fontSize="24">👩‍🏫</text>
+    <text x="140" y="85" textAnchor="middle" fontSize="11" fill="#831843">Najla</text>
+    <rect x="190" y="20" width="65" height="85" rx="8" fill="#bee3f8" stroke="#222" strokeWidth="2"/>
+    <text x="222" y="55" textAnchor="middle" fontSize="24">👩‍💼</text>
+    <text x="222" y="85" textAnchor="middle" fontSize="11" fill="#1e3a8a">Nabila</text>
+    <rect x="35" y="118" width="210" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1"/>
+    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">Kelompok 4 Siap Presentasi</text>
    </g>}
   </svg>
  </div>
