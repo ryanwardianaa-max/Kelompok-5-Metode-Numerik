@@ -3,7 +3,7 @@
 **Tanggal:** Kamis, 10 September 2026  
 **Mata Kuliah:** Metode Numerik (KP21517001) - Kelas C  
 **Repositori:** `ryanwardianaa-max/Kelompok-5-Metode-Numerik`  
-**Deploy Vercel:** `https://kelompok-5-metode-numerik.vercel.app`
+**Deploy Vercel:** `https://kelompok-4-metode-numerik.vercel.app`
 
 ---
 
