@@ -1,17 +1,14 @@
-import {useCallback,useEffect,useRef,useState,type ChangeEvent} from 'react'
+import {useCallback,useEffect,useState} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {BookOpen,ChartNoAxesCombined,ChevronLeft,ChevronRight,Clipboard,Download,FlaskConical,Maximize2,MessageCircle,Pause,Play,Presentation,Search,Target,Trophy,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
-import {expression,expressionToTex,solve,type Config,type Method,type Result} from './engine'
+import {BookOpen,ChevronLeft,ChevronRight,FlaskConical,Play,Presentation,User,Users} from 'lucide-react'
+import {
+  solveGauss,
+  solveLUGauss,
+  type GaussResult,
+  type LUResult
+} from './engine'
 import 'katex/dist/katex.min.css'
 import './App.css'
-
-const defaults:Config={f:'x^3-2*x-5',g:'(2*x+5)^(1/3)',x0:2,x1:3,tolerance:1e-6,maxIterations:50}
-const presets=[
- ['Polinomial Standar','x^3-2*x-5=0','x^3-2*x-5','(2*x+5)^(1/3)',2,3],
- ['Eksponensial','e^{-x}-x=0','exp(-x)-x','exp(-x)',0,1],
- ['Trigonometri','\\cos(x)-x=0','cos(x)-x','cos(x)',1,0],
- ['Logaritma Alami','x\\ln(x)-1=0','x*ln(x)-1','exp(1/x)',2,1]
-] as const
 
 const identity={
  course:'Metode Numerik (Kelas C)',
@@ -20,7 +17,7 @@ const identity={
  faculty:'Fakultas Keguruan dan Ilmu Pendidikan (FKIP)',
  group:'Kelompok 4',
  meeting:'Pertemuan 05',
- topic:'Solusi Persamaan & Sistem Persamaan Nirlanjar (Newton-Raphson, Secant, & SPNL)'
+ topic:'Sistem Persamaan Lanjar: Eliminasi Gauss Dimodifikasi & Dekomposisi LU Gauss'
 } as const
 
 const members=[
@@ -30,120 +27,142 @@ const members=[
 ] as const
 
 const slides=[
- ['Solusi Persamaan & SPNL','f(x)=0\\quad\\&\\quad \\mathbf{F}(\\mathbf{x})=\\mathbf{0}',[
+ ['SPL & Dekomposisi LU','A\\mathbf{x} = \\mathbf{b} \\iff L U \\mathbf{x} = \\mathbf{b}',[
   'Kelompok 4 · Presentasi Pertemuan 05 Metode Numerik (Kelas C).',
-  'Membahas tuntas Metode Newton-Raphson, Metode Secant, dan Sistem Persamaan Nirlanjar (SPNL).'
+  'Membahas tuntas Eliminasi Gauss Dimodifikasi (Pivoting Sebagian) dan Dekomposisi LU Gauss (Doolittle).'
  ]],
- ['Mengapa metode numerik?','f(x)=x^3-2x-5=0',[
-  'Banyak persamaan sains & rekayasa tidak punya solusi analitis rumus tertutup.',
-  'Metode numerik mencari akar lewat lelaran (iterasi) terarah sampai galat memenuhi toleransi.'
+ ['Mengapa Sistem Persamaan Lanjar?','A\\mathbf{x} = \\mathbf{b}',[
+  'Persoalan sains, jaringan listrik, struktur rekayasa, dan ekonomi memuat puluhan peubah simultan.',
+  'Bentuk matriks koefisien A dan vektor ruas kanan b diselesaikan serentak untuk mencari nilai x.'
  ]],
- ['Peta metode: Tertutup vs Terbuka','\\text{Tertutup}\\quad\\text{vs}\\quad\\text{Terbuka}',[
-  'Metode tertutup (Bisection & Regula Falsi): Mengurung akar di selang [a,b], pasti konvergen tetapi lambat.',
-  'Metode terbuka (Newton, Secant, SPNL): Memakai tebakan lokal tanpa kurungan, jauh lebih cepat melesat ke akar.'
+ ['Eliminasi Gauss Naif & Kelemahannya','a_{kk} = 0 \\implies \\text{Pembagian Nol}',[
+  'Gauss naif mengeliminasi segitiga bawah secara berurutan tanpa memeriksa nilai poros (pivot).',
+  'Kelemahan fatal: Gagal jika elemen poros bernilai nol (pembagian nol) atau galat pembulatan membesar.'
  ]],
- ['Newton: garis singgung','x_{r+1}=x_r-\\frac{f(x_r)}{f\'(x_r)}',[
-  'Tarik garis singgung kurva f(x) di titik (x_r, f(x_r)) dengan kemiringan gradien f\'(x_r).',
-  'Titik potong garis singgung tersebut dengan sumbu-x menjadi hampiran akar baru x_{r+1}.'
+ ['Modifikasi: Tata Ancang Pivoting Sebagian','\\max_{i \\ge k} |a_{ik}| \\implies R_k \\leftrightarrow R_p',[
+  'Sebelum eliminasi kolom k, cari baris dengan nilai mutlak koefisien terbesar di bawah diagonal.',
+  'Tukar baris tersebut dengan baris poros untuk menjamin stabilitas numerik dan mencegah pembagian nol.'
  ]],
- ['Newton dari deret Taylor','f(x_{r+1})\\approx f(x_r)+f\'(x_r)(x_{r+1}-x_r)=0',[
-  'Uraian Taylor orde-1 melinierkan fungsi f di sekitar tebakan x_r.',
-  'Menetapkan f(x_{r+1})=0 langsung menghasilkan rumus lelaran Newton-Raphson.'
+ ['Langkah Eliminasi Maju Menuju Segitiga Atas','R_i \\leftarrow R_i - m_{ik} R_k,\\quad m_{ik} = \\frac{a_{ik}}{a_{kk}}',[
+  'Faktor pengali m_{ik} mengeliminasi elemen di bawah poros menjadi nol bertahap.',
+  'Matriks augmentasi [A | b] ditransformasikan menjadi matriks segitiga atas [U | b\'].'
  ]],
- ['Kapan Newton berhasil?','p=2\\quad(\\text{Konvergensi Kuadratik})',[
-  'Konvergensi kuadratik: Jumlah digit desimal benar berlipat ganda pada setiap iterasi.',
-  'Kelemahan: Gagal bila f\'(x_r)=0 (pembagian nol), berosilasi, atau tebakan awal terlalu jauh.'
+ ['Contoh Eliminasi Gauss Modifikasi','[A | \\mathbf{b}] \\to [U | \\mathbf{b}\']',[
+  'Simulasi numerik eliminasi Gauss dengan tata ancang pivoting sebagian langkah demi langkah.'
  ]],
- ['Contoh Newton-Raphson','f(x)=x^3-2x-5=0',[
-  'Penyelesaian bertahap: Rumus variabel → Substitusi nilai → Evaluasi galat relatif.'
+ ['Filosofi Dekomposisi LU: Mengapa Perlu?','A = L \\cdot U',[
+  'Pada rekayasa riil, matriks A seringkali tetap sama, tetapi vektor beban b berubah-ubah berkali-kali.',
+  'Dekomposisi LU memfaktorkan matriks A HANYA SEKALI menjadi matriks segitiga bawah L dan segitiga atas U.'
  ]],
- ['Secant: tali busur','x_{r+1}=x_r-\\frac{f(x_r)(x_r-x_{r-1})}{f(x_r)-f(x_{r-1})}',[
-  'Dua titik (x_{r-1}, f(x_{r-1})) dan (x_r, f(x_r)) dihubungkan oleh garis tali busur (secant).',
-  'Kemiringan tali busur menggantikan turunan analitis f\'(x) yang seringkali rumit dicari.'
+ ['Keunggulan LU dibanding Gauss','O(n^3) \\to O(n^2)',[
+  'Gauss biasa: Setiap ganti vektor b, harus mengulang seluruh eliminasi dari awal (biaya komputasi O(n³)).',
+  'Dekomposisi LU: Cukup 1 kali faktorisasi, setiap ganti b hanya perlu substitusi cepat berbiaya O(n²).'
  ]],
- ['Karakter & ordo Secant','p\\approx1.618\\quad(\\text{Rasio Emas }\\phi)',[
-  'Membutuhkan dua tebakan awal x_0 dan x_1 (tidak harus mengurung akar).',
-  'Konvergensi superlinier (p ≈ 1.618), mendekati kecepatan Newton tanpa beban turunan analitis.'
+ ['Metode LU Gauss (Metode Doolittle)','A = L \\cdot U,\\quad l_{ii} = 1',[
+  'Metode LU Gauss menetapkan elemen diagonal utama matriks L bernilai 1 (l_{ii} = 1).',
+  'Matriks U adalah matriks segitiga atas hasil eliminasi Gauss, sedangkan L menyimpan faktor pengali m_{ik}.'
  ]],
- ['Contoh Secant','f(x)=x^3-2x-5=0',[
-  'Simulasi perhitungan angka tali busur bertahap dengan dua tebakan awal.'
+ ['Struktur Matriks L dan Matriks U','L = [m_{ik}],\\quad U = \\text{Segitiga Atas}',[
+  'Elemen di bawah diagonal L berisi faktor pengali m_{ik} yang digunakan saat eliminasi Gauss.',
+  'Perkalian L dan U dijamin menghasilkan kembali matriks asal A secara eksak: A = L · U.'
  ]],
- ['Sistem Persamaan Nirlanjar (SPNL)','\\begin{cases} f_1(x, y) = 0 \\\\ f_2(x, y) = 0 \\end{cases}',[
-  'Mencari titik potong simultan dari dua atau lebih persamaan nirlanjar multivariabel.',
-  'Contoh: Titik potong lingkaran x^2+y^2-4=0 dan garis linier x-y-1=0.'
+ ['Tahap 1: Substitusi Maju (Forward)','L\\mathbf{y} = \\mathbf{b}',[
+  'Menyelesaikan sistem segitiga bawah L y = b dari baris pertama ke baris terakhir.',
+  'Karena L berbentuk segitiga bawah, nilai y₁, y₂, ..., yₙ langsung diperoleh berurutan dari atas ke bawah.'
  ]],
- ['SPNL: Matriks Jacobian','J(\\mathbf{x})\\cdot\\Delta\\mathbf{x}=-\\mathbf{F}(\\mathbf{x})',[
-  'Matriks Jacobian J memuat turunan parsial tingkat satu terhadap semua variabel peubah.',
-  'Vektor koreksi Δx dihitung per iterasi, lalu diperbarui: x_{r+1} = x_r + Δx.'
+ ['Tahap 2: Substitusi Mundur (Backward)','U\\mathbf{x} = \\mathbf{y}',[
+  'Menyelesaikan sistem segitiga atas U x = y dari baris terakhir ke baris pertama.',
+  'Diperoleh solusi akhir xₙ, x_{n-1}, ..., x₁ dengan sangat cepat dan presisi tinggi.'
  ]],
- ['Contoh SPNL (Jacobian)','\\begin{cases} x^2+y^2-4=0 \\\\ x-y-1=0 \\end{cases}',[
-  'Penyelesaian numerik SPNL multivariabel dengan Matriks Jacobian langkah demi langkah.'
+ ['Contoh Lengkap Dekomposisi LU Gauss','A = L \\cdot U,\\quad L\\mathbf{y}=\\mathbf{b},\\quad U\\mathbf{x}=\\mathbf{y}',[
+  'Simulasi lengkap pemfaktoran LU matriks 3x3 dan penyelesaian dua tahap forward/backward.'
  ]],
- ['Fixed-Point & Jaring Cobweb','f(x)=0\\iff x=g(x)',[
-  'Mengubah persamaan f(x)=0 menjadi bentuk eksplisit x = g(x), lalu diiterasi x_{r+1} = g(x_r).',
-  'Teorema Kontraksi: Konvergen jika |g\'(x)| < 1 di sekitar akar (visual jaring laba-laba cobweb).'
+ ['Verifikasi Solusi & Vektor Residu','\\mathbf{r} = A\\mathbf{x} - \\mathbf{b} \\approx \\mathbf{0}',[
+  'Solusi x diuji keasliannya dengan menghitung residual: r = Ax - b.',
+  'Jika norma ||r|| mendekati nol dalam toleransi mesin, solusi terbukti valid dan akurat.'
  ]],
- ['Bandingkan metode','\\text{Kecepatan vs Kebutuhan Komputasi}',[
-  'Newton: Ordo 2 (sangat cepat, wajib turunan f\'). Secant: Ordo 1.618 (cepat, tanpa turunan).',
-  'SPNL: Menyelesaikan sistem multi-variabel simultan melalui invers atau eliminasi Jacobian.'
+ ['Perbandingan Metode: Gauss vs LU','\\text{Efisiensi Komputasi & Stabilitas}',[
+  'Gauss Naif: Rawan gagal poros nol. Gauss Modifikasi: Stabil dengan pivoting sebagian.',
+  'Dekomposisi LU: Paling unggul untuk sistem invers matriks dan multi-vektor beban ruas kanan.'
  ]],
- ['Panduan memilih metode','\\text{Kriteria Praktis}',[
-  'Pilih Newton jika f\'(x) mudah didiferensialkan analitis. Pilih Secant jika fungsi rumit/data sensor.',
-  'Gunakan skema SPNL Jacobian jika berhadapan dengan model multidimensi simultan.'
+ ['Rangkuman & Glosarium Konsep Kunci','\\text{Fondasi Aljabar Linear Numerik}',[
+  'Poros (Pivot), Faktor Pengali (Multiplier), Matriks Segitiga, Substitusi Maju/Mundur, dan Residu.'
  ]],
  ['Latihan & Kuis Interaktif','\\text{Uji Pemahaman Audiens}',[
-  'Kuis interaktif 3 pertanyaan konsep untuk menguji pemahaman materi kelompok.'
+  'Kuis 3 babak konsep: Kenapa butuh pivoting? Apa peran matriks L? Bagaimana alur substitusi dua tahap?'
  ]],
- ['Kesimpulan & diskusi','\\mathbf{x}^*\\text{ Solusi Numerik Terverifikasi}',[
-  'Metode terbuka efisien tinggi dengan syarat pemilihan tebakan awal yang dekat.',
-  'Sesi tanya jawab, diskusi kelas, dan demonstrasi komputasi interaktif di Numerical Lab.'
+ ['Kesimpulan & Pembagian Peran Tim','\\mathbf{x}^*\\text{ Solusi Terverifikasi}',[
+  'Sistem Persamaan Lanjar diselesaikan secara kokoh dan modular.',
+  'Ryan: Pengantar & Demo Lab, Najla: Gauss Pivoting, Nabila: Dekomposisi LU & Tanya Jawab.'
  ]]
 ] as const
 
 const examples={
- 'Contoh Newton-Raphson':{
-  prompt:['\\text{Tentukan akar }f(x)=x^3-2x-5=0','x_0=2,\\qquad\\varepsilon=0.001'],
-  steps:[
-   ['f\'(x)=3x^2-2'],
-   ['f(2)=2^3-2(2)-5=-1', 'f\'(2)=3(2)^2-2=10', 'x_1=2-\\frac{-1}{10}=2.1000', '|\\varepsilon_a|=\\left|\\frac{2.1-2}{2.1}\\right|\\times100\\%=4.76\\%'],
-   ['f(2.1)=0.061,\\qquad f\'(2.1)=11.23', 'x_2=2.1-\\frac{0.061}{11.23}=2.0945', '|\\varepsilon_a|=\\left|\\frac{2.0945-2.1}{2.0945}\\right|\\times100\\%=0.26\\%', '\\text{Mendekati konvergen!}']
-  ],
-  conclusion:['Hasil lelaran ', 'x_2 = 2.0945', ' menghasilkan galat relatif ', '0.26\\% < 1\\%', '. Nilai akar sejati analitis adalah ', 'x^* \\approx 2.09455149', '.']
- },
- 'Contoh Secant':{
-  prompt:['\\text{Selesaikan }f(x)=x^3-2x-5=0','x_0=1,\\qquad x_1=2'],
-  steps:[
-   ['f(1)=1^3-2(1)-5=-6', 'f(2)=2^3-2(2)-5=-1'],
-   ['x_2=x_1-\\frac{f(x_1)(x_1-x_0)}{f(x_1)-f(x_0)}'],
-   ['x_2=2-\\frac{(-1)(2-1)}{-1-(-6)}=2-\\frac{-1}{5}=2.2000', '|\\varepsilon_a|=\\left|\\frac{2.2-2}{2.2}\\right|\\times100\\%=9.09\\%']
-  ],
-  conclusion:['Hasil ', 'x_2 = 2.2000', ' sudah mendekati akar. Iterasi berlanjut memakai ', 'x_1 = 2', ' dan ', 'x_2 = 2.2', ' tanpa perlu mencari turunan analitis.']
- },
- 'Contoh SPNL (Jacobian)':{
+ 'Contoh Eliminasi Gauss Modifikasi':{
   prompt:[
-   '\\begin{cases} f_1(x, y) = x^2 + y^2 - 4 = 0 \\\\ f_2(x, y) = x - y - 1 = 0 \\end{cases}',
-   '\\mathbf{x}_0 = (x_0, y_0) = (2, 1)'
+   '\\begin{bmatrix} 2 & 1 & 1 \\\\ 4 & -6 & 0 \\\\ -2 & 7 & 2 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 5 \\\\ -2 \\\\ 9 \\end{bmatrix}',
+   '\\text{Selesaikan dengan Eliminasi Gauss Tata Ancang Pivoting Sebagian}'
   ],
   steps:[
    [
-    '\\text{Matriks Jacobian } J(x, y) = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial x} & \\frac{\\partial f_1}{\\partial y} \\\\[6pt] \\frac{\\partial f_2}{\\partial x} & \\frac{\\partial f_2}{\\partial y} \\end{bmatrix} = \\begin{bmatrix} 2x & 2y \\\\ 1 & -1 \\end{bmatrix}'
+    '\\text{Langkah 1: Periksa kolom 1. Elemen terbesar adalah } |4| \\text{ pada baris 2.}',
+    '\\text{Tukar baris } R_1 \\leftrightarrow R_2 \\text{ (Pivoting):}',
+    '\\begin{bmatrix} 4 & -6 & 0 & \\big| & -2 \\\\ 2 & 1 & 1 & \\big| & 5 \\\\ -2 & 7 & 2 & \\big| & 9 \\end{bmatrix}'
    ],
    [
-    'J(2, 1) = \\begin{bmatrix} 2(2) & 2(1) \\\\ 1 & -1 \\end{bmatrix} = \\begin{bmatrix} 4 & 2 \\\\ 1 & -1 \\end{bmatrix}',
-    '\\mathbf{F}(2, 1) = \\begin{bmatrix} 2^2 + 1^2 - 4 \\\\ 2 - 1 - 1 \\end{bmatrix} = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}'
+    '\\text{Langkah 2: Eliminasi kolom 1 di bawah poros } a_{11} = 4:',
+    'm_{21} = 2/4 = 0.5 \\implies R_2 \\leftarrow R_2 - 0.5 R_1',
+    'm_{31} = -2/4 = -0.5 \\implies R_3 \\leftarrow R_3 - (-0.5) R_1',
+    '\\begin{bmatrix} 4 & -6 & 0 & \\big| & -2 \\\\ 0 & 4 & 1 & \\big| & 6 \\\\ 0 & 4 & 2 & \\big| & 8 \\end{bmatrix}'
    ],
    [
-    '\\det(J) = (4)(-1) - (2)(1) = -4 - 2 = -6',
-    'J^{-1} = \\frac{1}{-6} \\begin{bmatrix} -1 & -2 \\\\ -1 & 4 \\end{bmatrix}'
+    '\\text{Langkah 3: Periksa kolom 2 di bawah poros. Poros } a_{22} = 4.',
+    'm_{32} = 4/4 = 1 \\implies R_3 \\leftarrow R_3 - (1) R_2',
+    '\\begin{bmatrix} 4 & -6 & 0 & \\big| & -2 \\\\ 0 & 4 & 1 & \\big| & 6 \\\\ 0 & 0 & 1 & \\big| & 2 \\end{bmatrix}'
    ],
    [
-    '\\begin{bmatrix} \\Delta x \\\\ \\Delta y \\end{bmatrix} = -J^{-1} \\mathbf{F} = -\\frac{1}{-6} \\begin{bmatrix} -1 & -2 \\\\ -1 & 4 \\end{bmatrix} \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix} = \\begin{bmatrix} -1/6 \\\\ -1/6 \\end{bmatrix} \\approx \\begin{bmatrix} -0.1667 \\\\ -0.1667 \\end{bmatrix}'
-   ],
-   [
-    '\\mathbf{x}_1 = \\begin{bmatrix} x_0 \\\\ y_0 \\end{bmatrix} + \\begin{bmatrix} \\Delta x \\\\ \\Delta y \\end{bmatrix} = \\begin{bmatrix} 2 - 0.1667 \\\\ 1 - 0.1667 \\end{bmatrix} = \\begin{bmatrix} 1.8333 \\\\ 0.8333 \\end{bmatrix}'
+    '\\text{Langkah 4: Substitusi Mundur (Back Substitution):}',
+    'R_3: x_3 = 2',
+    'R_2: 4x_2 + (1)(2) = 6 \\implies 4x_2 = 4 \\implies x_2 = 1',
+    'R_1: 4x_1 - 6(1) + 0 = -2 \\implies 4x_1 = 4 \\implies x_1 = 1'
    ]
   ],
-  conclusion:['Hampiran iterasi 1 adalah ', '(x_1, y_1) = (1.8333, 0.8333)', '. Titik potong sejati analitis adalah ', '(1.8229, 0.8229)', ', galat sangat kecil hanya dalam 1 langkah!']
+  conclusion:['Solusi tunggal SPL adalah ', '\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 1 \\\\ 2 \\end{bmatrix}', '. Terbukti memenuhi seluruh persamaan sistem!']
+ },
+ 'Contoh Lengkap Dekomposisi LU Gauss':{
+  prompt:[
+   'A = \\begin{bmatrix} 2 & 1 & 1 \\\\ 4 & -6 & 0 \\\\ -2 & 7 & 2 \\end{bmatrix},\\qquad \\mathbf{b} = \\begin{bmatrix} 5 \\\\ -2 \\\\ 9 \\end{bmatrix}',
+   '\\text{Faktorkan } A = L \\cdot U \\text{ lalu selesaikan } L\\mathbf{y} = \\mathbf{b} \\text{ dan } U\\mathbf{x} = \\mathbf{y}'
+  ],
+  steps:[
+   [
+    '\\text{Langkah 1: Eliminasi Gauss membentuk Matriks } U \\text{ dan pengali } L:',
+    'm_{21} = 4/2 = 2 \\implies U_2 \\leftarrow U_2 - 2 U_1',
+    'm_{31} = -2/2 = -1 \\implies U_3 \\leftarrow U_3 - (-1) U_1',
+    'U^{(1)} = \\begin{bmatrix} 2 & 1 & 1 \\\\ 0 & -8 & -2 \\\\ 0 & 8 & 3 \\end{bmatrix}, \\quad L = \\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ -1 & ? & 1 \\end{bmatrix}'
+   ],
+   [
+    '\\text{Langkah 2: Eliminasi baris 3 kolom 2: } m_{32} = 8 / (-8) = -1',
+    'U_3 \\leftarrow U_3 - (-1) U_2',
+    'U = \\begin{bmatrix} 2 & 1 & 1 \\\\ 0 & -8 & -2 \\\\ 0 & 0 & 1 \\end{bmatrix}, \\quad L = \\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ -1 & -1 & 1 \\end{bmatrix}'
+   ],
+   [
+    '\\text{Langkah 3: Tahap 1 Substitusi Maju } L\\mathbf{y} = \\mathbf{b}:',
+    '\\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ -1 & -1 & 1 \\end{bmatrix} \\begin{bmatrix} y_1 \\\\ y_2 \\\\ y_3 \\end{bmatrix} = \\begin{bmatrix} 5 \\\\ -2 \\\\ 9 \\end{bmatrix}',
+    'y_1 = 5',
+    '2(5) + y_2 = -2 \\implies y_2 = -12',
+    '-1(5) - 1(-12) + y_3 = 9 \\implies 7 + y_3 = 9 \\implies y_3 = 2',
+    '\\mathbf{y} = \\begin{bmatrix} 5 \\\\ -12 \\\\ 2 \\end{bmatrix}'
+   ],
+   [
+    '\\text{Langkah 4: Tahap 2 Substitusi Mundur } U\\mathbf{x} = \\mathbf{y}:',
+    '\\begin{bmatrix} 2 & 1 & 1 \\\\ 0 & -8 & -2 \\\\ 0 & 0 & 1 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 5 \\\\ -12 \\\\ 2 \\end{bmatrix}',
+    'x_3 = 2',
+    '-8x_2 - 2(2) = -12 \\implies -8x_2 = -8 \\implies x_2 = 1',
+    '2x_1 + 1(1) + 1(2) = 5 \\implies 2x_1 = 2 \\implies x_1 = 1'
+   ]
+  ],
+  conclusion:['Diperoleh solusi eksak ', '\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 1 \\\\ 2 \\end{bmatrix}', '. Jika vektor b berganti, faktorisasi LU tidak perlu diulang!']
  }
 } as const
 
@@ -168,27 +187,27 @@ function StepExample({data}:{data:(typeof examples)[keyof typeof examples]}){
 
 const questions=[
  {
-  prompt:'\\text{Diberikan }f(x)=x^2-4,\\ f\'(x)=2x,\\ x_0=3.\\text{ Berapakah hampiran }x_1\\text{ dengan Newton-Raphson?}',
-  options:['2.150', '2.333', '2.500', '2.000'],
+  prompt:'\\text{Mengapa pada eliminasi Gauss naif perlu dimodifikasi dengan tata ancang pivoting sebagian?}',
+  options:['Untuk mengubah matriks menjadi matriks identitas seketika', 'Mencegah pembagian dengan nol (poros = 0) dan meminimalkan galat pembulatan', 'Menghilangkan kebutuhan substitusi mundur', 'Supaya matriks otomatis berbentuk simetris'],
   answer:1
  },
  {
-  prompt:'\\text{Mengapa metode Secant sering lebih dipilih di komputasi industri dibanding Newton-Raphson?}',
-  options:['Selalu pasti konvergen tanpa syarat', "Tidak memerlukan rumus turunan analitis f'(x)", 'Hanya butuh 1 titik tebakan awal', 'Ordo konvergensinya kubik (p=3)'],
+  prompt:'\\text{Apa keunggulan utama Dekomposisi LU dibanding Eliminasi Gauss biasa dalam rekayasa riil?}',
+  options:['Hanya berlaku untuk matriks diagonal', 'Faktorisasi A = L · U cukup dilakukan 1 kali saat vektor ruas kanan b berubah-ubah', 'Tidak membutuhkan operasi baris sama sekali', 'Selalu menghasilkan determinan bernilai satu'],
   answer:1
  },
  {
-  prompt:'\\text{Pada SPNL dengan 2 persamaan }f_1(x,y)=0\\text{ dan }f_2(x,y)=0,\\text{ apa peran Matriks Jacobian }J\\text{?}',
-  options:['Menggantikan tebakan awal titik x_0', 'Menyimpan nilai kuadrat fungsi', 'Menjadi matriks gradien turunan parsial pembagi koreksi lelaran', 'Menghilangkan semua suku nirlanjar secara mutlak'],
+  prompt:'\\text{Pada Dekomposisi LU metode Gauss (Doolittle), elemen apa yang berada pada diagonal utama matriks L?}',
+  options:['Semua elemen diagonal utama L bernilai nol', 'Elemen bernilai bebas sesuai invers matriks', 'Semua elemen diagonal utama bernilai satu (l_{ii} = 1)', 'Elemen diagonal sama persis dengan matriks asal A'],
   answer:2
  }
 ] as const
 
 function QuizExplanation({question}:{question:number}){
  return <p>{
-  question===0?<>Rumus Newton-Raphson: <InlineMath math={'x_1 = x_0 - \\frac{f(x_0)}{f\'(x_0)} = 3 - \\frac{3^2 - 4}{2(3)} = 3 - \\frac{5}{6} = 2.333'} /></>:
-  question===1?<>Metode Secant mengganti turunan <InlineMath math="f'(x)"/> dengan kemiringan tali busur dari dua titik, sehingga sangat ideal jika rumus turunan rumit didapat atau berupa data diskrit.</>:
-  <>Matriks Jacobian <InlineMath math="J"/> memuat seluruh turunan parsial orde satu yang berperan sebagai gradien multivariabel penentu arah koreksi lelaran <InlineMath math="J \\cdot \\Delta \\mathbf{x} = -\\mathbf{F}"/>.</>
+  question===0?<>Pivoting sebagian mencari elemen bernilai mutlak terbesar <InlineMath math="|a_{ik}|"/> di bawah diagonal dan menukarnya ke posisi poros. Ini mencegah pembagian dengan nol dan menghindari lonjakan galat pembulatan.</>:
+  question===1?<>Pada persoalan riil seperti beban listrik atau struktur statis, matriks koefisien <InlineMath math="A"/> konstan sedangkan beban <InlineMath math="\\mathbf{b}"/> berubah berkali-kali. Faktorisasi <InlineMath math="A = LU"/> cukup 1 kali <InlineMath math="O(n^3)"/>, lalu tiap <InlineMath math="\\mathbf{b}"/> hanya butuh substitusi cepat <InlineMath math="O(n^2)"/>.</>:
+  <>Metode Doolittle (LU Gauss) menetapkan diagonal utama matriks segitiga bawah <InlineMath math="L"/> bernilai 1 (<InlineMath math="l_{ii} = 1"/>), sedangkan bagian bawahnya menyimpan faktor pengali <InlineMath math="m_{ik}"/> dari eliminasi Gauss.</>
  }</p>
 }
 
@@ -197,12 +216,22 @@ function Quiz({answers,onChange}:{answers:(number|undefined)[];onChange:(answers
   {questions.map((q,n)=>{
    const picked=answers[n];
    return <article key={q.prompt}>
-    <BlockMath math={`${n+1}.\\quad${q.prompt}`}/>
+    <small>PERTANYAAN {n+1} DARI {questions.length}</small>
+    <BlockMath math={q.prompt}/>
     <div className="options">
-     {q.options.map((o,j)=><button className={picked===j?(j===q.answer?'correct':'wrong'):''} onClick={()=>{const next=[...answers];next[n]=j;onChange(next)}} key={o}><b>{String.fromCharCode(65+j)}.</b><span>{o}</span></button>)}
+     {q.options.map((opt,idx)=>{
+      const isPicked=picked===idx,isCorrect=idx===q.answer;
+      return <button
+       key={opt}
+       className={picked!==undefined?isCorrect?'correct':isPicked?'wrong':'':''}
+       onClick={()=>picked===undefined&&onChange(answers.map((x,i)=>i===n?idx:x))}
+      >
+       <span>{String.fromCharCode(65+idx)}.</span> {opt}
+      </button>
+     })}
     </div>
     {picked!==undefined&&<div className={`feedback ${picked===q.answer?'correct':'wrong'}`}>
-     <b>{picked===q.answer?'Tepat Sekali!':'Kurang Tepat'}</b>
+     <strong>{picked===q.answer?'Jawaban Anda Benar!':'Jawaban Belum Tepat'}</strong>
      <QuizExplanation question={n}/>
     </div>}
    </article>
@@ -210,137 +239,16 @@ function Quiz({answers,onChange}:{answers:(number|undefined)[];onChange:(answers
  </div>
 }
 
-function SlideVisual({index,score=0}:{index:number;score?:number}){
- if(index===16)return <div className="slide-visual quiz-score"><Trophy/><strong>{score} / 3</strong><Target/><span>SKOR LIVE</span></div>;
- if(index===17)return <div className="slide-visual discussion"><MessageCircle/><strong>Diskusi & Tanya Jawab</strong></div>;
- if(index===2)return <div className="slide-visual method-branches"><article>TERTUTUP</article><article>TERBUKA</article><small>PETA METODE</small></div>;
- if(index===5)return <div className="slide-visual speed-visual"><div className="speed-bars"><i/><i/><i/></div><InlineMath math="p=2"/><small>KONVERGENSI KUADRATIK</small></div>;
- if(index===8)return <div className="slide-visual phi-visual"><strong>1.618</strong><InlineMath math="\phi\approx1.618"/><small>RASIO EMAS</small></div>;
- if(index===10||index===11)return <div className="slide-visual method-matrix"><span>f₁(x,y)=0</span><span>Jacobian J</span><span>f₂(x,y)=0</span><span>Δx = -J⁻¹F</span></div>;
- if(index===15)return <div className="slide-visual method-matrix"><span>Newton</span><span>f'(x) Ordo 2</span><span>Secant</span><span>2 Titik φ=1.618</span><span>SPNL</span><span>Matriks J</span><span>Fixed-Point</span><span>{'|g\'| < 1'}</span></div>;
- 
- const secant=index===7,cobweb=[13].includes(index),comparison=index===14;
- return <div className={`slide-visual visual-${index}`}>
-  <svg viewBox="0 0 260 140" aria-hidden="true">
-   <path d="M15 110H248M42 12V128"/>
-   {index===1&&<><path className="curve" d="M20 35C75 25 80 125 145 105S205 30 240 42"/><circle className="root" cx="145" cy="110" r="6"/></>}
-   {[3,4].includes(index)&&<><path className="curve" d="M25 110C75 100 95 20 225 30"/><path className="accent" d="M55 105L215 10"/></>}
-   {secant&&<><path className="curve" d="M20 105C65 20 105 125 235 35"/><path className="accent" d="M55 88L210 30"/></>}
-   {cobweb&&<><path className="diagonal" d="M25 120L225 20"/><path className="curve" d="M25 95C85 25 155 35 225 45"/><path className="accent" d="M55 105V72H105V58H145V48H175"/></>}
-   {comparison&&<><path className="newton-line" d="M25 25L80 65L130 92L180 108L230 116"/><path className="secant-line" d="M25 35L80 55L130 78L180 96L230 108"/><path className="fixed-line" d="M25 45L80 60L130 70L180 80L230 90"/></>}
-  </svg>
- </div>
-}
+function SlideDeck(){
+ const [i,setI]=useState(0),last=slides.length-1,[open,setOpen]=useState(false),[answers,setAnswers]=useState<(number|undefined)[]>(Array(questions.length).fill(undefined));
+ const move=useCallback((to:number)=>setI(Math.max(0,Math.min(last,to))),[last]);
 
-function CursorFollower(){
- const dotRef=useRef<HTMLDivElement>(null),trailRef=useRef<HTMLDivElement>(null);
- useEffect(()=>{
-  let mx=-100,my=-100,tx=-100,ty=-100,hovered=false,clicking=false,visible=false;
-  const onMove=(e:MouseEvent)=>{
-   mx=e.clientX;my=e.clientY;
-   if(!visible){visible=true;tx=mx;ty=my}
-   if(dotRef.current){dotRef.current.style.transform=`translate3d(${mx}px,${my}px,0)`;dotRef.current.style.opacity='1'}
-   const target=e.target as HTMLElement|null;
-   hovered=Boolean(target?.closest('button,a,input,select,textarea,[role="button"],canvas,.tab'))
-  };
-  const onDown=()=>{clicking=true},onUp=()=>{clicking=false},onLeave=()=>{visible=false;if(dotRef.current)dotRef.current.style.opacity='0';if(trailRef.current)trailRef.current.style.opacity='0'};
-  let rafId:number;
-  const loop=()=>{
-   if(visible){
-    tx+=(mx-tx)*0.22;ty+=(my-ty)*0.22;
-    if(trailRef.current){
-     const scale=clicking?0.75:hovered?1.8:1;
-     trailRef.current.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${scale})`;
-     trailRef.current.style.opacity='1';
-     trailRef.current.dataset.hovered=hovered?'true':'false'
-    }
-   }
-   rafId=requestAnimationFrame(loop)
-  };
-  rafId=requestAnimationFrame(loop);
-  window.addEventListener('mousemove',onMove,{passive:true});
-  window.addEventListener('mousedown',onDown,{passive:true});
-  window.addEventListener('mouseup',onUp,{passive:true});
-  document.addEventListener('mouseleave',onLeave);
-  return()=>{
-   cancelAnimationFrame(rafId);
-   window.removeEventListener('mousemove',onMove);
-   window.removeEventListener('mousedown',onDown);
-   window.removeEventListener('mouseup',onUp);
-   document.removeEventListener('mouseleave',onLeave)
-  }
- },[]);
- return <><div ref={dotRef} className="cursor-dot" aria-hidden="true"/><div ref={trailRef} className="cursor-trail" aria-hidden="true"/></>
-}
-
-function DeveloperLogo(){
- return <svg className="developer-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-  <path fill="#faae2b" stroke="#222" strokeWidth="3" d="M18 29V18a14 14 0 0 1 28 0v11z"/>
-  <circle cx="32" cy="20" r="11" fill="#bee3f8" stroke="#222" strokeWidth="3"/>
-  <path fill="#4299e1" stroke="#222" strokeWidth="3" strokeLinejoin="round" d="M9 58l4-25h38l4 25z"/>
-  <rect x="17" y="34" width="30" height="20" rx="2" fill="#fff" stroke="#222" strokeWidth="3"/>
-  <text x="32" y="48" textAnchor="middle" fontFamily="monospace" fontSize="12" fontWeight="700" fill="#222">{'</>'}</text>
-  <path d="M5 58h54" stroke="#222" strokeWidth="4" strokeLinecap="round"/>
- </svg>
-}
-
-function App(){
- const [route,setRoute]=useState(location.hash.slice(1)||'/deck');
- useEffect(()=>{
-  const h=()=>setRoute(location.hash.slice(1)||'/deck');
-  addEventListener('hashchange',h);
-  return()=>removeEventListener('hashchange',h)
- },[]);
-
- return <>
-  <CursorFollower/>
-  <header>
-   <a className="brand brand-unsil" href="#/deck" aria-label="Universitas Siliwangi, kembali ke deck">
-    <img src="/unsil_emblem.png" alt="Logo Universitas Siliwangi" className="unsil-header-logo"/>
-    <span className="brand-text">Universitas Siliwangi</span>
-   </a>
-   <span className="badge">KELOMPOK 4 · PERTEMUAN 05</span>
-   <button className="icon" aria-label="Layar penuh" onClick={()=>document.documentElement.requestFullscreen()}>
-    <Maximize2/>
-   </button>
-  </header>
-  <nav>
-   {[
-    ['/deck',Presentation,'Deck'],
-    ['/lab',FlaskConical,'Numerical Lab'],
-    ['/arena',ChartNoAxesCombined,'Arena'],
-    ['/knowledge',BookOpen,'Knowledge']
-   ].map(([p,I,n])=><button className={route.startsWith(p as string)?'active':''} onClick={()=>location.hash=p as string} key={p as string}><I/>{n as string}</button>)}
-  </nav>
-  <main>
-   {route.startsWith('/deck')?<Deck/>:route.startsWith('/lab')?<Lab/>:route==='/arena'?<Arena/>:<Knowledge/>}
-  </main>
-  <footer>
-   <span className="footer-brand"><DeveloperLogo/> Librayn Dev · Kelas C Pendidikan Matematika FKIP UNSIL</span>
-  </footer>
- </>
-}
-
-function Deck(){
- const last=slides.length-1,
-  [i,setI]=useState(Math.min(last,Math.max(0,+location.hash.split('/')[2]||0))),
-  [open,setOpen]=useState(false),
-  [answers,setAnswers]=useState<(number|undefined)[]>([]);
-
- const score=answers.reduce<number>((total,picked,n)=>total+(picked===questions[n].answer?1:0),0);
- const move=useCallback((n:number)=>{
-  n=Math.min(last,Math.max(0,n));
-  setI(n);
-  history.replaceState(null,'',`#/deck/${n}`)
- },[last]);
+ const score=answers.filter((ans,idx)=>ans===questions[idx].answer).length;
 
  useEffect(()=>{
   const k=(e:KeyboardEvent)=>{
-   if((e.target as HTMLElement).matches('button,input,select,textarea'))return;
    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();move(i+1)}
-   if(e.key==='ArrowLeft')move(i-1);
-   if(e.key.toLowerCase()==='f')document.documentElement.requestFullscreen();
-   if(e.key.toLowerCase()==='i')setOpen(x=>!x)
+   if(e.key==='ArrowLeft'){e.preventDefault();move(i-1)}
   };
   addEventListener('keydown',k);
   return()=>removeEventListener('keydown',k)
@@ -388,7 +296,7 @@ function Cover(){
    <strong>{identity.course}</strong>
    <span>{identity.code} · {identity.program}</span>
    <span>{identity.faculty}</span>
-   <div style={{marginTop:'8px',display:'flex',justifyContent:'center',gap:'8px',alignItems:'center'}}>
+   <div className="course-badges" style={{marginTop:'8px',display:'flex',justifyContent:'center',gap:'8px',alignItems:'center'}}>
     <span style={{background:'rgba(5, 150, 105, 0.15)',color:'#059669',padding:'4px 12px',borderRadius:'9999px',fontWeight:800,fontSize:'0.82rem',letterSpacing:'0.04em'}}>
      {identity.group}
     </span>
@@ -407,253 +315,281 @@ function Cover(){
  </div>
 }
 
-const tools=[['x','x'],['+','+'],['-','-'],['×','*'],['÷','/'],['²','^2'],['³','^3'],['ⁿ','^()'],['√x','sqrt()'],['∛x','cbrt()'],['eˣ','exp()'],['ln(x)','ln()'],['sin(x)','sin()'],['cos(x)','cos()']] as const
-
-function MathInput({label,value,onChange}:{label:React.ReactNode;value:string;onChange:(v:string)=>void}){
- const ref=useRef<HTMLInputElement>(null);
- const insert=(syntax:string)=>{
-  const input=ref.current;
-  if(!input)return;
-  const a=input.selectionStart??value.length,b=input.selectionEnd??a,inside=syntax.indexOf(')');
-  const next=value.slice(0,a)+syntax+value.slice(b);
-  onChange(next);
-  requestAnimationFrame(()=>{
-   input.focus();
-   const caret=a+(inside<0?syntax.length:inside);
-   input.setSelectionRange(caret,caret)
-  })
- };
- let tex='';
- try{tex=expressionToTex(value)}catch{tex=''}
- return <label className="math-input">
-  <span>{label}</span>
-  <div className="math-tools">
-   {tools.map(([name,syntax])=><button type="button" title={`Sisipkan ${name}`} onMouseDown={e=>e.preventDefault()} onClick={()=>insert(syntax)} key={name}>{name}</button>)}
-  </div>
-  <input ref={ref} value={value} onChange={e=>onChange(e.target.value)}/>
-  <div className={`math-preview ${tex?'':'invalid'}`}>{tex?<BlockMath math={tex}/>:<span>Ekspresi belum valid.</span>}</div>
- </label>
-}
-
-function Presets({set}:{set:(c:Config)=>void}){
- return <div className="presets">
-  {presets.map(p=><button key={p[0]} onClick={()=>set({...defaults,f:p[2],g:p[3],x0:p[4],x1:p[5]})}><b>{p[0]}</b><InlineMath math={p[1]}/></button>)}
- </div>
-}
-
-function NumberInput({name,math,value,onChange}:{name:string;math:string;value:number;onChange:(n:number)=>void}){
- return <label>{name} <InlineMath math={math}/><input type="number" value={value} onChange={e=>onChange(+e.target.value)}/></label>
-}
-
+// Numerical Lab: Dedicated SPL Solver for Gauss & LU
 function Lab(){
- const [c,setC]=useState<Config>(()=>{
-  try{return {...defaults,...JSON.parse(localStorage.getItem('numerical-studio:last-session')||'{}')}}catch{return defaults}
- }),[method,setMethod]=useState<Method>('newton'),[result,setResult]=useState<Result|undefined>(undefined),[step,setStep]=useState(0),[play,setPlay]=useState(false);
+ const [matrixMode, setMatrixMode] = useState<'gauss' | 'lu'>('gauss');
+ const [pivoting, setPivoting] = useState<boolean>(true);
+ const [dim, setDim] = useState<number>(3);
+ 
+ const [matrixA, setMatrixA] = useState<number[][]>([
+  [2, 1, 1],
+  [4, -6, 0],
+  [-2, 7, 2]
+ ]);
+ const [vectorB, setVectorB] = useState<number[]>([5, -2, 9]);
 
- useEffect(()=>localStorage.setItem('numerical-studio:last-session',JSON.stringify(c)),[c]);
- useEffect(()=>{
-  if(!play||!result)return;
-  const id=setInterval(()=>setStep(x=>{
-   if(x>=result.rows.length-1){setPlay(false);return x}
-   return x+1
-  }),600);
-  return()=>clearInterval(id)
- },[play,result]);
+ const [gaussOut, setGaussOut] = useState<GaussResult | null>(null);
+ const [luOut, setLuOut] = useState<LUResult | null>(null);
+ const [errText, setErrText] = useState<string>('');
 
- const run=()=>{
-  const r=solve(method,c);
-  setResult(r);
-  setStep(Math.max(0,r.rows.length-1))
+ const setPreset = (presetA: number[][], presetB: number[]) => {
+  setDim(presetA.length);
+  setMatrixA(presetA);
+  setVectorB(presetB);
+  setGaussOut(null);
+  setLuOut(null);
+  setErrText('');
  };
- const row=result?.rows[step];
+
+ const runSolve = () => {
+  setErrText('');
+  try {
+   if (matrixMode === 'gauss') {
+    const res = solveGauss(matrixA, vectorB, pivoting);
+    setGaussOut(res);
+    setLuOut(null);
+    if (res.status === 'singular') setErrText(res.message);
+   } else {
+    const res = solveLUGauss(matrixA, vectorB);
+    setLuOut(res);
+    setGaussOut(null);
+    if (res.status === 'singular') setErrText(res.message);
+   }
+  } catch (e) {
+   setErrText(e instanceof Error ? e.message : 'Terjadi kesalahan komputasi matriks.');
+  }
+ };
 
  return <>
   <div className="pagehead">
-   <div><small>LABORATORIUM NUMERIK</small><h1>Eksperimen langkah demi langkah.</h1></div>
-   <span className={`status ${result?.status==='converged'?'ok':''}`}>{result?.status||'siap eksperimen'}</span>
+   <div><small>LABORATORIUM NUMERIK SPL</small><h1>Kalkulator Eliminasi Gauss &amp; Dekomposisi LU</h1></div>
+   <span className={`status ${(gaussOut?.status==='converged'||luOut?.status==='converged')?'ok':''}`}>
+    {gaussOut ? 'Gauss Selesai' : luOut ? 'LU Selesai' : 'Siap Komputasi'}
+   </span>
   </div>
-  <Presets set={setC}/>
+
+  <div className="presets" style={{marginBottom:'14px'}}>
+   <button onClick={()=>setPreset([[2,1,1],[4,-6,0],[-2,7,2]], [5,-2,9])}>
+    <b>Preset 1: Standar 3×3</b><small>Solusi bulat (1, 1, 2)</small>
+   </button>
+   <button onClick={()=>setPreset([[0,2,3],[4,6,7],[2,1,-1]], [8,-3,5])}>
+    <b>Preset 2: Poros Nol (Wajib Pivoting)</b><small>a₁₁ = 0 uji ketahanan</small>
+   </button>
+   <button onClick={()=>setPreset([[3,2],[1,4]], [13,11])}>
+    <b>Preset 3: Sistem 2×2</b><small>Solusi (3, 2)</small>
+   </button>
+  </div>
+
   <div className="methods">
-   {(['newton','secant','fixed'] as Method[]).map(m=><button className={`${m} ${method===m?'chosen':''}`} onClick={()=>setMethod(m)} key={m}>{m==='newton'?'Newton-Raphson':m==='secant'?'Metode Secant':'Fixed-Point'}</button>)}
+   <button className={`newton ${matrixMode==='gauss'?'chosen':''}`} onClick={()=>setMatrixMode('gauss')}>
+    Eliminasi Gauss (Pivoting Sebagian)
+   </button>
+   <button className={`secant ${matrixMode==='lu'?'chosen':''}`} onClick={()=>setMatrixMode('lu')}>
+    Dekomposisi LU Gauss (A = L · U)
+   </button>
   </div>
+
   <div className="labgrid">
    <section className="panel controls">
-    <h2>Konfigurasi Masukan</h2>
-    <MathInput label={<>Fungsi <InlineMath math="f(x)"/></>} value={c.f} onChange={f=>setC({...c,f})}/>
-    {method==='fixed'&&<MathInput label={<>Transformasi <InlineMath math="g(x)"/></>} value={c.g} onChange={g=>setC({...c,g})}/>}
-    <div className="formgrid">
-     <NumberInput name="Tebakan Awal" math="x_0" value={c.x0} onChange={x0=>setC({...c,x0})}/>
-     {method==='secant'&&<NumberInput name="Tebakan Kedua" math="x_1" value={c.x1} onChange={x1=>setC({...c,x1})}/>}
-     <NumberInput name="Batas Galat Toleransi" math="\\varepsilon" value={c.tolerance} onChange={tolerance=>setC({...c,tolerance})}/>
-     <NumberInput name="Maksimum Iterasi" math="N_{\\max}" value={c.maxIterations} onChange={maxIterations=>setC({...c,maxIterations})}/>
+    <h2>Matriks Koefisien A dan Vektor b</h2>
+    <div style={{display:'flex',gap:'10px',alignItems:'center',marginBottom:'12px'}}>
+     <label style={{fontSize:'0.82rem',fontWeight:700}}>Ukuran Matriks:</label>
+     <button type="button" className={`pill ${dim===2?'active':''}`} onClick={()=>{setDim(2);setMatrixA([[3,2],[1,4]]);setVectorB([13,11])}}>2 × 2</button>
+     <button type="button" className={`pill ${dim===3?'active':''}`} onClick={()=>{setDim(3);setMatrixA([[2,1,1],[4,-6,0],[-2,7,2]]);setVectorB([5,-2,9])}}>3 × 3</button>
+     {matrixMode==='gauss'&&<label style={{marginLeft:'auto',fontSize:'0.8rem',display:'flex',alignItems:'center',gap:'4px'}}>
+      <input type="checkbox" checked={pivoting} onChange={e=>setPivoting(e.target.checked)}/>
+      Pivoting Sebagian
+     </label>}
     </div>
-    <button className="primary" onClick={run}><Play/> Jalankan Simulasi</button>
+
+    <div style={{display:'flex',gap:'14px',alignItems:'center',overflowX:'auto',paddingBottom:'8px'}}>
+     <div>
+      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#1e3a8a'}}>Matriks A:</div>
+      <div style={{display:'grid',gridTemplateColumns:`repeat(${dim}, 62px)`,gap:'6px'}}>
+       {matrixA.map((row, r)=>row.map((val, c)=><input
+        key={`${r}-${c}`}
+        type="number"
+        value={val}
+        onChange={e=>{
+         const next=matrixA.map(row=>[...row]);
+         next[r][c]=Number(e.target.value);
+         setMatrixA(next);
+        }}
+        style={{padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+       />))}
+      </div>
+     </div>
+
+     <div style={{fontSize:'1.4rem',color:'#64748b'}}>·</div>
+
+     <div>
+      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#047857'}}>Vektor x:</div>
+      <div style={{display:'grid',gap:'6px'}}>
+       {Array.from({length:dim}).map((_, i)=><div key={i} style={{height:'36px',display:'grid',placeItems:'center',background:'#f1f5f9',borderRadius:'6px',fontWeight:800,fontSize:'0.85rem',color:'#475569'}}>
+        x_{i+1}
+       </div>)}
+      </div>
+     </div>
+
+     <div style={{fontSize:'1.4rem',color:'#64748b'}}>=</div>
+
+     <div>
+      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#b45309'}}>Vektor b:</div>
+      <div style={{display:'grid',gap:'6px'}}>
+       {vectorB.map((val, i)=><input
+        key={i}
+        type="number"
+        value={val}
+        onChange={e=>{
+         const next=[...vectorB];
+         next[i]=Number(e.target.value);
+         setVectorB(next);
+        }}
+        style={{width:'62px',padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+       />)}
+      </div>
+     </div>
+    </div>
+
+    {errText&&<div className="error" style={{color:'#dc2626',marginTop:'10px',fontWeight:700}}>{errText}</div>}
+
+    <button className="primary" style={{marginTop:'14px',width:'100%'}} onClick={runSolve}>
+     <Play/> Hitung Solusi Sistem Persamaan
+    </button>
    </section>
+
    <section className="panel display">
-    <Plot config={c} method={method} result={result} step={step}/>
-    {result&&<div className="playback">
-     <button onClick={()=>setPlay(!play)}>{play?<Pause/>:<Play/>}{play?'Jeda':'Jalankan Animasi'}</button>
-     <button disabled={!step} onClick={()=>setStep(step-1)}><ChevronLeft/>Mundur</button>
-     <span>Iterasi ke-<b>{step}</b> dari {result.rows.length-1}</span>
-     <button disabled={step===result.rows.length-1} onClick={()=>setStep(step+1)}>Maju<ChevronRight/></button>
-    </div>}
-    {row&&<div className="current-step">
-     <article><small>Hampiran x_r</small><strong>{row.x.toFixed(6)}</strong></article>
-     <article><small>Nilai f(x_r)</small><strong>{row.fx.toExponential(4)}</strong></article>
-     <article><small>Galat Relatif |ε_a|</small><strong>{row.error.toFixed(4)}%</strong></article>
+    <h2>Hasil &amp; Langkah Transformasi</h2>
+
+    {gaussOut&&gaussOut.status==='converged'&&(
+     <div>
+      <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
+       <div style={{fontWeight:800,color:'#065f46',marginBottom:'4px'}}>Solusi Vektor x (Eliminasi Gauss):</div>
+       <div style={{display:'flex',gap:'12px',flexWrap:'wrap'}}>
+        {gaussOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 12px',borderRadius:'6px',border:'1px solid #a7f3d0',fontWeight:800}}>
+         x_{idx+1} = {Number.isInteger(val)?val:val.toFixed(6)}
+        </div>)}
+       </div>
+      </div>
+
+      <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Langkah-Langkah Eliminasi:</div>
+      <div style={{display:'grid',gap:'10px',maxHeight:'420px',overflowY:'auto'}}>
+       {gaussOut.steps.map((st, sidx)=>(
+        <div key={sidx} style={{background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'10px 14px'}}>
+         <div style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem'}}>{sidx+1}. {st.title}</div>
+         <small style={{color:'#64748b',display:'block',marginBottom:'6px'}}>{st.explanation}</small>
+         <div style={{display:'flex',gap:'4px',alignItems:'center',overflowX:'auto'}}>
+          <table style={{borderCollapse:'collapse',fontSize:'0.82rem'}}>
+           <tbody>
+            {st.matrix.map((row, ri)=>(
+             <tr key={ri}>
+              {row.map((cv, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#fef3c7':'transparent'}}>
+               {cv.toFixed(2)}
+              </td>)}
+              <td style={{borderLeft:'2px solid #222',borderRight:'1px solid #cbd5e1',borderTop:'1px solid #cbd5e1',borderBottom:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',background:'#f0fdf4',fontWeight:700}}>
+               {st.b[ri].toFixed(2)}
+              </td>
+             </tr>
+            ))}
+           </tbody>
+          </table>
+         </div>
+        </div>
+       ))}
+      </div>
+     </div>
+    )}
+
+    {luOut&&luOut.status==='converged'&&(
+     <div>
+      <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
+       <div style={{fontWeight:800,color:'#065f46',marginBottom:'4px'}}>Solusi Akhir Vektor x (Dekomposisi LU):</div>
+       <div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginBottom:'8px'}}>
+        {luOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 12px',borderRadius:'6px',border:'1px solid #a7f3d0',fontWeight:800}}>
+         x_{idx+1} = {Number.isInteger(val)?val:val.toFixed(6)}
+        </div>)}
+       </div>
+       <div style={{fontWeight:700,fontSize:'0.8rem',color:'#047857'}}>
+        Vektor perantara y (dari L · y = b): [{luOut.y.map(v=>Number.isInteger(v)?v:v.toFixed(4)).join(', ')}]
+       </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
+       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+        <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks Segitiga Bawah L:</div>
+        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+         <tbody>
+          {luOut.L.map((row, ri)=><tr key={ri}>
+           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
+            {val.toFixed(2)}
+           </td>)}
+          </tr>)}
+         </tbody>
+        </table>
+       </div>
+
+       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+        <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks Segitiga Atas U:</div>
+        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+         <tbody>
+          {luOut.U.map((row, ri)=><tr key={ri}>
+           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
+            {val.toFixed(2)}
+           </td>)}
+          </tr>)}
+         </tbody>
+        </table>
+       </div>
+      </div>
+
+      <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Tahapan Penyelesaian 2 Tahap:</div>
+      <div style={{background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'10px 14px',fontSize:'0.85rem'}}>
+       <div><b>Tahap 1 (Substitusi Maju L · y = b):</b> Menemukan vektor perantara y dari baris 1 ke baris {dim}.</div>
+       <div style={{marginTop:'4px'}}><b>Tahap 2 (Substitusi Mundur U · x = y):</b> Menemukan solusi akhir x dari baris {dim} ke baris 1.</div>
+      </div>
+     </div>
+    )}
+
+    {!gaussOut&&!luOut&&<div style={{textAlign:'center',color:'#64748b',padding:'40px 10px'}}>
+     Pilih metode di atas, atur matriks atau gunakan preset, lalu tekan <b>Hitung Solusi</b>.
     </div>}
    </section>
   </div>
-  {result&&<Table result={result}/>}
  </>
 }
 
-function Plot({config,method,result,step}:{config:Config;method:Method;result?:Result;step:number}){
- const canvas=useRef<HTMLCanvasElement>(null),view=useRef({cx:0,cy:0,scale:55});
- const draw=()=>{
-  const el=canvas.current;
-  if(!el)return;
-  const d=devicePixelRatio,w=el.clientWidth,h=el.clientHeight;
-  el.width=w*d;el.height=h*d;
-  const q=el.getContext('2d')!;
-  q.scale(d,d);
-  q.clearRect(0,0,w,h);
-  const v=view.current,X=(x:number)=>w/2+(x-v.cx)*v.scale,Y=(y:number)=>h/2-(y-v.cy)*v.scale;
-  q.strokeStyle='#e2e8f0';q.lineWidth=1;
-  for(let x=Math.floor(v.cx-w/v.scale/2);x<v.cx+w/v.scale/2;x++)line(q,X(x),0,X(x),h);
-  for(let y=Math.floor(v.cy-h/v.scale/2);y<v.cy+h/v.scale/2;y++)line(q,0,Y(y),w,Y(y));
-  q.strokeStyle='#222';q.lineWidth=1.5;
-  line(q,0,Y(0),w,Y(0));line(q,X(0),0,X(0),h);
-  if(method==='fixed'){
-   q.setLineDash([8,6]);line(q,X(-20),Y(-20),X(20),Y(20));q.setLineDash([])
-  }
-  let fn:((x:number)=>number)|undefined;
-  try{fn=expression(method==='fixed'?config.g:config.f)}catch{fn=undefined}
-  if(fn){
-   q.beginPath();
-   q.strokeStyle=method==='newton'?'#4299e1':method==='secant'?'#d58a00':'#e56172';
-   q.lineWidth=3;
-   let connected=false;
-   for(let px=0;px<w;px++){
-    try{
-     const py=Y(fn((px-w/2)/v.scale+v.cx));
-     if(!Number.isFinite(py)||py<-h*4||py>h*5){connected=false;continue}
-     if(connected)q.lineTo(px,py);else q.moveTo(px,py);
-     connected=true
-    }catch{connected=false}
-   }
-   q.stroke()
-  }
-  const row=result?.rows[step];
-  if(row){
-   q.strokeStyle='#222';q.lineWidth=2;q.setLineDash([7,5]);
-   q.beginPath();
-   row.points.forEach(([x,y],i)=>{if(i)q.lineTo(X(x),Y(y));else q.moveTo(X(x),Y(y))});
-   q.stroke();q.setLineDash([]);
-   row.points.forEach(([x,y])=>{
-    q.fillStyle='#fe98a3';
-    q.beginPath();
-    q.arc(X(x),Y(y),5,0,Math.PI*2);
-    q.fill();
-    q.stroke()
-   })
-  }
- };
- useEffect(draw,[config,method,result,step]);
- useEffect(()=>{
-  const r=new ResizeObserver(draw);
-  if(canvas.current)r.observe(canvas.current);
-  return()=>r.disconnect()
- });
- const zoom=(n:number)=>{view.current.scale*=n;draw()};
- return <div className="plot">
-  <canvas ref={canvas} aria-label="Visualisasi kurva dan hampiran akar"/>
-  <div className="zoom-controls">
-   <button onClick={()=>zoom(1.2)} title="Perbesar"><ZoomIn/></button>
-   <button onClick={()=>zoom(0.8)} title="Perkecil"><ZoomOut/></button>
-  </div>
- </div>
-}
-
-const line=(q:CanvasRenderingContext2D,a:number,b:number,c:number,d:number)=>{q.beginPath();q.moveTo(a,b);q.lineTo(c,d);q.stroke()}
-
-function Table({result}:{result:Result}){
- const csv=['r,x_r,f(x_r),aux,x_next,error,status',...result.rows.map(x=>[x.r,x.x,x.fx,x.aux,x.next,x.error,x.status].join(','))].join('\n');
- const copy=()=>{void navigator.clipboard.writeText(csv)};
- const download=()=>{
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`${result.method}-iterasi-kelompok-4.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href)
- };
- return <section className="tablepanel">
-  <div className="tablehead">
-   <h2>Tabel Iterasi Numerik</h2>
-   <button onClick={copy}><Clipboard/> Salin Teks</button>
-   <button onClick={download}><Download/> Unduh CSV</button>
-  </div>
-  <div className="scroll">
-   <table>
-    <thead>
-     <tr>
-      <th>r</th>
-      <th><InlineMath math="x_r"/></th>
-      <th><InlineMath math="f(x_r)"/></th>
-      <th>Turunan / <InlineMath math="g(x_r)"/></th>
-      <th><InlineMath math="x_{r+1}"/></th>
-      <th><InlineMath math="|\\varepsilon_a|\\%"/></th>
-      <th>Status</th>
-     </tr>
-    </thead>
-    <tbody>
-     {result.rows.map(x=><tr key={x.r}>
-      <td>{x.r}</td>
-      <td>{x.x.toPrecision(8)}</td>
-      <td>{x.fx.toExponential(3)}</td>
-      <td>{x.aux.toExponential(3)}</td>
-      <td>{x.next.toPrecision(8)}</td>
-      <td>{x.error.toExponential(3)}</td>
-      <td>{x.status}</td>
-     </tr>)}
-    </tbody>
-   </table>
-  </div>
- </section>
-}
-
-function Arena(){
- const [c,setC]=useState(defaults),[all,setAll]=useState<Result[]>();
- return <>
-  <div className="pagehead">
-   <div><small>HEAD-TO-HEAD BENCHMARK</small><h1>Komparasi Tiga Metode Terbuka.</h1></div>
-  </div>
-  <Presets set={setC}/>
-  <section className="arenaform">
-   <MathInput label={<>Fungsi <InlineMath math="f(x)"/></>} value={c.f} onChange={f=>setC({...c,f})}/>
-   <MathInput label={<>Transformasi <InlineMath math="g(x)"/></>} value={c.g} onChange={g=>setC({...c,g})}/>
-   <NumberInput name="Tebakan Awal" math="x_0" value={c.x0} onChange={x0=>setC({...c,x0})}/>
-   <NumberInput name="Tebakan Kedua" math="x_1" value={c.x1} onChange={x1=>setC({...c,x1})}/>
-   <button className="primary" onClick={()=>setAll((['newton','secant','fixed'] as Method[]).map(m=>solve(m,c)))}>Jalankan Perbandingan</button>
-  </section>
-  {all?<><Chart results={all}/><div className="metrics">{all.map(r=><article className={r.method} key={r.method}><small>{r.method.toUpperCase()}</small><h2>{r.status}</h2><BlockMath math={`x^*\\approx ${r.root?.toPrecision(9)||'\\text{—}'}`}/><b>{r.rows.length} iterasi</b><span>Galat: {r.rows.at(-1)?.error.toExponential(2)||'—'}%</span><p>{r.message}</p></article>)}</div></>:<div className="empty"><ChartNoAxesCombined/><h2>Belum ada hasil uji coba</h2><p>Pilih salah satu preset fungsi di atas, lalu klik Jalankan Perbandingan.</p></div>}
- </>
-}
-
-function Chart({results}:{results:Result[]}){
- const w=900,h=280,p=35,max=Math.max(2,...results.map(x=>x.rows.length)),color={newton:'#4299e1',secant:'#d58a00',fixed:'#e56172'};
- return <section className="chart">
-  <h2>Grafik Laju Konvergensi Galat Logaritmik</h2>
-  <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Grafik logaritma galat terhadap iterasi">
-   <path d={`M${p} 10V${h-p}H${w}`} stroke="#222" fill="none"/>
-   {results.map(r=><polyline key={r.method} fill="none" stroke={color[r.method]} strokeWidth="4" points={r.rows.map((x,i)=>`${p+i/(max-1)*(w-p-10)},${Math.max(15,Math.min(h-p,130-Math.log10(Math.max(x.error,1e-12))*20))}`).join(' ')}/>)}
+function SlideVisual({index,score}:{index:number;score:number}){
+ return <div className="slide-visual">
+  <svg viewBox="0 0 200 120" role="img" aria-label="Ilustrasi Visual Slide">
+   {index===0&&<g>
+    <rect x="20" y="20" width="70" height="70" rx="8" fill="#bee3f8" stroke="#222" strokeWidth="2.5"/>
+    <text x="55" y="60" textAnchor="middle" fontWeight="800" fontSize="22" fill="#1e3a8a">L</text>
+    <rect x="110" y="20" width="70" height="70" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2.5"/>
+    <text x="145" y="60" textAnchor="middle" fontWeight="800" fontSize="22" fill="#065f46">U</text>
+    <text x="100" y="60" textAnchor="middle" fontWeight="800" fontSize="18" fill="#222">·</text>
+   </g>}
+   {index>0&&index<16&&<g>
+    <path d="M 20 100 L 90 20 L 170 100 Z" fill="rgba(66, 153, 225, 0.2)" stroke="#222" strokeWidth="2"/>
+    <line x1="20" y1="100" x2="170" y2="100" stroke="#059669" strokeWidth="3"/>
+    <circle cx="90" cy="20" r="6" fill="#faae2b" stroke="#222" strokeWidth="2"/>
+    <text x="90" y="15" textAnchor="middle" fontWeight="700" fontSize="11" fill="#222">Pivot</text>
+   </g>}
+   {index===16&&<g>
+    <circle cx="100" cy="60" r="45" fill="#fef3c7" stroke="#222" strokeWidth="2"/>
+    <text x="100" y="55" textAnchor="middle" fontWeight="800" fontSize="16" fill="#b45309">Skor Kuis</text>
+    <text x="100" y="78" textAnchor="middle" fontWeight="800" fontSize="20" fill="#222">{score}/3</text>
+   </g>}
+   {index===17&&<g>
+    <rect x="30" y="30" width="140" height="60" rx="10" fill="#bee3f8" stroke="#222" strokeWidth="2"/>
+    <text x="100" y="65" textAnchor="middle" fontWeight="800" fontSize="16" fill="#1e3a8a">Tuntas &amp; Siap</text>
+   </g>}
   </svg>
- </section>
+ </div>
 }
 
 function Team(){
  return <section className="team">
-  <div className="team-identity">
+  <div className="team-identity" style={{textAlign:'center',justifyContent:'center'}}>
    <Users/>
    <div>
     <small>IDENTITAS MATA KULIAH · {identity.group.toUpperCase()}</small>
@@ -675,43 +611,65 @@ function Team(){
 
 function Knowledge(){
  const terms=[
-  ['Akar Persamaan','Nilai peubah x* yang menyebabkan nilai fungsi f(x*) bernilai persis nol.','f(x^*)=0'],
-  ['Galat Relatif Hampiran','Persentase perubahan relatif antara dua hampiran lelaran berurutan.','|\\varepsilon_a|=\\left|\\frac{x_{r+1}-x_r}{x_{r+1}}\\right|\\times100\\%'],
-  ['Konvergensi Kuadratik','Laju konvergensi di mana jumlah digit desimal benar bertambah dua kali lipat per iterasi (p=2).','|e_{r+1}| \\le c|e_r|^2'],
-  ['Metode Secant','Metode hampiran akar yang menggantikan turunan analitis f\'(x) dengan gradien tali busur dua titik.','x_{r+1}=x_r-\\frac{f(x_r)(x_r-x_{r-1})}{f(x_r)-f(x_{r-1})}'],
-  ['Sistem Persamaan Nirlanjar (SPNL)','Kumpulan dua atau lebih persamaan nonlinier simultan yang diselesaikan bersamaan.','\\mathbf{F}(\\mathbf{x})=\\mathbf{0}'],
-  ['Matriks Jacobian','Matriks turunan parsial tingkat satu penentu arah koreksi lelaran multivariabel.','J(\\mathbf{x}) = \\left[\\frac{\\partial f_i}{\\partial x_j}\\right]'],
-  ['Teorema Kontraksi','Syarat mutlak agar iterasi titik tetap x=g(x) konvergen menuju akar tunggal.','|g\'(x)|<1'],
-  ['Toleransi Galat','Ambang batas penghentian lelaran numerik jika presisi yang diinginkan telah tercapai.','|\\varepsilon_a|<\\varepsilon']
+  ['Sistem Persamaan Lanjar (SPL)','Kumpulan n persamaan linier simultan dengan n peubah yang diselesaikan bersamaan.','A\\mathbf{x}=\\mathbf{b}'],
+  ['Elemen Poros (Pivot)','Koefisien a_kk yang digunakan sebagai basis pembagi untuk mengeliminasi variabel pada kolom k.','a_{kk} \\ne 0'],
+  ['Pivoting Sebagian (Partial)','Strategi menukar baris untuk menempatkan koefisien bernilai mutlak terbesar pada posisi poros.','\\max_{i\\ge k} |a_{ik}|'],
+  ['Faktor Pengali (Multiplier)','Rasio m_ik = a_ik / a_kk yang digunakan untuk mengalikan baris poros sebelum dikurangkan.','m_{ik} = \\frac{a_{ik}}{a_{kk}}'],
+  ['Matriks Segitiga Atas (U)','Matriks hasil eliminasi maju di mana semua elemen di bawah diagonal bernilai tepat nol.','u_{ij} = 0,\\ \\forall i > j'],
+  ['Matriks Segitiga Bawah (L)','Matriks yang menyimpan riwayat faktor pengali m_ik dengan diagonal bernilai 1.','l_{ii} = 1,\\ l_{ij} = m_{ij}'],
+  ['Dekomposisi LU (Doolittle)','Pemfaktoran matriks A menjadi perkalian L dan U, memisahkan operasi eliminasi dan substitusi.','A = L \\cdot U'],
+  ['Substitusi Maju & Mundur','Dua tahap efisien O(n²) menyelesaikan sistem segitiga L y = b lalu U x = y.','L\\mathbf{y}=\\mathbf{b} \\implies U\\mathbf{x}=\\mathbf{y}']
  ];
  const refs=[
   'Chapra, S. C., & Canale, R. P. (2015). Numerical Methods for Engineers (7th ed.). McGraw-Hill Education.',
   'Munir, Rinaldi. (2015). Metode Numerik (Revisi). Informatika Bandung.',
-  'Burden, R. L., & Faires, J. D. (2010). Numerical Analysis (9th ed.). Cengage Learning.',
-  'Triatmodjo, Bambang. (2002). Metode Numerik Dilengkapi dengan Program Komputer. Beta Offset.'
+  'Burden, R. L., & Faires, J. D. (2010). Numerical Analysis (9th ed.). Brooks/Cole.'
  ];
- const [q,setQ]=useState(''),[tab,setTab]=useState<'terms'|'refs'|'team'>('terms');
-
- return <>
+ return <section className="knowledge">
   <div className="pagehead">
-   <div><small>KNOWLEDGE BASE · KELOMPOK 4</small><h1>Glosarium, Referensi, & Identitas.</h1></div>
-   {tab==='terms'&&<label className="search"><Search/><input aria-label="Cari glosarium" placeholder="Cari istilah numerik…" value={q} onChange={(e:ChangeEvent<HTMLInputElement>)=>setQ(e.target.value)}/></label>}
+   <div><small>GLOSARIUM &amp; REFERENSI</small><h1>Konsep Dasar SPL &amp; Dekomposisi LU</h1></div>
   </div>
-  <div className="tabs">
-   <button className={tab==='terms'?'active':''} onClick={()=>setTab('terms')}>Glosarium</button>
-   <button className={tab==='refs'?'active':''} onClick={()=>setTab('refs')}>Referensi Pustaka</button>
-   <button className={tab==='team'?'active':''} onClick={()=>setTab('team')}>Identitas Tim</button>
-  </div>
-  {tab==='terms'?<div className="glossary">
-   {terms.filter(x=>x[0].toLowerCase().includes(q.toLowerCase())).map(x=><article key={x[0]}>
-    <h2>{x[0]}</h2>
-    <p>{x[1]}</p>
-    <BlockMath math={x[2]}/>
+  <div className="terms">
+   {terms.map(([title,desc,math])=><article key={title}>
+    <div><strong>{title}</strong><p>{desc}</p></div>
+    <div className="math-badge"><InlineMath math={math}/></div>
    </article>)}
-  </div>:tab==='refs'?<ol className="references">
-   {refs.map(x=><li key={x}>{x}</li>)}
-  </ol>:<Team/>}
- </>
+  </div>
+  <div className="references">
+   <h2>Buku Acuan &amp; Rujukan Resmi</h2>
+   <ol>{refs.map(r=><li key={r}>{r}</li>)}</ol>
+  </div>
+ </section>
 }
 
-export default App
+export default function App(){
+ const [tab,setTab]=useState<'deck'|'lab'|'team'|'knowledge'>('deck');
+ return <div className="app">
+  <header>
+   <div className="brand-unsil">
+    <img src="/logo_unsil.png" alt="Logo Universitas Siliwangi" className="unsil-header-logo"/>
+    <span>Universitas Siliwangi</span>
+   </div>
+   <div className="badge">{identity.group.toUpperCase()} · {identity.meeting.toUpperCase()}</div>
+   <div className="session">{identity.course}</div>
+  </header>
+
+  <nav>
+   <button className={tab==='deck'?'active':''} onClick={()=>setTab('deck')}><Presentation/> Deck</button>
+   <button className={tab==='lab'?'active':''} onClick={()=>setTab('lab')}><FlaskConical/> Numerical Lab</button>
+   <button className={tab==='team'?'active':''} onClick={()=>setTab('team')}><Users/> Kelompok 4</button>
+   <button className={tab==='knowledge'?'active':''} onClick={()=>setTab('knowledge')}><BookOpen/> Knowledge</button>
+  </nav>
+
+  <main>
+   {tab==='deck'&&<SlideDeck/>}
+   {tab==='lab'&&<Lab/>}
+   {tab==='team'&&<Team/>}
+   {tab==='knowledge'&&<Knowledge/>}
+  </main>
+
+  <footer>
+   <span>{identity.course} · {identity.group} ({identity.meeting}) · FKIP Universitas Siliwangi</span>
+  </footer>
+ </div>
+}
