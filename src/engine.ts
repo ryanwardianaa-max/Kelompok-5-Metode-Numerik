@@ -12,10 +12,12 @@ export type Config = { f:string; g:string; x0:number; x1:number; tolerance:numbe
 // Types for Linear Equation Systems (SPL)
 export type MatrixStep = {
   title: string;
+  formulaLatex?: string;
   matrix: number[][];
   b: number[];
   action: string;
   explanation: string;
+  explanationLatex?: string;
 }
 
 export type GaussResult = {
@@ -110,10 +112,12 @@ export function solveGauss(A_input: number[][], b_input: number[], pivoting = tr
         [b[k], b[maxRow]] = [b[maxRow], b[k]];
         steps.push({
           title: `Pivoting: Tukar Baris R_${k+1} ↔ R_${maxRow+1}`,
+          formulaLatex: `R_{${k+1}} \\longleftrightarrow R_{${maxRow+1}}`,
           matrix: A.map(r => [...r]),
           b: [...b],
-          action: `Tukar R_${k+1} dan R_${maxRow+1}`,
-          explanation: `Elemen poros terbesar di kolom ${k+1} adalah |a_${maxRow+1}${k+1}| = ${maxVal.toFixed(4)}.`
+          action: `Pivoting Poros Kolom ${k+1}`,
+          explanation: `Elemen poros terbesar di kolom ${k+1} adalah |a_${maxRow+1}${k+1}| = ${maxVal.toFixed(4)}.`,
+          explanationLatex: `\\max_{i \\ge ${k+1}} |a_{i,${k+1}}| = |a_{${maxRow+1},${k+1}}| = ${Number(maxVal.toFixed(4))}`
         });
       }
     }
@@ -136,6 +140,8 @@ export function solveGauss(A_input: number[][], b_input: number[], pivoting = tr
     for (let i = k + 1; i < n; i++) {
       if (Math.abs(A[i][k]) < 1e-12) continue;
       const factor = A[i][k] / A[k][k];
+      const origAik = A[i][k];
+      const origAkk = A[k][k];
       for (let j = k; j < n; j++) {
         A[i][j] -= factor * A[k][j];
       }
@@ -144,10 +150,12 @@ export function solveGauss(A_input: number[][], b_input: number[], pivoting = tr
 
       steps.push({
         title: `Eliminasi: R_${i+1} ← R_${i+1} - (${factor.toFixed(4)}) · R_${k+1}`,
+        formulaLatex: `R_{${i+1}} \\leftarrow R_{${i+1}} - (${Number(factor.toFixed(4))}) R_{${k+1}}`,
         matrix: A.map(r => [...r]),
         b: [...b],
-        action: `Eliminasi a_${i+1}${k+1}`,
-        explanation: `Faktor pengali m_${i+1}${k+1} = ${A_input[i][k]} / ${A[k][k]} = ${factor.toFixed(4)}.`
+        action: `Eliminasi Baris ${i+1}`,
+        explanation: `Faktor pengali m_${i+1}${k+1} = ${origAik} / ${origAkk} = ${factor.toFixed(4)}.`,
+        explanationLatex: `m_{${i+1},${k+1}} = \\frac{${Number(origAik.toFixed(4))}}{${Number(origAkk.toFixed(4))}} = ${Number(factor.toFixed(4))}`
       });
     }
   }

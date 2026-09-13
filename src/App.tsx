@@ -81,20 +81,20 @@ const slides=[
   'Solusi x diuji keasliannya dengan menghitung residual: r = Ax - b.',
   'Jika norma ||r|| mendekati nol dalam toleransi mesin, solusi terbukti valid dan akurat.'
  ]],
- ['Perbandingan Metode: Gauss vs LU','\\text{Efisiensi Komputasi & Stabilitas}',[
+ ['Perbandingan Metode: Gauss vs LU','\\mathcal{O}_{\\text{Gauss}}(n^3) \\quad \\longleftrightarrow \\quad \\mathcal{O}_{\\text{LU}}(n^2)',[
   'Gauss Naif: Rawan gagal poros nol. Gauss Modifikasi: Stabil dengan pivoting sebagian.',
   'Dekomposisi LU: Paling unggul untuk sistem invers matriks dan multi-vektor beban ruas kanan.'
  ]],
- ['Rangkuman & Glosarium Konsep Kunci','\\text{Fondasi Aljabar Linear Numerik}',[
+ ['Rangkuman & Glosarium Konsep Kunci','A\\mathbf{x} = \\mathbf{b} \\iff L(U\\mathbf{x}) = \\mathbf{b}',[
   'Poros (Pivot), Faktor Pengali (Multiplier), Matriks Segitiga, Substitusi Maju/Mundur, dan Residu.'
  ]],
- ['Latihan & Kuis Interaktif','\\text{Uji Pemahaman Audiens}',[
+ ['Latihan & Kuis Interaktif','\\text{Kuis Konseptual: } 3\\text{ Babak}',[
   'Kuis 3 babak konsep: Kenapa butuh pivoting? Apa peran matriks L? Bagaimana alur substitusi dua tahap?'
  ]],
- ['Kesimpulan & Pembagian Peran Tim','\\mathbf{x}^*\\text{ Solusi Terverifikasi}',[
+ ['Kesimpulan & Pembagian Peran Tim','A\\mathbf{x}^* = \\mathbf{b} \\implies \\mathbf{r} = \\mathbf{0}',[
   'Sistem Persamaan Lanjar diselesaikan secara kokoh dan modular.',
   'Ryan: Pengantar & Demo Lab, Najla: Gauss Pivoting, Nabila: Dekomposisi LU & Tanya Jawab.'
- ]]
+ ]],
 ] as const
 
 const examples={
@@ -111,20 +111,20 @@ const examples={
    ],
    [
     '\\text{Langkah 2: Eliminasi kolom 1 di bawah poros } a_{11} = 4:',
-    'm_{21} = 2/4 = 0.5 \\implies R_2 \\leftarrow R_2 - 0.5 R_1',
-    'm_{31} = -2/4 = -0.5 \\implies R_3 \\leftarrow R_3 - (-0.5) R_1',
+    'm_{21} = \\frac{2}{4} = 0.5 \\implies R_2 \\leftarrow R_2 - 0.5 R_1',
+    'm_{31} = \\frac{-2}{4} = -0.5 \\implies R_3 \\leftarrow R_3 - (-0.5) R_1',
     '\\begin{bmatrix} 4 & -6 & 0 & \\big| & -2 \\\\ 0 & 4 & 1 & \\big| & 6 \\\\ 0 & 4 & 2 & \\big| & 8 \\end{bmatrix}'
    ],
    [
     '\\text{Langkah 3: Periksa kolom 2 di bawah poros. Poros } a_{22} = 4.',
-    'm_{32} = 4/4 = 1 \\implies R_3 \\leftarrow R_3 - (1) R_2',
+    'm_{32} = \\frac{4}{4} = 1 \\implies R_3 \\leftarrow R_3 - (1) R_2',
     '\\begin{bmatrix} 4 & -6 & 0 & \\big| & -2 \\\\ 0 & 4 & 1 & \\big| & 6 \\\\ 0 & 0 & 1 & \\big| & 2 \\end{bmatrix}'
    ],
    [
     '\\text{Langkah 4: Substitusi Mundur (Back Substitution):}',
-    'R_3: x_3 = 2',
-    'R_2: 4x_2 + (1)(2) = 6 \\implies 4x_2 = 4 \\implies x_2 = 1',
-    'R_1: 4x_1 - 6(1) + 0 = -2 \\implies 4x_1 = 4 \\implies x_1 = 1'
+    'R_3 :\\quad x_3 = 2',
+    'R_2 :\\quad 4x_2 + (1)(2) = 6 \\implies 4x_2 = 4 \\implies x_2 = 1',
+    'R_1 :\\quad 4x_1 - 6(1) + 0 = -2 \\implies 4x_1 = 4 \\implies x_1 = 1'
    ]
   ],
   conclusion:['Solusi tunggal SPL adalah ', '\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 1 \\\\ 2 \\end{bmatrix}', '. Terbukti memenuhi seluruh persamaan sistem!']
@@ -137,13 +137,12 @@ const examples={
   steps:[
    [
     '\\text{Langkah 1: Eliminasi Gauss membentuk Matriks } U \\text{ dan pengali } L:',
-    'm_{21} = 4/2 = 2 \\implies U_2 \\leftarrow U_2 - 2 U_1',
-    'm_{31} = -2/2 = -1 \\implies U_3 \\leftarrow U_3 - (-1) U_1',
+    'm_{21} = \\frac{4}{2} = 2 \\implies U_2 \\leftarrow U_2 - 2 U_1',
+    'm_{31} = \\frac{-2}{2} = -1 \\implies U_3 \\leftarrow U_3 - (-1) U_1',
     'U^{(1)} = \\begin{bmatrix} 2 & 1 & 1 \\\\ 0 & -8 & -2 \\\\ 0 & 8 & 3 \\end{bmatrix}, \\quad L = \\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ -1 & ? & 1 \\end{bmatrix}'
    ],
    [
-    '\\text{Langkah 2: Eliminasi baris 3 kolom 2: } m_{32} = 8 / (-8) = -1',
-    'U_3 \\leftarrow U_3 - (-1) U_2',
+    '\\text{Langkah 2: Eliminasi baris 3 kolom 2: } m_{32} = \\frac{8}{-8} = -1 \\implies U_3 \\leftarrow U_3 - (-1) U_2',
     'U = \\begin{bmatrix} 2 & 1 & 1 \\\\ 0 & -8 & -2 \\\\ 0 & 0 & 1 \\end{bmatrix}, \\quad L = \\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ -1 & -1 & 1 \\end{bmatrix}'
    ],
    [
@@ -385,7 +384,7 @@ function Lab(){
     Eliminasi Gauss (Pivoting Sebagian)
    </button>
    <button className={`secant ${matrixMode==='lu'?'chosen':''}`} onClick={()=>setMatrixMode('lu')}>
-    Dekomposisi LU Gauss (A = L · U)
+    <span>Dekomposisi LU Gauss (</span><InlineMath math="A = L \cdot U" /><span>)</span>
    </button>
   </div>
 
@@ -464,10 +463,12 @@ function Lab(){
     {gaussOut&&gaussOut.status==='converged'&&(
      <div>
       <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-       <div style={{fontWeight:800,color:'#065f46',marginBottom:'4px'}}>Solusi Vektor x (Eliminasi Gauss):</div>
-       <div style={{display:'flex',gap:'12px',flexWrap:'wrap'}}>
-        {gaussOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 12px',borderRadius:'6px',border:'1px solid #a7f3d0',fontWeight:800}}>
-         x_{idx+1} = {Number.isInteger(val)?val:val.toFixed(6)}
+       <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+        <span>Solusi Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Eliminasi Gauss):</span>
+       </div>
+       <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
+        {gaussOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+         <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
         </div>)}
        </div>
       </div>
@@ -476,18 +477,34 @@ function Lab(){
       <div style={{display:'grid',gap:'10px',maxHeight:'420px',overflowY:'auto'}}>
        {gaussOut.steps.map((st, sidx)=>(
         <div key={sidx} style={{background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'10px 14px'}}>
-         <div style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem'}}>{sidx+1}. {st.title}</div>
-         <small style={{color:'#64748b',display:'block',marginBottom:'6px'}}>{st.explanation}</small>
+         <div style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem',display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap',marginBottom:'4px'}}>
+          <span>{sidx+1}.</span>
+          {st.formulaLatex ? (
+           <span style={{background:'#e0f2fe',color:'#0369a1',padding:'2px 8px',borderRadius:'4px',border:'1px solid #bae6fd'}}>
+            <InlineMath math={st.formulaLatex} />
+           </span>
+          ) : (
+           <span>{st.title}</span>
+          )}
+         </div>
+         {st.explanationLatex ? (
+          <div style={{color:'#475569',fontSize:'0.82rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+           <span>{st.action.includes('Pivoting') ? 'Tata Ancang Poros:' : 'Faktor Pengali:'}</span>
+           <InlineMath math={st.explanationLatex} />
+          </div>
+         ) : (
+          <small style={{color:'#64748b',display:'block',marginBottom:'6px'}}>{st.explanation}</small>
+         )}
          <div style={{display:'flex',gap:'4px',alignItems:'center',overflowX:'auto'}}>
           <table style={{borderCollapse:'collapse',fontSize:'0.82rem'}}>
            <tbody>
             {st.matrix.map((row, ri)=>(
              <tr key={ri}>
               {row.map((cv, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#fef3c7':'transparent'}}>
-               {cv.toFixed(2)}
+               {Number.isInteger(cv) ? cv : cv.toFixed(2)}
               </td>)}
               <td style={{borderLeft:'2px solid #222',borderRight:'1px solid #cbd5e1',borderTop:'1px solid #cbd5e1',borderBottom:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',background:'#f0fdf4',fontWeight:700}}>
-               {st.b[ri].toFixed(2)}
+               {Number.isInteger(st.b[ri]) ? st.b[ri] : st.b[ri].toFixed(2)}
               </td>
              </tr>
             ))}
@@ -503,25 +520,30 @@ function Lab(){
     {luOut&&luOut.status==='converged'&&(
      <div>
       <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-       <div style={{fontWeight:800,color:'#065f46',marginBottom:'4px'}}>Solusi Akhir Vektor x (Dekomposisi LU):</div>
-       <div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginBottom:'8px'}}>
-        {luOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 12px',borderRadius:'6px',border:'1px solid #a7f3d0',fontWeight:800}}>
-         x_{idx+1} = {Number.isInteger(val)?val:val.toFixed(6)}
+       <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+        <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Dekomposisi LU):</span>
+       </div>
+       <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
+        {luOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+         <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
         </div>)}
        </div>
-       <div style={{fontWeight:700,fontSize:'0.8rem',color:'#047857'}}>
-        Vektor perantara y (dari L · y = b): [{luOut.y.map(v=>Number.isInteger(v)?v:v.toFixed(4)).join(', ')}]
+       <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+        <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
+        <InlineMath math={`\\mathbf{y} = [${luOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
        </div>
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
        <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks Segitiga Bawah L:</div>
+        <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+         <span>Matriks Segitiga Bawah</span> <InlineMath math="L" />:
+        </div>
         <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
          <tbody>
           {luOut.L.map((row, ri)=><tr key={ri}>
            {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
-            {val.toFixed(2)}
+            {Number.isInteger(val) ? val : val.toFixed(2)}
            </td>)}
           </tr>)}
          </tbody>
@@ -529,12 +551,14 @@ function Lab(){
        </div>
 
        <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks Segitiga Atas U:</div>
+        <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+         <span>Matriks Segitiga Atas</span> <InlineMath math="U" />:
+        </div>
         <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
          <tbody>
           {luOut.U.map((row, ri)=><tr key={ri}>
            {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
-            {val.toFixed(2)}
+            {Number.isInteger(val) ? val : val.toFixed(2)}
            </td>)}
           </tr>)}
          </tbody>
@@ -544,8 +568,14 @@ function Lab(){
 
       <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Tahapan Penyelesaian 2 Tahap:</div>
       <div style={{background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'10px 14px',fontSize:'0.85rem'}}>
-       <div><b>Tahap 1 (Substitusi Maju L · y = b):</b> Menemukan vektor perantara y dari baris 1 ke baris {dim}.</div>
-       <div style={{marginTop:'4px'}}><b>Tahap 2 (Substitusi Mundur U · x = y):</b> Menemukan solusi akhir x dari baris {dim} ke baris 1.</div>
+       <div style={{display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+        <b>Tahap 1 (Substitusi Maju</b> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><b>):</b>
+        <span>Menemukan vektor perantara y dari baris 1 ke {dim}.</span>
+       </div>
+       <div style={{marginTop:'6px',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+        <b>Tahap 2 (Substitusi Mundur</b> <InlineMath math="U\mathbf{x} = \mathbf{y}" /><b>):</b>
+        <span>Menemukan solusi akhir x dari baris {dim} ke 1.</span>
+       </div>
       </div>
      </div>
     )}
