@@ -1,8 +1,8 @@
 import { create, all } from 'mathjs'
 
 const math = create(all, {})
-export type Status = 'converged' | 'max-iterations' | 'zero-derivative' | 'zero-denominator' | 'diverged' | 'invalid' | 'singular'
-export type Method = 'newton' | 'secant' | 'fixed' | 'gauss' | 'lu'
+export type Status = 'converged' | 'max-iterations' | 'zero-derivative' | 'zero-denominator' | 'diverged' | 'invalid' | 'singular' | 'not-symmetric' | 'not-positive-definite'
+export type Method = 'newton' | 'secant' | 'fixed' | 'gauss' | 'lu' | 'crout' | 'cholesky'
 
 // Types for 1D Root Finding (Legacy / Bonus)
 export type Row = { r:number; x:number; fx:number; aux:number; next:number; error:number; status:Status; points:number[][] }
@@ -43,6 +43,21 @@ export type LUResult = {
   y: number[]; // From L * y = b (forward substitution)
   x: number[]; // From U * x = y (backward substitution)
   residual: number[];
+}
+
+export type CholeskyResult = {
+  status: Status;
+  message: string;
+  A_initial: number[][];
+  b_initial: number[];
+  L: number[][];
+  LT: number[][];
+  steps: MatrixStep[];
+  y: number[]; // From L * y = b
+  x: number[]; // From L^T * x = y
+  residual: number[];
+  isSymmetric: boolean;
+  isPositiveDefinite: boolean;
 }
 
 const validate = (source:string) => {
@@ -279,5 +294,259 @@ export function solveLUGauss(A_input: number[][], b_input: number[]): LUResult {
     y,
     x,
     residual
+  };
+}
+
+// 4. SPL Solver: Crout LU Decomposition (U has 1s on diagonal)
+export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
+  const n = A_input.length;
+  const L: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const U: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
+  );
+  const steps: MatrixStep[] = [];
+
+  steps.push({
+    title: 'Inisialisasi Dekomposisi Reduksi Crout',
+    matrix: A_input.map(r => [...r]),
+    b: [...b_input],
+    action: 'Mulai Crout: A = L · U',
+    explanation: 'Pada metode Crout, diagonal matriks U ditetapkan bernilai 1 (u_ii = 1), sedangkan diagonal matriks L dihitung bebas.'
+  });
+
+  for (let k = 0; k < n; k++) {
+    // 1. Hitung kolom k untuk L (dari baris k s/d n-1)
+    for (let i = k; i < n; i++) {
+      let sum = 0;
+      for (let m = 0; m < k; m++) {
+        sum += L[i][m] * U[m][k];
+      }
+      L[i][k] = A_input[i][k] - sum;
+
+      steps.push({
+        title: `Hitung Elemen L[${i + 1}][${k + 1}]`,
+        matrix: L.map(r => [...r]),
+        b: [...b_input],
+        action: `L[${i + 1}][${k + 1}] = ${L[i][k].toFixed(4)}`,
+        explanation: `l_${i+1}${k+1} = a_${i+1}${k+1} - ∑(l_${i+1}m · u_m${k+1}) = ${A_input[i][k]} - ${sum.toFixed(4)} = ${L[i][k].toFixed(4)}.`,
+        explanationLatex: `l_{${i+1},${k+1}} = a_{${i+1},${k+1}} - \\sum_{m=1}^{${k}} l_{${i+1},m} u_{m,${k+1}} = ${Number(L[i][k].toFixed(4))}`
+      });
+    }
+
+    if (Math.abs(L[k][k]) < 1e-12) {
+      return {
+        status: 'singular',
+        message: `Poros nol terdeteksi pada L[${k + 1}][${k + 1}]. Metode Crout tidak dapat dilanjutkan karena pembagian dengan nol saat menghitung U.`,
+        A_initial: A_input,
+        b_initial: b_input,
+        L,
+        U,
+        steps,
+        y: [],
+        x: [],
+        residual: []
+      };
+    }
+
+    // 2. Hitung baris k untuk U (dari kolom k+1 s/d n-1)
+    for (let j = k + 1; j < n; j++) {
+      let sum = 0;
+      for (let m = 0; m < k; m++) {
+        sum += L[k][m] * U[m][j];
+      }
+      U[k][j] = (A_input[k][j] - sum) / L[k][k];
+
+      steps.push({
+        title: `Hitung Elemen U[${k + 1}][${j + 1}]`,
+        matrix: U.map(r => [...r]),
+        b: [...b_input],
+        action: `U[${k + 1}][${j + 1}] = ${U[k][j].toFixed(4)}`,
+        explanation: `u_${k+1}${j+1} = (a_${k+1}${j+1} - ∑(l_${k+1}m · u_m${j+1})) / l_${k+1}${k+1} = (${A_input[k][j]} - ${sum.toFixed(4)}) / ${L[k][k].toFixed(4)} = ${U[k][j].toFixed(4)}.`,
+        explanationLatex: `u_{${k+1},${j+1}} = \\frac{a_{${k+1},${j+1}} - \\sum_{m=1}^{${k}} l_{${k+1},m} u_{m,${j+1}}}{l_{${k+1},${k+1}}} = ${Number(U[k][j].toFixed(4))}`
+      });
+    }
+  }
+
+  // Forward substitution: L * y = b
+  const y = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    let sum = b_input[i];
+    for (let j = 0; j < i; j++) {
+      sum -= L[i][j] * y[j];
+    }
+    y[i] = sum / L[i][i];
+  }
+
+  // Backward substitution: U * x = y (diagonal U adalah 1)
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = y[i];
+    for (let j = i + 1; j < n; j++) {
+      sum -= U[i][j] * x[j];
+    }
+    x[i] = sum; // Karena U[i][i] === 1
+  }
+
+  // Residual r = A * x - b
+  const residual = A_input.map((row, i) => {
+    const ax = row.reduce((s, val, j) => s + val * x[j], 0);
+    return Math.abs(ax - b_input[i]);
+  });
+
+  return {
+    status: 'converged',
+    message: 'Dekomposisi Crout (U berdiagonal 1) dan penyelesaian dua tahap berhasil diselesaikan.',
+    A_initial: A_input,
+    b_initial: b_input,
+    L,
+    U,
+    steps,
+    y,
+    x,
+    residual
+  };
+}
+
+// 5. SPL Solver: Cholesky Decomposition (A = L · L^T)
+export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyResult {
+  const n = A_input.length;
+  const L: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const steps: MatrixStep[] = [];
+
+  // 1. Cek Simetri Matriks
+  let isSymmetric = true;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      if (Math.abs(A_input[i][j] - A_input[j][i]) > 1e-8) {
+        isSymmetric = false;
+        break;
+      }
+    }
+    if (!isSymmetric) break;
+  }
+
+  if (!isSymmetric) {
+    return {
+      status: 'not-symmetric',
+      message: 'Matriks A tidak simetris (A ≠ A^T). Dekomposisi Cholesky hanya berlaku untuk matriks simetris!',
+      A_initial: A_input,
+      b_initial: b_input,
+      L,
+      LT: L,
+      steps: [],
+      y: [],
+      x: [],
+      residual: [],
+      isSymmetric: false,
+      isPositiveDefinite: false
+    };
+  }
+
+  steps.push({
+    title: 'Uji Simetri Berhasil: Mulai Faktorisasi Cholesky A = L · L^T',
+    matrix: A_input.map(r => [...r]),
+    b: [...b_input],
+    action: 'Cek Simetri OK',
+    explanation: 'Matriks terbukti simetris. Algoritma Cholesky menghitung matriks segitiga bawah L sehingga A = L · L^T.'
+  });
+
+  // 2. Faktorisasi Cholesky
+  for (let j = 0; j < n; j++) {
+    let sumDiag = 0;
+    for (let k = 0; k < j; k++) {
+      sumDiag += L[j][k] * L[j][k];
+    }
+    const diff = A_input[j][j] - sumDiag;
+
+    if (diff <= 1e-12) {
+      return {
+        status: 'not-positive-definite',
+        message: `Elemen diagonal L[${j + 1}][${j + 1}] menghasilkan nilai ${diff.toFixed(4)} ≤ 0 di dalam akar. Matriks A tidak definit positif sehingga Cholesky gagal!`,
+        A_initial: A_input,
+        b_initial: b_input,
+        L,
+        LT: L,
+        steps,
+        y: [],
+        x: [],
+        residual: [],
+        isSymmetric: true,
+        isPositiveDefinite: false
+      };
+    }
+
+    L[j][j] = Math.sqrt(diff);
+
+    steps.push({
+      title: `Hitung Diagonal L[${j + 1}][${j + 1}] = √(${diff.toFixed(4)})`,
+      matrix: L.map(r => [...r]),
+      b: [...b_input],
+      action: `L[${j + 1}][${j + 1}] = ${L[j][j].toFixed(4)}`,
+      explanation: `l_${j+1}${j+1} = √(a_${j+1}${j+1} - ∑ l_${j+1}k²) = √(${A_input[j][j]} - ${sumDiag.toFixed(4)}) = ${L[j][j].toFixed(4)}.`,
+      explanationLatex: `l_{${j+1},${j+1}} = \\sqrt{a_{${j+1},${j+1}} - \\sum_{k=1}^{${j}} l_{${j+1},k}^2} = ${Number(L[j][j].toFixed(4))}`
+    });
+
+    for (let i = j + 1; i < n; i++) {
+      let sumOff = 0;
+      for (let k = 0; k < j; k++) {
+        sumOff += L[i][k] * L[j][k];
+      }
+      L[i][j] = (A_input[i][j] - sumOff) / L[j][j];
+
+      steps.push({
+        title: `Hitung Elemen Segitiga Bawah L[${i + 1}][${j + 1}]`,
+        matrix: L.map(r => [...r]),
+        b: [...b_input],
+        action: `L[${i + 1}][${j + 1}] = ${L[i][j].toFixed(4)}`,
+        explanation: `l_${i+1}${j+1} = (a_${i+1}${j+1} - ∑ l_${i+1}k · l_${j+1}k) / l_${j+1}${j+1} = (${A_input[i][j]} - ${sumOff.toFixed(4)}) / ${L[j][j].toFixed(4)} = ${L[i][j].toFixed(4)}.`,
+        explanationLatex: `l_{${i+1},${j+1}} = \\frac{a_{${i+1},${j+1}} - \\sum_{k=1}^{${j}} l_{${i+1},k} l_{${j+1},k}}{l_{${j+1},${j+1}}} = ${Number(L[i][j].toFixed(4))}`
+      });
+    }
+  }
+
+  // Transpose LT
+  const LT: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => L[j][i])
+  );
+
+  // 3. Forward substitution: L * y = b
+  const y = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    let sum = b_input[i];
+    for (let j = 0; j < i; j++) {
+      sum -= L[i][j] * y[j];
+    }
+    y[i] = sum / L[i][i];
+  }
+
+  // 4. Backward substitution: L^T * x = y
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = y[i];
+    for (let j = i + 1; j < n; j++) {
+      sum -= LT[i][j] * x[j];
+    }
+    x[i] = sum / LT[i][i];
+  }
+
+  // Residual r = A * x - b
+  const residual = A_input.map((row, i) => {
+    const ax = row.reduce((s, val, j) => s + val * x[j], 0);
+    return Math.abs(ax - b_input[i]);
+  });
+
+  return {
+    status: 'converged',
+    message: 'Matriks simetris & definit positif. Dekomposisi Cholesky A = L · L^T berhasil diselesaikan.',
+    A_initial: A_input,
+    b_initial: b_input,
+    L,
+    LT,
+    steps,
+    y,
+    x,
+    residual,
+    isSymmetric: true,
+    isPositiveDefinite: true
   };
 }
