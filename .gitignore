@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 01_Bahan_Presentasi/
+pw_check*.py
 
 # Editor directories and files
 .vscode/*

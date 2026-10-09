@@ -1,6 +1,19 @@
 import {useCallback,useEffect,useState} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {Activity,BookOpen,ChevronLeft,ChevronRight,Film,FlaskConical,Layers,Play,Presentation,User,Users,Zap} from 'lucide-react'
+import {
+  Activity,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Film,
+  FlaskConical,
+  Layers,
+  Play,
+  Presentation,
+  User,
+  Users,
+  Zap
+} from 'lucide-react'
 import {
   solveGauss,
   solveLUGauss,
@@ -341,12 +354,39 @@ function HookSection() {
   const [scenario, setScenario] = useState<'truk' | 'angin' | 'gempa'>('truk');
   const [isVibrating, setIsVibrating] = useState(false);
   const [solveCount, setSolveCount] = useState(1);
+  const [gaussOps, setGaussOps] = useState(666_666_667);
+  const [gaussBusy, setGaussBusy] = useState(false);
+
+  const NODES: [number, number, string][] = [
+    [50, 145, '0'], [175, 145, '1'], [300, 145, '2'], [425, 145, '3'], [550, 145, '4'],
+    [112.5, 65, '5'], [237.5, 65, '6'], [362.5, 65, '7'], [487.5, 65, '8']
+  ];
+  const EDGES: [string, string][] = [
+    ['0', '1'], ['1', '2'], ['2', '3'], ['3', '4'],
+    ['5', '6'], ['6', '7'], ['7', '8'],
+    ['0', '5'], ['5', '1'], ['1', '6'], ['6', '2'], ['2', '7'], ['7', '3'], ['3', '8'], ['8', '4']
+  ];
+  const DEFORM: Record<string, Record<string, [number, number]>> = {
+    truk:  { '1': [0, 7],  '2': [0, 15], '3': [0, 7], '5': [0, 3], '6': [0, 8], '7': [0, 5], '8': [0, 2] },
+    angin: { '5': [16, -3], '6': [19, -4], '7': [17, -3], '8': [15, -2], '1': [6, 0], '2': [9, 1], '3': [6, 0] },
+    gempa: { '0': [7, 0], '4': [-7, 0], '5': [11, -1], '6': [14, 2], '7': [11, -1], '8': [9, 0], '1': [5, 1], '2': [8, 4], '3': [5, 1] }
+  };
+  const nodePos = (id: string): [number, number] => {
+    const base = NODES.find(n => n[2] === id)!;
+    const d = DEFORM[scenario][id];
+    return [base[0] + (d ? d[0] : 0), base[1] + (d ? d[1] : 0)];
+  };
+  const fmt = (n: number) => n.toLocaleString('id-ID');
+  const cholTotal = 333_333_333 + solveCount * 1_000_000;
 
   const triggerLoad = (scen: 'truk' | 'angin' | 'gempa') => {
     setScenario(scen);
     setIsVibrating(true);
     setSolveCount(prev => prev + 1);
+    setGaussOps(prev => prev + 666_666_667);
+    setGaussBusy(true);
     setTimeout(() => setIsVibrating(false), 850);
+    setTimeout(() => setGaussBusy(false), 1300);
   };
 
   const scenarioData = {
@@ -355,21 +395,30 @@ function HookSection() {
       targetNode: 'Node 2 (Gelagar Tengah Bawah)',
       forceVector: 'F_y = -392 \\text{ kN} \\quad (\\text{Beban Terpusat})',
       arrowColor: '#f59e0b',
-      desc: 'Beban gravitasi mendadak di bentang tengah menyebabkan defleksi vertikal maksimum.'
+      desc: 'Beban gravitasi mendadak di bentang tengah menyebabkan defleksi vertikal maksimum.',
+      delta: '15.0 mm ↓ di Node 2',
+      xvec: '[0, 7.2, 15.0, 7.2, 0, 3.1, 8.4, 5.0, 2.3]',
+      btnLabel: '🚚 Beban Truk 40T'
     },
     angin: {
       title: 'Hembusan Angin Badai 95 km/jam',
       targetNode: 'Node 5, 6, 7, 8 (Rangka Atas)',
       forceVector: 'F_x = +180 \\text{ kN} \\quad (\\text{Gaya Lateral})',
       arrowColor: '#38bdf8',
-      desc: 'Tekanan geser horizontal mendorong puncak jembatan, menguji stabilitas lateral.'
+      desc: 'Tekanan geser horizontal mendorong puncak jembatan, menguji stabilitas lateral.',
+      delta: '19.0 mm → di Node 6',
+      xvec: '[0, 5.4, 8.6, 5.4, 0, 16.1, 19.0, 17.2, 15.0]',
+      btnLabel: '🌪️ Angin Badai'
     },
     gempa: {
       title: 'Getaran Gempa Tektonik 6.2 SR',
       targetNode: 'Node 0 & 4 (Fondasi Tumpuan)',
       forceVector: 'F_{xy} = \\pm 450 \\text{ kN} \\quad (\\text{Osilasi Siklik})',
       arrowColor: '#ef4444',
-      desc: 'Akselerasi gelombang seismik dari tanah mengguncang seluruh tumpuan struktur jembatan.'
+      desc: 'Akselerasi gelombang seismik dari tanah mengguncang seluruh tumpuan struktur jembatan.',
+      delta: '14.0 mm ↔ di Node 6',
+      xvec: '[7.0, 5.1, 8.2, 5.1, -7.0, 11.0, 14.0, 11.2, 9.0]',
+      btnLabel: '🌋 Getaran Gempa'
     }
   };
 
@@ -405,9 +454,9 @@ function HookSection() {
         <div className="hook-sim-card">
           <div className="hook-sim-header">
             <div>
-              <span className="sticker" style={{ background: '#fef08a' }}>DILEMA TEKNIK SIPIL</span>
-              <h3 style={{ margin: '6px 0 2px', fontSize: '1.15rem' }}>Uji Beban Getaran Rangka Baja (Warren Truss)</h3>
-              <small style={{ color: '#64748b' }}>Klik skenario beban dinamis untuk melihat perbandingan respons komputasi:</small>
+              <span className="sticker" style={{ background: '#fef08a' }}>HOOK · KENAPA DEKOMPOSISI LU?</span>
+              <h3 style={{ margin: '6px 0 2px', fontSize: '1.15rem' }}>Jembatan 9 Simpul: 1 Matriks K, Beban b Ganti Terus</h3>
+              <small style={{ color: '#64748b' }}>Klik beban → jembatan MENYANGGA (bentuk luruh, angka x muncul), lalu bandingkan meteran FLOPs Gauss vs Cholesky di bawah.</small>
             </div>
             <div className="scenario-controls">
               <button 
@@ -428,11 +477,12 @@ function HookSection() {
               >
                 🌋 Getaran Gempa
               </button>
+              <span className="scenario-hint">Δb ≠ 0 · K tetap</span>
             </div>
           </div>
 
           <div className={`bridge-canvas-box ${isVibrating ? 'bridge-vibrate' : ''}`}>
-            <svg viewBox="0 0 600 170" className="bridge-svg">
+            <svg viewBox="0 0 600 190" className="bridge-svg">
               <defs>
                 <linearGradient id="bridgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3b82f6" />
@@ -455,66 +505,63 @@ function HookSection() {
               <circle cx="545" cy="164" r="3" fill="#475569" />
               <circle cx="555" cy="164" r="3" fill="#475569" />
 
-              <line x1="50" y1="145" x2="175" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
-              <line x1="175" y1="145" x2="300" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
-              <line x1="300" y1="145" x2="425" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
-              <line x1="425" y1="145" x2="550" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
+              <g className="ghost-shape">
+                {EDGES.map(([a, b]) => {
+                  const [gx1, gy1] = NODES.find(n => n[2] === a)!;
+                  const [gx2, gy2] = NODES.find(n => n[2] === b)!;
+                  return <line key={`g-${a}-${b}`} x1={gx1} y1={gy1} x2={gx2} y2={gy2} />;
+                })}
+              </g>
 
-              <line x1="112.5" y1="65" x2="237.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
-              <line x1="237.5" y1="65" x2="362.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
-              <line x1="362.5" y1="65" x2="487.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
+              <g className="deformed-shape">
+                {EDGES.map(([a, b]) => {
+                  const [x1, y1] = nodePos(a);
+                  const [x2, y2] = nodePos(b);
+                  const isBottom = ['0','1','2','3','4'].includes(a) && ['0','1','2','3','4'].includes(b);
+                  return <line key={`${a}-${b}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={isBottom ? 'url(#bridgeGrad)' : '#38bdf8'} strokeWidth={isBottom ? 4 : 3} strokeLinecap="round" />;
+                })}
+              </g>
 
-              <line x1="50" y1="145" x2="112.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="112.5" y1="65" x2="175" y2="145" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="175" y1="145" x2="237.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="237.5" y1="65" x2="300" y2="145" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="300" y1="145" x2="362.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="362.5" y1="65" x2="425" y2="145" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="425" y1="145" x2="487.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="487.5" y1="65" x2="550" y2="145" stroke="#38bdf8" strokeWidth="3" />
-
-              {[
-                [50, 145, '0'],
-                [175, 145, '1'],
-                [300, 145, '2'],
-                [425, 145, '3'],
-                [550, 145, '4'],
-                [112.5, 65, '5'],
-                [237.5, 65, '6'],
-                [362.5, 65, '7'],
-                [487.5, 65, '8']
-              ].map(([x, y, id]) => {
-                const isTarget = (scenario === 'truk' && id === '2') || (scenario === 'gempa' && (id === '0' || id === '4')) || (scenario === 'angin' && ['5','6','7','8'].includes(id as string));
+              {NODES.map(([bx, by, id]) => {
+                const [x, y] = nodePos(id);
+                const dx = x - bx, dy = y - by;
+                const moved = Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5;
+                const isTarget = (scenario === 'truk' && id === '2') || (scenario === 'gempa' && (id === '0' || id === '4')) || (scenario === 'angin' && ['5','6','7','8'].includes(id));
                 return (
-                  <g key={id as string}>
-                    <circle 
-                      cx={x as number} 
-                      cy={y as number} 
-                      r={isTarget ? 7 : 5} 
-                      fill={isTarget ? cur.arrowColor : '#1e293b'} 
-                      stroke="#fff" 
-                      strokeWidth="2" 
+                  <g key={id}>
+                    {moved && (
+                      <line x1={bx} y1={by} x2={x} y2={y} stroke={cur.arrowColor} strokeWidth="1.5" strokeDasharray="2 2" opacity="0.9" />
+                    )}
+                    <circle cx={bx} cy={by} r="3" fill="none" stroke="#64748b" strokeWidth="1.2" opacity="0.75" />
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={isTarget ? 7 : 5}
+                      fill={isTarget ? cur.arrowColor : '#1e293b'}
+                      stroke="#fff"
+                      strokeWidth="2"
                       filter={isTarget ? 'url(#glow)' : undefined}
                     />
-                    <text x={x as number} y={(y as number) > 100 ? (y as number) + 16 : (y as number) - 10} textAnchor="middle" fontSize="10" fill="#94a3b8" fontWeight="bold">N{id as string}</text>
+                    <text x={x + (id === "0" ? 8 : id === "4" ? -8 : 0)} y={y > 100 ? y + 17 : y - 11} textAnchor="middle" fontSize="13" fill="#f1f5f9" fontWeight="bold" stroke="#0f172a" strokeWidth="3.5" paintOrder="stroke" strokeLinejoin="round">N{id}</text>
                   </g>
                 );
               })}
 
               {scenario === 'truk' && (
                 <g>
-                  <path d="M 300 95 L 300 135" stroke={cur.arrowColor} strokeWidth="4" />
-                  <polygon points="300,140 294,128 306,128" fill={cur.arrowColor} />
-                  <rect x="235" y="75" width="130" height="20" rx="4" fill="#fef3c7" stroke="#b45309" strokeWidth="1" />
-                  <text x="300" y="89" textAnchor="middle" fontSize="10.5" fill="#92400e" fontWeight="bold">Beban Truk b₁ (-392 kN)</text>
+                  <path d="M 300 122 L 300 152" stroke={cur.arrowColor} strokeWidth="4" />
+                  <polygon points="300,158 294,146 306,146" fill={cur.arrowColor} />
+                  <path d="M 300 122 L 150 122 L 150 44" stroke={cur.arrowColor} strokeWidth="1.5" strokeDasharray="4 3" fill="none" opacity="0.7" />
+                  <rect x="60" y="14" width="180" height="24" rx="4" fill="#fef3c7" stroke="#b45309" strokeWidth="1" />
+                  <text x="150" y="31" textAnchor="middle" fontSize="13" fill="#92400e" fontWeight="bold">Beban Truk b₁ (-392 kN)</text>
                 </g>
               )}
               {scenario === 'angin' && (
                 <g>
-                  <path d="M 30 65 L 100 65" stroke={cur.arrowColor} strokeWidth="4" />
-                  <polygon points="105,65 93,59 93,71" fill={cur.arrowColor} />
-                  <rect x="15" y="38" width="125" height="20" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1" />
-                  <text x="77" y="52" textAnchor="middle" fontSize="10.5" fill="#0369a1" fontWeight="bold">Angin Lateral b₂ (+180 kN)</text>
+                  <path d="M 30 46 L 100 46" stroke={cur.arrowColor} strokeWidth="4" />
+                  <polygon points="105,46 93,40 93,52" fill={cur.arrowColor} />
+                  <rect x="12" y="14" width="150" height="20" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1" />
+                  <text x="87" y="28" textAnchor="middle" fontSize="12" fill="#0369a1" fontWeight="bold">Angin Lateral b₂ (+180 kN)</text>
                 </g>
               )}
               {scenario === 'gempa' && (
@@ -533,20 +580,41 @@ function HookSection() {
             </div>
           </div>
 
+          <div className="result-readout">
+            <div className="readout-cell readout-delta">
+              <span className="readout-label">LENTUTAN TERUKUR (hasil solve)</span>
+              <strong style={{ color: cur.arrowColor }}>{cur.delta}</strong>
+              <small>Garis putus-putus = bentuk awal · lingkaran kosong = posisi asli node</small>
+            </div>
+            <div className="readout-cell readout-x">
+              <span className="readout-label">VEKTOR SOLUSI x (9 simpul)</span>
+              <code>x = {cur.xvec}</code>
+              <small>Dihitung Cholesky dari b = [{scenario === 'truk' ? '0,…,-392,…,0' : scenario === 'angin' ? '0,+180,…,0' : '±450,…,0'}]</small>
+            </div>
+          </div>
+
           <div className="hook-compare-grid">
-            <div className="compare-card compare-gauss">
+            <div className={`compare-card compare-gauss ${gaussBusy ? 'is-busy' : ''}`}>
               <div className="compare-header">
                 <span className="compare-tag tag-gauss">METODE GAUSS BIASA</span>
                 <span className="compare-complexity">O(n³) Ulang Total</span>
               </div>
-              <div className="compare-metric">
-                <strong>~666.666.667</strong>
-                <small>Operasi Hitung (FLOPs) per Skenario</small>
+              <div className="pipeline-steps">
+                <span className="pipe-step pipe-step-loop">Ganti b → HAPUS K → eliminasi ulang → solve</span>
+                <span className="pipe-step pipe-step-loop">Ganti b → HAPUS K → eliminasi ulang → solve</span>
+                <span className="pipe-step pipe-step-loop">Ganti b → HAPUS K → eliminasi ulang → solve</span>
               </div>
-              <p>Setiap ada angin/truk baru (<InlineMath math="\mathbf{b}" />), seluruh matriks jembatan <InlineMath math="K" /> harus dieliminasi ulang dari awal baris demi baris.</p>
+              <div className="compare-metric">
+                <strong>{fmt(gaussOps)}</strong>
+                <small>FLOPs kumulatif setelah {solveCount} beban (diulang penuh tiap klik)</small>
+              </div>
+              <div className="ops-meter">
+                <div className="ops-fill ops-fill-slow" style={{ width: '100%' }} />
+              </div>
+              <p>Matriks jembatan <InlineMath math="K" /> dihitung ulang dari nol tiap kali beban berubah.</p>
               <div className="compare-footer status-slow">
-                <span>⏱️ Waktu: <strong>~1.33 Detik</strong></span>
-                <span className="status-label">❌ Terlalu Lambat!</span>
+                <span>{gaussBusy ? '⚙️ CPU: 100% — menghitung ulang…' : '⏱️ ~1.33 detik per beban'}</span>
+                <span className={`status-label ${gaussBusy ? 'pulse-warn' : ''}`}>{gaussBusy ? '❌ SIBUK…' : '❌ Terlalu lambat!'}</span>
               </div>
             </div>
 
@@ -555,14 +623,22 @@ function HookSection() {
                 <span className="compare-tag tag-cholesky">DEKOMPOSISI LU / CHOLESKY</span>
                 <span className="compare-complexity">O(n²) Substitusi Kilat</span>
               </div>
-              <div className="compare-metric">
-                <strong style={{ color: '#059669' }}>~2.000.000</strong>
-                <small>Operasi Hitung (FLOPs) per Skenario</small>
+              <div className="pipeline-steps">
+                <span className="pipe-step pipe-step-once">1× Faktorisasi K = L·Lᵀ (sekali, terkunci 🔒)</span>
+                <span className="pipe-step pipe-step-fast">b baru → maju Ly=b → mundur Lᵀx=y ✓</span>
+                <span className="pipe-step pipe-step-fast">b baru → maju Ly=b → mundur Lᵀx=y ✓</span>
               </div>
-              <p>Matriks struktur <InlineMath math="K" /> difaktorkan <strong>CUKUP 1 KALI</strong> (<InlineMath math="K = L \cdot L^T" />). Tiap beban baru diselesaikan via substitusi maju-mundur!</p>
+              <div className="compare-metric">
+                <strong style={{ color: '#059669' }}>{fmt(cholTotal)}</strong>
+                <small>FLOPs kumulatif setelah {solveCount} beban (faktor sekali 333 jt + 1 jt/beban)</small>
+              </div>
+              <div className="ops-meter">
+                <div className="ops-fill ops-fill-fast" style={{ width: `${Math.max(2, (cholTotal / gaussOps) * 100)}%` }} />
+              </div>
+              <p><InlineMath math="K" /> difaktorkan sekali; tiap beban baru hanya substitusi.</p>
               <div className="compare-footer status-fast">
-                <span>⚡ Waktu: <strong>~0.002 Detik</strong> (2 ms)</span>
-                <span className="status-label">✓ Real-Time & 50% Memori!</span>
+                <span>⚡ ~2 milidetik per beban</span>
+                <span className="status-label">✓ Siap beban berikutnya</span>
               </div>
             </div>
           </div>
@@ -571,8 +647,8 @@ function HookSection() {
             <div className="speedup-lead">
               <Zap size={22} className="zap-icon" />
               <div>
-                <strong>667× LEBIH CEPAT & HEMAT MEMORI 50%</strong>
-                <p>Matriks kekakuan jembatan selalu simetris definit positif. Dekomposisi Cholesky adalah standar baku rekayasa gempa dunia nyata.</p>
+                <strong>SELISIH KUMULATIF: {fmt(gaussOps - cholTotal)} FLOPs TERBUANG {gaussBusy ? '— GAUSS MASIH MENGHITUNG…' : 'SIA-SIA'}</strong>
+                <p>Gauss menghitung ulang {fmt(666_666_667)} FLOPs tiap beban. Cholesky cukup {fmt(1_000_000)} FLOPs + faktorisasi sekali di awal. Matriks kekakuan selalu simetris definit positif → Cholesky standar baku rekayasa gempa.</p>
               </div>
             </div>
           </div>
