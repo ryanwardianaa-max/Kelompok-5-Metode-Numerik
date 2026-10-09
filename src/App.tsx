@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useState} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {BookOpen,ChevronLeft,ChevronRight,FlaskConical,Play,Presentation,User,Users} from 'lucide-react'
+import {Activity,BookOpen,ChevronLeft,ChevronRight,Film,FlaskConical,Layers,Play,Presentation,User,Users,Zap} from 'lucide-react'
 import {
   solveGauss,
   solveLUGauss,
@@ -274,10 +274,11 @@ function SlideDeck(){
  },[i,move]);
 
  const slide=slides[i],
+  isHook=i===1,
   example=examples[slide[0] as keyof typeof examples],
   quiz=slide[0]==='Latihan & Kuis Interaktif',
-  fullWidth=i===0||Boolean(example),
-  special=Boolean(example)||quiz;
+  fullWidth=i===0||isHook||Boolean(example),
+  special=isHook||Boolean(example)||quiz;
 
  return <section className="deck">
   <article className={`slide ${i===0?'cover-slide':''} ${special?'special':''} ${fullWidth?'full-width':''}`}>
@@ -285,7 +286,7 @@ function SlideDeck(){
    <div>
     <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
     <h1>{slide[0]}</h1>
-    {i===0?<Cover/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
+    {i===0?<Cover/>:isHook?<HookSection/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
    </div>
    {!fullWidth&&<aside className={special?'compact-visual':''}>
     <SlideVisual index={i} score={score}/>
@@ -332,6 +333,305 @@ function Cover(){
    </article>)}
   </div>
  </div>
+}
+
+// Interactive Hook: Real-world engineering context (Warren Truss Bridge & Load Scenarios)
+function HookSection() {
+  const [tab, setTab] = useState<'sim' | 'video' | 'analogi'>('sim');
+  const [scenario, setScenario] = useState<'truk' | 'angin' | 'gempa'>('truk');
+  const [isVibrating, setIsVibrating] = useState(false);
+  const [solveCount, setSolveCount] = useState(1);
+
+  const triggerLoad = (scen: 'truk' | 'angin' | 'gempa') => {
+    setScenario(scen);
+    setIsVibrating(true);
+    setSolveCount(prev => prev + 1);
+    setTimeout(() => setIsVibrating(false), 850);
+  };
+
+  const scenarioData = {
+    truk: {
+      title: 'Truk Kontainer 40 Ton Melintas',
+      targetNode: 'Node 2 (Gelagar Tengah Bawah)',
+      forceVector: 'F_y = -392 \\text{ kN} \\quad (\\text{Beban Terpusat})',
+      arrowColor: '#f59e0b',
+      desc: 'Beban gravitasi mendadak di bentang tengah menyebabkan defleksi vertikal maksimum.'
+    },
+    angin: {
+      title: 'Hembusan Angin Badai 95 km/jam',
+      targetNode: 'Node 5, 6, 7, 8 (Rangka Atas)',
+      forceVector: 'F_x = +180 \\text{ kN} \\quad (\\text{Gaya Lateral})',
+      arrowColor: '#38bdf8',
+      desc: 'Tekanan geser horizontal mendorong puncak jembatan, menguji stabilitas lateral.'
+    },
+    gempa: {
+      title: 'Getaran Gempa Tektonik 6.2 SR',
+      targetNode: 'Node 0 & 4 (Fondasi Tumpuan)',
+      forceVector: 'F_{xy} = \\pm 450 \\text{ kN} \\quad (\\text{Osilasi Siklik})',
+      arrowColor: '#ef4444',
+      desc: 'Akselerasi gelombang seismik dari tanah mengguncang seluruh tumpuan struktur jembatan.'
+    }
+  };
+
+  const cur = scenarioData[scenario];
+
+  return (
+    <div className="hook-container">
+      <div className="hook-tabs">
+        <button 
+          className={`hook-tab-btn ${tab === 'sim' ? 'active' : ''}`}
+          onClick={() => setTab('sim')}
+        >
+          <Activity size={16} />
+          <span>⚡ Simulasi Jembatan Interaktif</span>
+        </button>
+        <button 
+          className={`hook-tab-btn ${tab === 'video' ? 'active' : ''}`}
+          onClick={() => setTab('video')}
+        >
+          <Film size={16} />
+          <span>🎬 Video Animasi Manim 3B1B</span>
+        </button>
+        <button 
+          className={`hook-tab-btn ${tab === 'analogi' ? 'active' : ''}`}
+          onClick={() => setTab('analogi')}
+        >
+          <Layers size={16} />
+          <span>🏢 3 Kasus Nyata di Industri</span>
+        </button>
+      </div>
+
+      {tab === 'sim' && (
+        <div className="hook-sim-card">
+          <div className="hook-sim-header">
+            <div>
+              <span className="sticker" style={{ background: '#fef08a' }}>DILEMA TEKNIK SIPIL</span>
+              <h3 style={{ margin: '6px 0 2px', fontSize: '1.15rem' }}>Uji Beban Getaran Rangka Baja (Warren Truss)</h3>
+              <small style={{ color: '#64748b' }}>Klik skenario beban dinamis untuk melihat perbandingan respons komputasi:</small>
+            </div>
+            <div className="scenario-controls">
+              <button 
+                className={`scenario-btn ${scenario === 'truk' ? 'active-truk' : ''}`}
+                onClick={() => triggerLoad('truk')}
+              >
+                🚚 Beban Truk 40T
+              </button>
+              <button 
+                className={`scenario-btn ${scenario === 'angin' ? 'active-angin' : ''}`}
+                onClick={() => triggerLoad('angin')}
+              >
+                🌪️ Angin Badai
+              </button>
+              <button 
+                className={`scenario-btn ${scenario === 'gempa' ? 'active-gempa' : ''}`}
+                onClick={() => triggerLoad('gempa')}
+              >
+                🌋 Getaran Gempa
+              </button>
+            </div>
+          </div>
+
+          <div className={`bridge-canvas-box ${isVibrating ? 'bridge-vibrate' : ''}`}>
+            <svg viewBox="0 0 600 170" className="bridge-svg">
+              <defs>
+                <linearGradient id="bridgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="50%" stopColor="#06b6d4" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <line x1="20" y1="145" x2="580" y2="145" stroke="#94a3b8" strokeWidth="2" strokeDasharray="4 4" />
+              
+              <polygon points="50,145 40,160 60,160" fill="#64748b" stroke="#334155" strokeWidth="2" />
+              <polygon points="550,145 540,160 560,160" fill="#64748b" stroke="#334155" strokeWidth="2" />
+              <circle cx="545" cy="164" r="3" fill="#475569" />
+              <circle cx="555" cy="164" r="3" fill="#475569" />
+
+              <line x1="50" y1="145" x2="175" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
+              <line x1="175" y1="145" x2="300" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
+              <line x1="300" y1="145" x2="425" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
+              <line x1="425" y1="145" x2="550" y2="145" stroke="url(#bridgeGrad)" strokeWidth="4" />
+
+              <line x1="112.5" y1="65" x2="237.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
+              <line x1="237.5" y1="65" x2="362.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
+              <line x1="362.5" y1="65" x2="487.5" y2="65" stroke="url(#bridgeGrad)" strokeWidth="3.5" />
+
+              <line x1="50" y1="145" x2="112.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="112.5" y1="65" x2="175" y2="145" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="175" y1="145" x2="237.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="237.5" y1="65" x2="300" y2="145" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="300" y1="145" x2="362.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="362.5" y1="65" x2="425" y2="145" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="425" y1="145" x2="487.5" y2="65" stroke="#38bdf8" strokeWidth="3" />
+              <line x1="487.5" y1="65" x2="550" y2="145" stroke="#38bdf8" strokeWidth="3" />
+
+              {[
+                [50, 145, '0'],
+                [175, 145, '1'],
+                [300, 145, '2'],
+                [425, 145, '3'],
+                [550, 145, '4'],
+                [112.5, 65, '5'],
+                [237.5, 65, '6'],
+                [362.5, 65, '7'],
+                [487.5, 65, '8']
+              ].map(([x, y, id]) => {
+                const isTarget = (scenario === 'truk' && id === '2') || (scenario === 'gempa' && (id === '0' || id === '4')) || (scenario === 'angin' && ['5','6','7','8'].includes(id as string));
+                return (
+                  <g key={id as string}>
+                    <circle 
+                      cx={x as number} 
+                      cy={y as number} 
+                      r={isTarget ? 7 : 5} 
+                      fill={isTarget ? cur.arrowColor : '#1e293b'} 
+                      stroke="#fff" 
+                      strokeWidth="2" 
+                      filter={isTarget ? 'url(#glow)' : undefined}
+                    />
+                    <text x={x as number} y={(y as number) > 100 ? (y as number) + 16 : (y as number) - 10} textAnchor="middle" fontSize="10" fill="#94a3b8" fontWeight="bold">N{id as string}</text>
+                  </g>
+                );
+              })}
+
+              {scenario === 'truk' && (
+                <g>
+                  <path d="M 300 95 L 300 135" stroke={cur.arrowColor} strokeWidth="4" />
+                  <polygon points="300,140 294,128 306,128" fill={cur.arrowColor} />
+                  <rect x="235" y="75" width="130" height="20" rx="4" fill="#fef3c7" stroke="#b45309" strokeWidth="1" />
+                  <text x="300" y="89" textAnchor="middle" fontSize="10.5" fill="#92400e" fontWeight="bold">Beban Truk b₁ (-392 kN)</text>
+                </g>
+              )}
+              {scenario === 'angin' && (
+                <g>
+                  <path d="M 30 65 L 100 65" stroke={cur.arrowColor} strokeWidth="4" />
+                  <polygon points="105,65 93,59 93,71" fill={cur.arrowColor} />
+                  <rect x="15" y="38" width="125" height="20" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1" />
+                  <text x="77" y="52" textAnchor="middle" fontSize="10.5" fill="#0369a1" fontWeight="bold">Angin Lateral b₂ (+180 kN)</text>
+                </g>
+              )}
+              {scenario === 'gempa' && (
+                <g>
+                  <path d="M 20 150 L 45 150 M 555 150 L 580 150" stroke={cur.arrowColor} strokeWidth="3" strokeDasharray="3 3" />
+                  <polygon points="48,150 40,146 40,154" fill={cur.arrowColor} />
+                  <polygon points="552,150 560,146 560,154" fill={cur.arrowColor} />
+                  <rect x="210" y="146" width="180" height="20" rx="4" fill="#fee2e2" stroke="#dc2626" strokeWidth="1" />
+                  <text x="300" y="160" textAnchor="middle" fontSize="10.5" fill="#991b1b" fontWeight="bold">Osilasi Seismik b₃ (±450 kN)</text>
+                </g>
+              )}
+            </svg>
+            <div className="canvas-badge-strip">
+              <span><strong>Persamaan Struktur:</strong> <InlineMath math="K_{1000 \times 1000} \cdot \mathbf{x} = \mathbf{b}" /></span>
+              <span className="live-trigger-badge">Uji ke-{solveCount}: {cur.title}</span>
+            </div>
+          </div>
+
+          <div className="hook-compare-grid">
+            <div className="compare-card compare-gauss">
+              <div className="compare-header">
+                <span className="compare-tag tag-gauss">METODE GAUSS BIASA</span>
+                <span className="compare-complexity">O(n³) Ulang Total</span>
+              </div>
+              <div className="compare-metric">
+                <strong>~666.666.667</strong>
+                <small>Operasi Hitung (FLOPs) per Skenario</small>
+              </div>
+              <p>Setiap ada angin/truk baru (<InlineMath math="\mathbf{b}" />), seluruh matriks jembatan <InlineMath math="K" /> harus dieliminasi ulang dari awal baris demi baris.</p>
+              <div className="compare-footer status-slow">
+                <span>⏱️ Waktu: <strong>~1.33 Detik</strong></span>
+                <span className="status-label">❌ Terlalu Lambat!</span>
+              </div>
+            </div>
+
+            <div className="compare-card compare-cholesky">
+              <div className="compare-header">
+                <span className="compare-tag tag-cholesky">DEKOMPOSISI LU / CHOLESKY</span>
+                <span className="compare-complexity">O(n²) Substitusi Kilat</span>
+              </div>
+              <div className="compare-metric">
+                <strong style={{ color: '#059669' }}>~2.000.000</strong>
+                <small>Operasi Hitung (FLOPs) per Skenario</small>
+              </div>
+              <p>Matriks struktur <InlineMath math="K" /> difaktorkan <strong>CUKUP 1 KALI</strong> (<InlineMath math="K = L \cdot L^T" />). Tiap beban baru diselesaikan via substitusi maju-mundur!</p>
+              <div className="compare-footer status-fast">
+                <span>⚡ Waktu: <strong>~0.002 Detik</strong> (2 ms)</span>
+                <span className="status-label">✓ Real-Time & 50% Memori!</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hook-speedup-banner">
+            <div className="speedup-lead">
+              <Zap size={22} className="zap-icon" />
+              <div>
+                <strong>667× LEBIH CEPAT & HEMAT MEMORI 50%</strong>
+                <p>Matriks kekakuan jembatan selalu simetris definit positif. Dekomposisi Cholesky adalah standar baku rekayasa gempa dunia nyata.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'video' && (
+        <div className="hook-video-card">
+          <div className="video-player-frame">
+            <video 
+              src="/videos/hook_dekomposisi_lu.mp4" 
+              controls 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="manim-video-element"
+            />
+          </div>
+          <div className="video-meta-box">
+            <div className="video-meta-head">
+              <span className="sticker" style={{ background: '#c7d2fe' }}>ANIMASI 3BLUE1BROWN (MANIM CE)</span>
+              <span className="creator-watermark">Karya: @librayn</span>
+            </div>
+            <h4>Visualisasi Pemisahan Matriks Struktur vs Vektor Beban Dinamis</h4>
+            <p>
+              Animasi memperlihatkan bagaimana matriks kekakuan jembatan <InlineMath math="K" /> tetap kokoh berada di memori, sementara beban gempa dinamis <InlineMath math="\mathbf{b}" /> diselesaikan seketika lewat cetakan segitiga <InlineMath math="L" /> dan <InlineMath math="L^T" />.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {tab === 'analogi' && (
+        <div className="hook-analogi-grid">
+          <article className="analogi-card">
+            <div className="analogi-icon" style={{ background: '#fee2e2', color: '#dc2626' }}>🏢</div>
+            <h4>1. Gedung & Jembatan Tahan Gempa (Cholesky)</h4>
+            <p>
+              Matriks kekakuan struktur <InlineMath math="K" /> bernilai <strong>simetris definit positif</strong>. Sensor IoT mengirimkan getaran gempa setiap 10 ms. Dekomposisi Cholesky memungkinkan peredam aktif merespons sebelum struktur roboh.
+            </p>
+          </article>
+          <article className="analogi-card">
+            <div className="analogi-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>🗺️</div>
+            <h4>2. Server Navigasi & Rute Macet (Crout / LU)</h4>
+            <p>
+              Topologi jalan raya suatu kota (matriks <InlineMath math="A" />) konstan. Yang berubah tiap menit adalah kepadatan kendaraan (<InlineMath math="\mathbf{b}" />). Server Google Maps/Waze memfaktorkan graf sekali, lalu menghitung rute tercepat jutaan pengguna.
+            </p>
+          </article>
+          <article className="analogi-card">
+            <div className="analogi-icon" style={{ background: '#dcfce7', color: '#166534' }}>🛰️</div>
+            <h4>3. Radar Cuaca & Dinamika Fluida (BMKG)</h4>
+            <p>
+              Kisi diskritisasi atmosfer bumi tidak pernah berpindah posisi. Perubahan tekanan udara, kelembapan, dan arah angin dipecahkan melalui pemfaktoran matriks berskala masif secara kontinu.
+            </p>
+          </article>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // Numerical Lab: Dedicated SPL Solver for Crout, Cholesky, LU Doolittle, and Gauss
