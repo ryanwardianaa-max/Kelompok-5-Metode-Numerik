@@ -2,8 +2,8 @@
 
 **Mata Kuliah:** Metode Numerik (KP21517001)  
 **Program Studi:** Pendidikan Matematika, FKIP Universitas Siliwangi  
-**Pertemuan:** 05  
-**Topik:** Solusi Persamaan & Sistem Persamaan Nirlanjar (Newton-Raphson, Secant, & SPNL)
+**Pertemuan:** 08  
+**Topik:** Dekomposisi LU: Metode Reduksi Crout & Metode Dekomposisi Cholesky
 
 ---
 

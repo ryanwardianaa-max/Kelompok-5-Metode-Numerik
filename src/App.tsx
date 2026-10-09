@@ -19,7 +19,7 @@ const identity={
  program:'Pendidikan Matematika',
  faculty:'Fakultas Keguruan dan Ilmu Pendidikan (FKIP)',
  group:'Kelompok 4',
- meeting:'Pertemuan 06',
+ meeting:'Pertemuan 08',
  topic:'Dekomposisi LU: Metode Reduksi Crout & Metode Dekomposisi Cholesky'
 } as const
 
@@ -31,7 +31,7 @@ const members=[
 
 const slides=[
  ['Dekomposisi LU: Crout & Cholesky','A = L \\cdot U \\quad \\& \\quad A = L \\cdot L^T',[
-  'Kelompok 4 · Presentasi Pertemuan 06 Metode Numerik (Kelas C).',
+  'Kelompok 4 · Presentasi Pertemuan 08 Metode Numerik (Kelas C).',
   'Membahas tuntas Dekomposisi LU Metode Reduksi Crout dan Metode Dekomposisi Cholesky.'
  ]],
  ['Mengapa Dekomposisi Matriks?','\\mathcal{O}(n^3) \\to \\mathcal{O}(n^2)',[
@@ -1057,7 +1057,7 @@ export default function App(){
  return <div className="app">
   <header>
    <div className="brand-unsil">
-    <img src="/logo_unsil.png" alt="Logo Universitas Siliwangi" className="unsil-header-logo"/>
+    <img src="/unsil_emblem.png" alt="Logo Universitas Siliwangi" className="unsil-header-logo"/>
     <span>Universitas Siliwangi</span>
    </div>
    <div className="badge">{identity.group.toUpperCase()} · {identity.meeting.toUpperCase()}</div>
