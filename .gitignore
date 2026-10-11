@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+media/
 01_Bahan_Presentasi/
 pw_check*.py
 

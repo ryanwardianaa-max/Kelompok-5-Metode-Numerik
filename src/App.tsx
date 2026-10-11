@@ -58,8 +58,9 @@ const slides=[
   'Menyelesaikan sistem segitiga atas U x = y dari baris terbawah (i = n) ke baris teratas (i = 1).',
   'Karena diagonal U tepat 1, tidak ada pembagian pada tahap ini: x_i = y_i - ∑ u_ij x_j.'
  ]],
- ['Contoh Numerik Crout 3×3','A\\mathbf{x} = \\mathbf{b} \\implies \\mathbf{x} = [1, 2, 3]^T',[
-  'Simulasi lengkap pemfaktoran Crout pada matriks 3x3 dengan solusi eksak bulat dan residu nol.'
+ ['Contoh Numerik Crout 3×3','A\\mathbf{x} = \\mathbf{b} \\implies \\mathbf{x} = [-1, 2.5, -0.5]^T',[
+  'Simulasi lengkap pemfaktoran Crout 3x3 bersesuaian dengan naskah video animasi Manim.',
+  'Mencakup faktorisasi A = LU, substitusi maju Ly = b, dan substitusi mundur Ux = y.'
  ]],
  ['Jebakan Poros Nol pada Crout','l_{kk} = 0 \\implies \\text{Pembagian Nol}',[
   'Jika elemen diagonal L bernilai nol (l_kk = 0), rumus baris U akan mengalami pembagian dengan nol.',
@@ -102,47 +103,71 @@ const slides=[
 ] as const
 
 const examples={
- 'Contoh Metode Reduksi Crout':{
+ 'Contoh Numerik Crout 3×3':{
+  videoUrl:'/videos/contoh_soal_metode_crout.mp4',
   prompt:[
-   '\\begin{bmatrix} 1 & 1 & 1 \\\\ 2 & 3 & 1 \\\\ 1 & -1 & -1 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 6 \\\\ 11 \\\\ -4 \\end{bmatrix}',
-   '\\text{Faktorkan } A = L \\cdot U \\text{ dengan syarat } u_{ii} = 1 \\text{ (Metode Crout)}'
+   '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
+   '\\text{Faktorkan } A = L \\cdot U \\text{ dengan } u_{ii} = 1 \\text{ (Metode Crout), lalu selesaikan } L\\mathbf{y} = \\mathbf{b} \\text{ dan } U\\mathbf{x} = \\mathbf{y}'
   ],
   steps:[
    [
-    '\\text{Langkah 1: Kolom 1 matriks } L \\text{ sama dengan kolom 1 matriks } A:',
-    'l_{11} = 1, \\quad l_{21} = 2, \\quad l_{31} = 1',
-    '\\text{Baris 1 matriks } U \\text{ dibagi dengan } l_{11} = 1:',
-    'u_{12} = \\frac{1}{1} = 1, \\quad u_{13} = \\frac{1}{1} = 1 \\quad (u_{11} = 1)'
+    '\\text{Langkah 1: Kolom 1 matriks } L \\text{ sama persis dengan kolom 1 matriks } A:',
+    'l_{11} = a_{11} = 4, \\quad l_{21} = a_{21} = 2, \\quad l_{31} = a_{31} = -2',
+    '\\text{Kolom 1 } L = \\begin{bmatrix} 4 \\\\ 2 \\\\ -2 \\end{bmatrix}'
    ],
    [
-    '\\text{Langkah 2: Kolom 2 matriks } L \\text{ dan Baris 2 matriks } U:',
-    'l_{22} = a_{22} - (l_{21} u_{12}) = 3 - (2)(1) = 1',
-    'l_{32} = a_{32} - (l_{31} u_{12}) = -1 - (1)(1) = -2',
-    'u_{23} = \\frac{a_{23} - l_{21} u_{13}}{l_{22}} = \\frac{1 - (2)(1)}{1} = -1 \\quad (u_{22} = 1)'
+    '\\text{Langkah 2: Baris 1 matriks } U \\text{ dibagi poros } l_{11} = 4 \\ (u_{11} = 1):',
+    'u_{12} = \\frac{a_{12}}{l_{11}} = \\frac{2}{4} = \\frac{1}{2}, \\quad u_{13} = \\frac{a_{13}}{l_{11}} = \\frac{-2}{4} = -\\frac{1}{2}',
+    '\\text{Baris 1 } U = \\left[ 1, \\ \\frac{1}{2}, \\ -\\frac{1}{2} \
+ight]'
    ],
    [
-    '\\text{Langkah 3: Kolom 3 matriks } L:',
-    'l_{33} = a_{33} - (l_{31} u_{13} + l_{32} u_{23}) = -1 - [(1)(1) + (-2)(-1)] = -1 - 3 = -4',
-    'L = \\begin{bmatrix} 1 & 0 & 0 \\\\ 2 & 1 & 0 \\\\ 1 & -2 & -4 \\end{bmatrix}, \\quad U = \\begin{bmatrix} 1 & 1 & 1 \\\\ 0 & 1 & -1 \\\\ 0 & 0 & 1 \\end{bmatrix}'
+    '\\text{Langkah 3: Kolom 2 matriks } L \\text{ (mengurangi akumulasi baris 1):}',
+    'l_{22} = a_{22} - (l_{21} u_{12}) = 10 - \\left(2 \\cdot \\frac{1}{2}\
+ight) = 10 - 1 = 9',
+    'l_{32} = a_{32} - (l_{31} u_{12}) = 2 - \\left(-2 \\cdot \\frac{1}{2}\
+ight) = 2 - (-1) = 3',
+    '\\text{Kolom 2 } L = \\begin{bmatrix} 0 \\\\ 9 \\\\ 3 \\end{bmatrix}'
    ],
    [
-    '\\text{Langkah 4: Tahap 1 Substitusi Maju } L\\mathbf{y} = \\mathbf{b}:',
-    '1 y_1 = 6 \\implies y_1 = 6',
-    '2(6) + 1 y_2 = 11 \\implies y_2 = 11 - 12 = -1',
-    '1(6) - 2(-1) - 4 y_3 = -4 \\implies 8 - 4 y_3 = -4 \\implies y_3 = 3',
-    '\\mathbf{y} = \\begin{bmatrix} 6 \\\\ -1 \\\\ 3 \\end{bmatrix}'
+    '\\text{Langkah 4: Baris 2 matriks } U \\text{ dibagi poros } l_{22} = 9 \\ (u_{22} = 1):',
+    'u_{23} = \\frac{a_{23} - (l_{21} u_{13})}{l_{22}} = \\frac{2 - \\left(2 \\cdot -\\frac{1}{2}\
+ight)}{9} = \\frac{2 - (-1)}{9} = \\frac{3}{9} = \\frac{1}{3}',
+    '\\text{Baris 2 } U = \\left[ 0, \\ 1, \\ \\frac{1}{3} \
+ight]'
    ],
    [
-    '\\text{Langkah 5: Tahap 2 Substitusi Mundur } U\\mathbf{x} = \\mathbf{y}:',
-    'x_3 = 3',
-    'x_2 - 1(3) = -1 \\implies x_2 = 2',
-    'x_1 + 1(2) + 1(3) = 6 \\implies x_1 = 1',
-    '\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 2 \\\\ 3 \\end{bmatrix}'
+    '\\text{Langkah 5: Kolom 3 matriks } L \\text{ (elemen pivot terakhir):}',
+    'l_{33} = a_{33} - (l_{31} u_{13} + l_{32} u_{23}) = 6 - \\left[\\left(-2 \\cdot -\\frac{1}{2}\
+ight) + \\left(3 \\cdot \\frac{1}{3}\
+ight)\
+ight] = 6 - (1 + 1) = 4',
+    'L = \\begin{bmatrix} 4 & 0 & 0 \\\\ 2 & 9 & 0 \\\\ -2 & 3 & 4 \\end{bmatrix}, \\quad U = \\begin{bmatrix} 1 & \\frac{1}{2} & -\\frac{1}{2} \\\\ 0 & 1 & \\frac{1}{3} \\\\ 0 & 0 & 1 \\end{bmatrix}'
+   ],
+   [
+    '\\text{Langkah 6: Sub-Tahap 1 Substitusi Maju } L\\mathbf{y} = \\mathbf{b}:',
+    '4 y_1 = 2 \\implies y_1 = \\frac{2}{4} = \\frac{1}{2}',
+    '2\\left(\\frac{1}{2}\
+ight) + 9 y_2 = 22 \\implies 1 + 9 y_2 = 22 \\implies 9 y_2 = 21 \\implies y_2 = \\frac{21}{9} = \\frac{7}{3}',
+    '-2\\left(\\frac{1}{2}\
+ight) + 3\\left(\\frac{7}{3}\
+ight) + 4 y_3 = 4 \\implies 6 + 4 y_3 = 4 \\implies 4 y_3 = -2 \\implies y_3 = -\\frac{1}{2}',
+    '\\mathbf{y} = \\begin{bmatrix} \\frac{1}{2} \\\\ \\frac{7}{3} \\\\ -\\frac{1}{2} \\end{bmatrix}'
+   ],
+   [
+    '\\text{Langkah 7: Sub-Tahap 2 Substitusi Mundur } U\\mathbf{x} = \\mathbf{y}:',
+    '1 x_3 = -\\frac{1}{2} \\implies x_3 = -\\frac{1}{2}',
+    'x_2 + \\frac{1}{3}\\left(-\\frac{1}{2}\
+ight) = \\frac{7}{3} \\implies x_2 - \\frac{1}{6} = \\frac{14}{6} \\implies x_2 = \\frac{15}{6} = \\frac{5}{2}',
+    'x_1 + \\frac{1}{2}\\left(\\frac{5}{2}\
+ight) - \\frac{1}{2}\\left(-\\frac{1}{2}\
+ight) = \\frac{1}{2} \\implies x_1 + \\frac{6}{4} = \\frac{2}{4} \\implies x_1 = -1',
+    '\\mathbf{x} = \\begin{bmatrix} -1 \\\\ \\frac{5}{2} \\\\ -\\frac{1}{2} \\end{bmatrix}'
    ]
   ],
-  conclusion:['Solusi eksak metode Crout adalah ', '\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 2 \\\\ 3 \\end{bmatrix}', '. Terbukti memenuhi seluruh persamaan sistem dengan residu nol!']
+  conclusion:['Solusi eksak metode Crout adalah ', '\\mathbf{x} = \\begin{bmatrix} -1 \\\\ 2.5 \\\\ -0.5 \\end{bmatrix}', '. Terverifikasi 100% memenuhi sistem persamaan linier asal A x = b dengan residu nol!']
  },
- 'Contoh Metode Dekomposisi Cholesky':{
+ 'Contoh Numerik Cholesky 3×3':{
   prompt:[
    '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
    '\\text{Uji Simetri & Definit Positif, lalu faktorkan } A = L \\cdot L^T \\text{ (Cholesky)}'
@@ -185,22 +210,48 @@ const examples={
  }
 } as const
 
-function StepExample({data}:{data:(typeof examples)[keyof typeof examples]}){
+function StepExample({data}:{data:any}){
  const [step,setStep]=useState(0);
+ const [showVideo,setShowVideo]=useState(false);
+
  return <div className="example">
-  <div className="example-prompt">{data.prompt.map(line=><BlockMath math={line} key={line}/>)}</div>
-  <div className="step">
-   <small>LANGKAH {step + 1} DARI {data.steps.length}</small>
-   {data.steps[step].map(line=><BlockMath math={line} key={line}/>)}
+  <div className="example-header-bar">
+   <div className="example-prompt">{data.prompt.map((line:string)=><BlockMath math={line} key={line}/>)}</div>
+   {data.videoUrl&&(
+    <div className="example-view-toggle">
+     <button type="button" className={!showVideo?'active':''} onClick={()=>setShowVideo(false)}>
+      📋 Langkah Interaktif ({step+1}/{data.steps.length})
+     </button>
+     <button type="button" className={showVideo?'active':''} onClick={()=>setShowVideo(true)}>
+      🎬 Animasi Manim (TV)
+     </button>
+    </div>
+   )}
   </div>
-  {'conclusion' in data&&step===data.steps.length-1&&<div className="conclusion">
-   <strong>Kesimpulan Matematis</strong>
-   <p>{data.conclusion.map((part,n)=>n%2?<InlineMath math={part} key={part}/>:part)}</p>
-  </div>}
-  <div className="step-controls">
-   <button disabled={!step} onClick={()=>setStep(step-1)}><ChevronLeft/>Langkah Sebelumnya</button>
-   <button disabled={step===data.steps.length-1} onClick={()=>setStep(step+1)}>Langkah Berikutnya<ChevronRight/></button>
-  </div>
+
+  {showVideo&&data.videoUrl?(
+   <div className="video-container">
+    <video controls autoPlay={false} className="manim-video-player" src={data.videoUrl}>
+     Browser Anda tidak mendukung pemutar video.
+    </video>
+    <small className="video-caption">Animasi Matematika Manim: Faktorisasi Crout A = LU, Substitusi Maju Ly = b, dan Substitusi Mundur Ux = y</small>
+   </div>
+  ):(
+   <>
+    <div className="step">
+     <small>LANGKAH {step + 1} DARI {data.steps.length}</small>
+     {data.steps[step].map((line:string)=><BlockMath math={line} key={line}/>)}
+    </div>
+    {'conclusion' in data&&step===data.steps.length-1&&<div className="conclusion">
+     <strong>Kesimpulan Matematis</strong>
+     <p>{data.conclusion.map((part:string,n:number)=>n%2?<InlineMath math={part} key={part}/>:part)}</p>
+    </div>}
+    <div className="step-controls">
+     <button disabled={!step} onClick={()=>setStep(step-1)}><ChevronLeft/>Langkah Sebelumnya</button>
+     <button disabled={step===data.steps.length-1} onClick={()=>setStep(step+1)}>Langkah Berikutnya<ChevronRight/></button>
+    </div>
+   </>
+  )}
  </div>
 }
 
