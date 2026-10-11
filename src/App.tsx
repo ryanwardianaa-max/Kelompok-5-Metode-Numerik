@@ -290,11 +290,11 @@ function VariantComparisonSlide(){
     <div className="variant-math-stack">
      <div className="matrix-row">
       <span className="matrix-label">L =</span>
-      <BlockMath math="\begin{bmatrix} 1 & 0 & 0 \\ \frac{1}{2} & 1 & 0 \\ -\frac{1}{2} & \frac{1}{3} & 1 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 1 & 0 & 0 \\[10pt] \dfrac{1}{2} & 1 & 0 \\[10pt] -\dfrac{1}{2} & \dfrac{1}{3} & 1 \end{bmatrix}"/>
      </div>
      <div className="matrix-row">
       <span className="matrix-label">U =</span>
-      <BlockMath math="\begin{bmatrix} 4 & 2 & -2 \\ 0 & 9 & 3 \\ 0 & 0 & 4 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 4 & 2 & -2 \\[8pt] 0 & 9 & 3 \\[8pt] 0 & 0 & 4 \end{bmatrix}"/>
      </div>
     </div>
     <ul className="variant-points">
@@ -313,11 +313,11 @@ function VariantComparisonSlide(){
     <div className="variant-math-stack">
      <div className="matrix-row">
       <span className="matrix-label">L =</span>
-      <BlockMath math="\begin{bmatrix} 4 & 0 & 0 \\ 2 & 9 & 0 \\ -2 & 3 & 4 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 4 & 0 & 0 \\[8pt] 2 & 9 & 0 \\[8pt] -2 & 3 & 4 \end{bmatrix}"/>
      </div>
      <div className="matrix-row">
       <span className="matrix-label">U =</span>
-      <BlockMath math="\begin{bmatrix} 1 & \frac{1}{2} & -\frac{1}{2} \\ 0 & 1 & \frac{1}{3} \\ 0 & 0 & 1 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 1 & \dfrac{1}{2} & -\dfrac{1}{2} \\[10pt] 0 & 1 & \dfrac{1}{3} \\[10pt] 0 & 0 & 1 \end{bmatrix}"/>
      </div>
     </div>
     <ul className="variant-points">

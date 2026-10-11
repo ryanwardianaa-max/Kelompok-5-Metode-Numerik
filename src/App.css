@@ -31,9 +31,9 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .footer-brand .developer-logo{width:32px;height:32px}
 
 /* Presentation Deck */
-.deck{display:flex;flex-direction:column;align-items:center;width:100%;max-width:1020px;margin:0 auto}
+.deck{display:flex;flex-direction:column;align-items:center;width:100%;max-width:1160px;margin:0 auto}
 .progress{position:absolute;top:0;left:0;height:4px;z-index:10;border-radius:4px 4px 0 0;background:var(--blue);transition:width .2s}
-.slide{position:relative;width:100%;max-width:1020px;aspect-ratio:16/9;border:2px solid var(--ink);box-shadow:var(--shadow);background:white;display:grid;grid-template-columns:1.35fr .65fr;overflow:hidden;border-radius:12px;margin:0 auto}
+.slide{position:relative;width:100%;max-width:1160px;aspect-ratio:16/9;border:2px solid var(--ink);box-shadow:var(--shadow);background:white;display:grid;grid-template-columns:1.35fr .65fr;overflow:hidden;border-radius:12px;margin:0 auto}
 .slide>div:not(.progress){padding:clamp(18px,3vw,38px);display:flex;flex-direction:column;justify-content:center}
 .slide h1{font-size:clamp(1.5rem,2.6vw,2.4rem);margin:0 0 .25em;line-height:1.15}
 .slide .katex-display{font-size:clamp(.95rem,1.4vw,1.45rem);margin:.8em 0}
@@ -102,7 +102,7 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .mini .button{margin-left:auto}
 
 /* Special Slides (Steps & Quiz) */
-.slide.special{display:block;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 200px);min-height:480px}
+.slide.special{display:block;overflow-y:auto;overflow-x:hidden;aspect-ratio:auto!important;min-height:580px;height:auto!important}
 .slide.special>div:not(.progress){padding:22px 32px}
 .example{max-width:940px;margin:auto}
 .example-prompt{padding:8px 12px;background:var(--dim);border-radius:8px;line-height:1.5;font-size:.85rem}
@@ -333,11 +333,12 @@ th{background:var(--low);position:sticky;top:0}
 .variant-card.cholesky .variant-card-title{color:#059669}
 .variant-card-title .badge{font-size:.72rem;padding:2px 8px;border-radius:4px;border:1px solid var(--ink);background:var(--low);color:var(--ink)}
 .variant-rule{font-size:.8rem;color:var(--muted);margin:0;line-height:1.4}
-.variant-math-stack{display:flex;flex-direction:column;gap:8px;background:var(--dim);border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;margin:4px 0}
-.matrix-row{display:flex;align-items:center;justify-content:center;gap:10px}
-.matrix-row .matrix-label{font-weight:700;font-size:.85rem;color:var(--ink);min-width:32px;text-align:right}
-.matrix-row .katex-display{margin:0!important;font-size:.85rem!important}
+.variant-math-stack{display:flex;flex-direction:column;gap:14px;background:var(--dim);border:1.5px solid var(--ink);border-radius:10px;padding:12px 14px;margin:6px 0}
+.matrix-row{display:flex;align-items:center;justify-content:center;gap:12px}
+.matrix-row .matrix-label{font-weight:700;font-size:.9rem;color:var(--ink);min-width:34px;text-align:right}
+.matrix-row .katex-display{margin:4px 0!important;font-size:.9rem!important}
 .matrix-row .katex{white-space:nowrap!important}
+.variant-math-stack .katex .mfrac .vlist-t2{margin-top:2px;margin-bottom:2px}
 .variant-points{margin:0;padding-left:18px;font-size:.78rem;line-height:1.5;color:var(--ink)}
 .variant-footer-summary{background:#feebc8;border:2px solid var(--ink);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow);font-size:.84rem;line-height:1.5}
 .variant-footer-summary strong{color:#78350f}
