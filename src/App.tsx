@@ -290,7 +290,7 @@ function VariantComparisonSlide(){
     <div className="variant-math-stack">
      <div className="matrix-row">
       <span className="matrix-label">L =</span>
-      <BlockMath math="\begin{bmatrix} 1 & 0 & 0 \\ 0.5 & 1 & 0 \\ -0.5 & 0.33 & 1 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 1 & 0 & 0 \\ \frac{1}{2} & 1 & 0 \\ -\frac{1}{2} & \frac{1}{3} & 1 \end{bmatrix}"/>
      </div>
      <div className="matrix-row">
       <span className="matrix-label">U =</span>
@@ -317,7 +317,7 @@ function VariantComparisonSlide(){
      </div>
      <div className="matrix-row">
       <span className="matrix-label">U =</span>
-      <BlockMath math="\begin{bmatrix} 1 & 0.5 & -0.5 \\ 0 & 1 & 0.33 \\ 0 & 0 & 1 \end{bmatrix}"/>
+      <BlockMath math="\begin{bmatrix} 1 & \frac{1}{2} & -\frac{1}{2} \\ 0 & 1 & \frac{1}{3} \\ 0 & 0 & 1 \end{bmatrix}"/>
      </div>
     </div>
     <ul className="variant-points">
