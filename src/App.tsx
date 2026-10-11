@@ -104,6 +104,7 @@ const slides=[
 
 const examples={
  'Contoh Numerik Crout 3×3':{
+  manimSlidesUrl:'/manim_slides.html',
   videoUrl:'/videos/contoh_soal_metode_crout.mp4',
   prompt:[
    '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
@@ -118,50 +119,36 @@ const examples={
    [
     '\\text{Langkah 2: Baris 1 matriks } U \\text{ dibagi poros } l_{11} = 4 \\ (u_{11} = 1):',
     'u_{12} = \\frac{a_{12}}{l_{11}} = \\frac{2}{4} = \\frac{1}{2}, \\quad u_{13} = \\frac{a_{13}}{l_{11}} = \\frac{-2}{4} = -\\frac{1}{2}',
-    '\\text{Baris 1 } U = \\left[ 1, \\ \\frac{1}{2}, \\ -\\frac{1}{2} \
-ight]'
+    '\\text{Baris 1 } U = \\left[ 1, \\ \\frac{1}{2}, \\ -\\frac{1}{2} \\right]'
    ],
    [
     '\\text{Langkah 3: Kolom 2 matriks } L \\text{ (mengurangi akumulasi baris 1):}',
-    'l_{22} = a_{22} - (l_{21} u_{12}) = 10 - \\left(2 \\cdot \\frac{1}{2}\
-ight) = 10 - 1 = 9',
-    'l_{32} = a_{32} - (l_{31} u_{12}) = 2 - \\left(-2 \\cdot \\frac{1}{2}\
-ight) = 2 - (-1) = 3',
+    'l_{22} = a_{22} - (l_{21} u_{12}) = 10 - \\left(2 \\cdot \\frac{1}{2}\\right) = 10 - 1 = 9',
+    'l_{32} = a_{32} - (l_{31} u_{12}) = 2 - \\left(-2 \\cdot \\frac{1}{2}\\right) = 2 - (-1) = 3',
     '\\text{Kolom 2 } L = \\begin{bmatrix} 0 \\\\ 9 \\\\ 3 \\end{bmatrix}'
    ],
    [
     '\\text{Langkah 4: Baris 2 matriks } U \\text{ dibagi poros } l_{22} = 9 \\ (u_{22} = 1):',
-    'u_{23} = \\frac{a_{23} - (l_{21} u_{13})}{l_{22}} = \\frac{2 - \\left(2 \\cdot -\\frac{1}{2}\
-ight)}{9} = \\frac{2 - (-1)}{9} = \\frac{3}{9} = \\frac{1}{3}',
-    '\\text{Baris 2 } U = \\left[ 0, \\ 1, \\ \\frac{1}{3} \
-ight]'
+    'u_{23} = \\frac{a_{23} - (l_{21} u_{13})}{l_{22}} = \\frac{2 - \\left(2 \\cdot -\\frac{1}{2}\\right)}{9} = \\frac{2 - (-1)}{9} = \\frac{3}{9} = \\frac{1}{3}',
+    '\\text{Baris 2 } U = \\left[ 0, \\ 1, \\ \\frac{1}{3} \\right]'
    ],
    [
     '\\text{Langkah 5: Kolom 3 matriks } L \\text{ (elemen pivot terakhir):}',
-    'l_{33} = a_{33} - (l_{31} u_{13} + l_{32} u_{23}) = 6 - \\left[\\left(-2 \\cdot -\\frac{1}{2}\
-ight) + \\left(3 \\cdot \\frac{1}{3}\
-ight)\
-ight] = 6 - (1 + 1) = 4',
+    'l_{33} = a_{33} - (l_{31} u_{13} + l_{32} u_{23}) = 6 - \\left[\\left(-2 \\cdot -\\frac{1}{2}\\right) + \\left(3 \\cdot \\frac{1}{3}\\right)\\right] = 6 - (1 + 1) = 4',
     'L = \\begin{bmatrix} 4 & 0 & 0 \\\\ 2 & 9 & 0 \\\\ -2 & 3 & 4 \\end{bmatrix}, \\quad U = \\begin{bmatrix} 1 & \\frac{1}{2} & -\\frac{1}{2} \\\\ 0 & 1 & \\frac{1}{3} \\\\ 0 & 0 & 1 \\end{bmatrix}'
    ],
    [
     '\\text{Langkah 6: Sub-Tahap 1 Substitusi Maju } L\\mathbf{y} = \\mathbf{b}:',
     '4 y_1 = 2 \\implies y_1 = \\frac{2}{4} = \\frac{1}{2}',
-    '2\\left(\\frac{1}{2}\
-ight) + 9 y_2 = 22 \\implies 1 + 9 y_2 = 22 \\implies 9 y_2 = 21 \\implies y_2 = \\frac{21}{9} = \\frac{7}{3}',
-    '-2\\left(\\frac{1}{2}\
-ight) + 3\\left(\\frac{7}{3}\
-ight) + 4 y_3 = 4 \\implies 6 + 4 y_3 = 4 \\implies 4 y_3 = -2 \\implies y_3 = -\\frac{1}{2}',
+    '2\\left(\\frac{1}{2}\\right) + 9 y_2 = 22 \\implies 1 + 9 y_2 = 22 \\implies 9 y_2 = 21 \\implies y_2 = \\frac{21}{9} = \\frac{7}{3}',
+    '-2\\left(\\frac{1}{2}\\right) + 3\\left(\\frac{7}{3}\\right) + 4 y_3 = 4 \\implies 6 + 4 y_3 = 4 \\implies 4 y_3 = -2 \\implies y_3 = -\\frac{1}{2}',
     '\\mathbf{y} = \\begin{bmatrix} \\frac{1}{2} \\\\ \\frac{7}{3} \\\\ -\\frac{1}{2} \\end{bmatrix}'
    ],
    [
     '\\text{Langkah 7: Sub-Tahap 2 Substitusi Mundur } U\\mathbf{x} = \\mathbf{y}:',
     '1 x_3 = -\\frac{1}{2} \\implies x_3 = -\\frac{1}{2}',
-    'x_2 + \\frac{1}{3}\\left(-\\frac{1}{2}\
-ight) = \\frac{7}{3} \\implies x_2 - \\frac{1}{6} = \\frac{14}{6} \\implies x_2 = \\frac{15}{6} = \\frac{5}{2}',
-    'x_1 + \\frac{1}{2}\\left(\\frac{5}{2}\
-ight) - \\frac{1}{2}\\left(-\\frac{1}{2}\
-ight) = \\frac{1}{2} \\implies x_1 + \\frac{6}{4} = \\frac{2}{4} \\implies x_1 = -1',
+    'x_2 + \\frac{1}{3}\\left(-\\frac{1}{2}\\right) = \\frac{7}{3} \\implies x_2 - \\frac{1}{6} = \\frac{14}{6} \\implies x_2 = \\frac{15}{6} = \\frac{5}{2}',
+    'x_1 + \\frac{1}{2}\\left(\\frac{5}{2}\\right) - \\frac{1}{2}\\left(-\\frac{1}{2}\\right) = \\frac{1}{2} \\implies x_1 + \\frac{6}{4} = \\frac{2}{4} \\implies x_1 = -1',
     '\\mathbf{x} = \\begin{bmatrix} -1 \\\\ \\frac{5}{2} \\\\ -\\frac{1}{2} \\end{bmatrix}'
    ]
   ],
@@ -212,31 +199,55 @@ ight) = \\frac{1}{2} \\implies x_1 + \\frac{6}{4} = \\frac{2}{4} \\implies x_1 =
 
 function StepExample({data}:{data:any}){
  const [step,setStep]=useState(0);
- const [showVideo,setShowVideo]=useState(false);
+ const [viewMode,setViewMode]=useState<'slides'|'video'|'steps'>(
+  data.manimSlidesUrl ? 'slides' : data.videoUrl ? 'video' : 'steps'
+ );
 
  return <div className="example">
   <div className="example-header-bar">
    <div className="example-prompt">{data.prompt.map((line:string)=><BlockMath math={line} key={line}/>)}</div>
-   {data.videoUrl&&(
+   {(data.manimSlidesUrl || data.videoUrl)&&(
     <div className="example-view-toggle">
-     <button type="button" className={!showVideo?'active':''} onClick={()=>setShowVideo(false)}>
-      📋 Langkah Interaktif ({step+1}/{data.steps.length})
-     </button>
-     <button type="button" className={showVideo?'active':''} onClick={()=>setShowVideo(true)}>
-      🎬 Animasi Manim (TV)
+     {data.manimSlidesUrl && (
+      <button type="button" className={viewMode==='slides'?'active':''} onClick={()=>setViewMode('slides')}>
+       🖥️ Manim Slide Interaktif
+      </button>
+     )}
+     {data.videoUrl && (
+      <button type="button" className={viewMode==='video'?'active':''} onClick={()=>setViewMode('video')}>
+       🎬 Video Penuh
+      </button>
+     )}
+     <button type="button" className={viewMode==='steps'?'active':''} onClick={()=>setViewMode('steps')}>
+      📋 Teks Langkah ({step+1}/{data.steps.length})
      </button>
     </div>
    )}
   </div>
 
-  {showVideo&&data.videoUrl?(
+  {viewMode==='slides' && data.manimSlidesUrl ? (
+   <div className="manim-slides-container">
+    <iframe
+     src={data.manimSlidesUrl}
+     className="manim-slides-frame"
+     title="Manim Interactive Slides"
+     allowFullScreen
+    />
+    <div className="manim-slides-hint">
+     <span>💡 <strong>Navigasi Manim Slide:</strong> Klik frame lalu tekan panah kanan/spasi untuk lanjut, atau gunakan panah navigasi di sudut kanan bawah.</span>
+     <button type="button" className="btn-open-newtab" onClick={()=>window.open(data.manimSlidesUrl, '_blank')}>
+      Layar Penuh Tab Baru ↗
+     </button>
+    </div>
+   </div>
+  ) : viewMode==='video' && data.videoUrl ? (
    <div className="video-container">
     <video controls autoPlay={false} className="manim-video-player" src={data.videoUrl}>
      Browser Anda tidak mendukung pemutar video.
     </video>
     <small className="video-caption">Animasi Matematika Manim: Faktorisasi Crout A = LU, Substitusi Maju Ly = b, dan Substitusi Mundur Ux = y</small>
    </div>
-  ):(
+  ) : (
    <>
     <div className="step">
      <small>LANGKAH {step + 1} DARI {data.steps.length}</small>
