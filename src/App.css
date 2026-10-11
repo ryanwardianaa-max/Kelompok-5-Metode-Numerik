@@ -77,7 +77,8 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .method-matrix span{width:100%;padding:6px;border:1px solid var(--ink);background:white;font-size:.8rem}
 
 /* Cover Slide */
-.slide.full-width{display:flex!important;flex-direction:column;justify-content:center;align-items:center;width:100%}
+.slide.full-width:not(.special){display:flex!important;flex-direction:column;justify-content:center;align-items:center;width:100%}
+.slide.special.full-width{display:block!important;width:100%}
 .slide.cover-slide{display:flex!important;flex-direction:column;justify-content:center!important;align-items:center!important;width:100%!important;height:auto!important;aspect-ratio:16/9;overflow:hidden}
 .slide.cover-slide>div:not(.progress){display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;max-width:820px;padding:clamp(14px,2.2vw,30px);margin:auto}
 .slide.cover-slide small{display:inline-block;margin-bottom:4px;letter-spacing:.15em;text-align:center}
@@ -308,4 +309,41 @@ th{background:var(--low);position:sticky;top:0}
 @media(prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;transition:none!important}
   .cursor-dot,.cursor-trail{display:none!important}
+}
+
+/* 3-Variant Comparison Component */
+.variant-comparison{width:100%;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.variant-header-box{display:flex;justify-content:space-between;align-items:center;background:var(--dim);border:2px solid var(--ink);border-radius:10px;padding:12px 18px;box-shadow:var(--shadow);flex-wrap:wrap;gap:12px}
+.variant-target-info{font-size:.85rem}
+.variant-target-info strong{color:var(--ink);font-size:.9rem}
+.variant-target-info .katex-display{margin:.25em 0}
+.variant-target-info small{color:var(--muted);font-weight:600}
+.variant-tab-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.variant-tab-buttons button{padding:5px 10px;font-size:.78rem;font-weight:600;min-height:32px;box-shadow:2px 2px 0 var(--ink)}
+.variant-tab-buttons button.active{background:var(--blue);color:#fff;border-color:var(--ink);transform:translate(2px,2px);box-shadow:none}
+.variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.variant-grid.single-focus{grid-template-columns:1fr;max-width:700px;margin:0 auto;width:100%}
+.variant-card{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.variant-card.doolittle{border-top:5px solid #0284c7}
+.variant-card.crout{border-top:5px solid #d97706}
+.variant-card.cholesky{border-top:5px solid #059669}
+.variant-card-title{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.95rem}
+.variant-card.doolittle .variant-card-title{color:#0284c7}
+.variant-card.crout .variant-card-title{color:#d97706}
+.variant-card.cholesky .variant-card-title{color:#059669}
+.variant-card-title .badge{font-size:.72rem;padding:2px 8px;border-radius:4px;border:1px solid var(--ink);background:var(--low);color:var(--ink)}
+.variant-rule{font-size:.8rem;color:var(--muted);margin:0;line-height:1.4}
+.variant-math-stack{display:flex;flex-direction:column;gap:8px;background:var(--dim);border:1.5px solid var(--ink);border-radius:8px;padding:8px 10px;margin:4px 0}
+.matrix-row{display:flex;align-items:center;justify-content:center;gap:10px}
+.matrix-row .matrix-label{font-weight:700;font-size:.85rem;color:var(--ink);min-width:32px;text-align:right}
+.matrix-row .katex-display{margin:0!important;font-size:.85rem!important}
+.matrix-row .katex{white-space:nowrap!important}
+.variant-points{margin:0;padding-left:18px;font-size:.78rem;line-height:1.5;color:var(--ink)}
+.variant-footer-summary{background:#feebc8;border:2px solid var(--ink);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow);font-size:.84rem;line-height:1.5}
+.variant-footer-summary strong{color:#78350f}
+.variant-footer-summary p{margin:4px 0 0;color:#222}
+
+@media(max-width:900px){
+  .variant-grid{grid-template-columns:1fr}
+  .variant-header-box{flex-direction:column;align-items:flex-start}
 }

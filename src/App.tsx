@@ -258,6 +258,110 @@ function Quiz({answers,onChange}:{answers:(number|undefined)[];onChange:(answers
  </div>
 }
 
+function VariantComparisonSlide(){
+ const [tab,setTab]=useState<'all'|'doolittle'|'crout'|'cholesky'>('all');
+
+ return <div className="variant-comparison">
+  <div className="variant-header-box">
+   <div className="variant-target-info">
+    <div style={{fontWeight:700,fontSize:'0.9rem',color:'var(--ink)',marginBottom:'4px'}}>
+      Matriks Asal A (3×3 Simetris Definit Positif):
+    </div>
+    <BlockMath math="A = \begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix}"/>
+    <div style={{color:'var(--muted)',fontSize:'0.75rem',fontWeight:600,marginTop:'2px'}}>
+      ✓ Simetris (A = Aᵀ) &nbsp;•&nbsp; ✓ Definit Positif (Semua subdeterminan &gt; 0)
+    </div>
+   </div>
+   <div className="variant-tab-buttons">
+    <button className={tab==='all'?'active':''} onClick={()=>setTab('all')}>Semua Varian (3 Kolom)</button>
+    <button className={tab==='doolittle'?'active':''} onClick={()=>setTab('doolittle')}>1. Doolittle (l_ii = 1)</button>
+    <button className={tab==='crout'?'active':''} onClick={()=>setTab('crout')}>2. Crout (u_ii = 1)</button>
+    <button className={tab==='cholesky'?'active':''} onClick={()=>setTab('cholesky')}>3. Cholesky (A = L · Lᵀ)</button>
+   </div>
+  </div>
+
+  <div className={`variant-grid ${tab!=='all'?'single-focus':''}`}>
+   {(tab==='all'||tab==='doolittle')&&<article className="variant-card doolittle">
+    <div className="variant-card-title">
+     <span>1. Metode Doolittle</span>
+     <span className="badge">l_ii = 1</span>
+    </div>
+    <p className="variant-rule">Kunci angka <b>1</b> di diagonal <b>L</b>. Matriks <b>U</b> menampung sisa.</p>
+    <div className="variant-math-stack">
+     <div className="matrix-row">
+      <span className="matrix-label">L =</span>
+      <BlockMath math="\begin{bmatrix} 1 & 0 & 0 \\ 0.5 & 1 & 0 \\ -0.5 & 0.33 & 1 \end{bmatrix}"/>
+     </div>
+     <div className="matrix-row">
+      <span className="matrix-label">U =</span>
+      <BlockMath math="\begin{bmatrix} 4 & 2 & -2 \\ 0 & 9 & 3 \\ 0 & 0 & 4 \end{bmatrix}"/>
+     </div>
+    </div>
+    <ul className="variant-points">
+     <li>Materi kelompok sebelumnya (Eliminasi Gauss murni).</li>
+     <li>Diagonal L dipatok <code>[1, 1, 1]</code>.</li>
+     <li>Matriks U menampung diagonal <code>[4, 9, 4]</code>.</li>
+    </ul>
+   </article>}
+
+   {(tab==='all'||tab==='crout')&&<article className="variant-card crout">
+    <div className="variant-card-title">
+     <span>2. Metode Crout</span>
+     <span className="badge">u_ii = 1</span>
+    </div>
+    <p className="variant-rule">Kunci angka <b>1</b> di diagonal <b>U</b>. Matriks <b>L</b> menampung sisa.</p>
+    <div className="variant-math-stack">
+     <div className="matrix-row">
+      <span className="matrix-label">L =</span>
+      <BlockMath math="\begin{bmatrix} 4 & 0 & 0 \\ 2 & 9 & 0 \\ -2 & 3 & 4 \end{bmatrix}"/>
+     </div>
+     <div className="matrix-row">
+      <span className="matrix-label">U =</span>
+      <BlockMath math="\begin{bmatrix} 1 & 0.5 & -0.5 \\ 0 & 1 & 0.33 \\ 0 & 0 & 1 \end{bmatrix}"/>
+     </div>
+    </div>
+    <ul className="variant-points">
+     <li>Materi inti Kelompok 4 (Reduksi Crout).</li>
+     <li>Diagonal U dipatok <code>[1, 1, 1]</code>.</li>
+     <li>Substitusi balik bebas pembagian, pembagian diserap di L.</li>
+    </ul>
+   </article>}
+
+   {(tab==='all'||tab==='cholesky')&&<article className="variant-card cholesky">
+    <div className="variant-card-title">
+     <span>3. Metode Cholesky</span>
+     <span className="badge">A = L · Lᵀ</span>
+    </div>
+    <p className="variant-rule">Bagi rata simetris! Diagonal ditarik akar: <code>√4=2, √9=3, √4=2</code>.</p>
+    <div className="variant-math-stack">
+     <div className="matrix-row">
+      <span className="matrix-label">L =</span>
+      <BlockMath math="\begin{bmatrix} 2 & 0 & 0 \\ 1 & 3 & 0 \\ -1 & 1 & 2 \end{bmatrix}"/>
+     </div>
+     <div className="matrix-row">
+      <span className="matrix-label">Lᵀ =</span>
+      <BlockMath math="\begin{bmatrix} 2 & 1 & -1 \\ 0 & 3 & 1 \\ 0 & 0 & 2 \end{bmatrix}"/>
+     </div>
+    </div>
+    <ul className="variant-points">
+     <li>Materi inti Kelompok 4 khusus simetris definit positif.</li>
+     <li>Tidak ada pemaksaan angka 1, terbagi simetris sempurna.</li>
+     <li>Hanya perlu hitung L sekali! Hemat komputasi 50%.</li>
+    </ul>
+   </article>}
+  </div>
+
+  <div className="variant-footer-summary">
+   <strong>💡 Rangkuman Alokasi Angka Diagonal [4, 9, 4]:</strong>
+   <p>
+    • <b>Doolittle:</b> Angka [4, 9, 4] ditaruh di <b>U</b>, diagonal L dikunci <b>1</b>.<br/>
+    • <b>Crout:</b> Angka [4, 9, 4] ditaruh di <b>L</b>, diagonal U dikunci <b>1</b>.<br/>
+    • <b>Cholesky:</b> Angka [4, 9, 4] ditarik akar menjadi <b>[2, 3, 2]</b> dan dibagi seimbang ke <b>L</b> dan <b>Lᵀ</b>!
+   </p>
+  </div>
+ </div>
+}
+
 function SlideDeck(){
  const [i,setI]=useState(0),last=slides.length-1,[open,setOpen]=useState(false),[answers,setAnswers]=useState<(number|undefined)[]>(Array(questions.length).fill(undefined));
  const move=useCallback((to:number)=>setI(Math.max(0,Math.min(last,to))),[last]);
@@ -274,19 +378,20 @@ function SlideDeck(){
  },[i,move]);
 
  const slide=slides[i],
-  example=examples[slide[0] as keyof typeof examples],
-  quiz=slide[0]==='Latihan & Kuis Interaktif',
-  fullWidth=i===0||Boolean(example),
-  special=Boolean(example)||quiz;
+   example=examples[slide[0] as keyof typeof examples],
+   quiz=slide[0]==='Latihan & Kuis Interaktif',
+   isVariantSlide=slide[0]==='Tiga Varian Dekomposisi LU',
+   fullWidth=i===0||Boolean(example)||isVariantSlide,
+   special=Boolean(example)||quiz||isVariantSlide;
 
- return <section className="deck">
-  <article className={`slide ${i===0?'cover-slide':''} ${special?'special':''} ${fullWidth?'full-width':''}`}>
-   <div className="progress" style={{width:`${(i+1)/slides.length*100}%`}}/>
-   <div>
-    <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
-    <h1>{slide[0]}</h1>
-    {i===0?<Cover/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
-   </div>
+  return <section className="deck">
+   <article className={`slide ${i===0?'cover-slide':''} ${special?'special':''} ${fullWidth?'full-width':''}`}>
+    <div className="progress" style={{width:`${(i+1)/slides.length*100}%`}}/>
+    <div>
+     <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
+     <h1>{slide[0]}</h1>
+     {i===0?<Cover/>:isVariantSlide?<VariantComparisonSlide/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
+    </div>
    {!fullWidth&&<aside className={special?'compact-visual':''}>
     <SlideVisual index={i} score={score}/>
     {!special&&<div className="slide-takeaway">
