@@ -31,7 +31,7 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .footer-brand .developer-logo{width:32px;height:32px}
 
 /* Presentation Deck */
-.deck{display:flex;flex-direction:column;align-items:center;width:100%;max-width:1160px;margin:0 auto}
+.deck{display:flex;flex-direction:column;align-items:center;width:100%;max-width:calc(1160px * var(--deck-zoom, 1));margin:0 auto;transition:max-width .2s ease}
 .progress{position:absolute;top:0;left:0;height:4px;z-index:10;border-radius:4px 4px 0 0;background:var(--blue);transition:width .2s}
 .slide{position:relative;width:100%;max-width:1160px;aspect-ratio:16/9;border:2px solid var(--ink);box-shadow:var(--shadow);background:white;display:grid;grid-template-columns:1.35fr .65fr;overflow:hidden;border-radius:12px;margin:0 auto}
 .slide>div:not(.progress){padding:clamp(18px,3vw,38px);display:flex;flex-direction:column;justify-content:center}
@@ -93,8 +93,14 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .cover-members article strong{font-size:.88rem}
 .cover-members article span{font-size:.75rem}
 
-.deckbar{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.deckbar{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
 .deckbar button{min-height:36px;font-size:.82rem;padding:6px 12px}
+.deck-zoom-controls{display:inline-flex;align-items:center;gap:4px;margin-left:8px;background:var(--low);padding:2px 4px;border-radius:8px;border:1.5px solid var(--ink)}
+.deck-zoom-controls button{min-height:32px;padding:4px 8px;display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;background:var(--surface);border:1px solid var(--ink);border-radius:6px;cursor:pointer}
+.deck-zoom-controls button:hover:not(:disabled){background:var(--dim);color:var(--blue)}
+.deck-zoom-controls .zoom-indicator{min-width:48px;font-weight:700;font-variant-numeric:tabular-nums}
+:fullscreen .deck{max-width:96vw}
+:fullscreen .slide{max-width:96vw}
 .drawer{position:fixed;inset:104px 0 0 55%;background:var(--low);border-left:2px solid var(--ink);z-index:10;padding:20px;overflow:auto;display:grid;gap:6px}
 .drawer button{justify-content:flex-start;font-size:.82rem}
 .drawer button.active{background:var(--blue);color:white}

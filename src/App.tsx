@@ -1,6 +1,6 @@
-import {useCallback,useEffect,useState} from 'react'
+import {useCallback,useEffect,useState,type CSSProperties} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {BookOpen,ChevronLeft,ChevronRight,FlaskConical,Play,Presentation,User,Users} from 'lucide-react'
+import {BookOpen,ChevronLeft,ChevronRight,FlaskConical,Maximize,Minimize,Play,Presentation,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
 import {
   solveGauss,
   solveLUGauss,
@@ -364,18 +364,43 @@ function VariantComparisonSlide(){
 
 function SlideDeck(){
  const [i,setI]=useState(0),last=slides.length-1,[open,setOpen]=useState(false),[answers,setAnswers]=useState<(number|undefined)[]>(Array(questions.length).fill(undefined));
+ const [zoom,setZoom]=useState<number>(100);
+ const [isFullscreen,setIsFullscreen]=useState<boolean>(false);
  const move=useCallback((to:number)=>setI(Math.max(0,Math.min(last,to))),[last]);
+
+ const zoomIn=useCallback(()=>setZoom(z=>Math.min(160,z+10)),[]);
+ const zoomOut=useCallback(()=>setZoom(z=>Math.max(70,z-10)),[]);
+ const resetZoom=useCallback(()=>setZoom(100),[]);
+ const toggleFullscreen=useCallback(()=>{
+  if(!document.fullscreenElement){
+   document.documentElement.requestFullscreen().catch(()=>{});
+  }else{
+   document.exitFullscreen().catch(()=>{});
+  }
+ },[]);
 
  const score=answers.filter((ans,idx)=>ans===questions[idx].answer).length;
 
  useEffect(()=>{
+  const onFs=()=>setIsFullscreen(Boolean(document.fullscreenElement));
+  document.addEventListener('fullscreenchange',onFs);
+  return()=>document.removeEventListener('fullscreenchange',onFs);
+ },[]);
+
+ useEffect(()=>{
   const k=(e:KeyboardEvent)=>{
+   const target=e.target as HTMLElement|null;
+   if(target&&['INPUT','TEXTAREA','SELECT'].includes(target.tagName)) return;
    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();move(i+1)}
    if(e.key==='ArrowLeft'){e.preventDefault();move(i-1)}
+   if(e.key==='+'||e.key==='='){e.preventDefault();zoomIn()}
+   if(e.key==='-'||e.key==='_'){e.preventDefault();zoomOut()}
+   if(e.key==='0'){e.preventDefault();resetZoom()}
+   if(e.key==='f'||e.key==='F'){e.preventDefault();toggleFullscreen()}
   };
   addEventListener('keydown',k);
   return()=>removeEventListener('keydown',k)
- },[i,move]);
+ },[i,move,zoomIn,zoomOut,resetZoom,toggleFullscreen]);
 
  const slide=slides[i],
    example=examples[slide[0] as keyof typeof examples],
@@ -384,8 +409,8 @@ function SlideDeck(){
    fullWidth=i===0||Boolean(example)||isVariantSlide,
    special=Boolean(example)||quiz||isVariantSlide;
 
-  return <section className="deck">
-   <article className={`slide ${i===0?'cover-slide':''} ${special?'special':''} ${fullWidth?'full-width':''}`}>
+  return <section className="deck" style={{'--deck-zoom':zoom/100} as CSSProperties}>
+   <article className={`slide ${i===0?'cover-slide':''} ${special?'special':''} ${fullWidth?'full-width':''}`} style={{zoom:`${zoom}%`}}>
     <div className="progress" style={{width:`${(i+1)/slides.length*100}%`}}/>
     <div>
      <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
@@ -404,6 +429,14 @@ function SlideDeck(){
    <button disabled={!i} onClick={()=>move(i-1)}><ChevronLeft/>Sebelumnya</button>
    <button onClick={()=>setOpen(!open)}>{i+1} / {slides.length} · Daftar Slide</button>
    <button disabled={i===last} onClick={()=>move(i+1)}>Berikutnya<ChevronRight/></button>
+   <div className="deck-zoom-controls">
+    <button onClick={zoomOut} title="Zoom Out (-)" disabled={zoom<=70}><ZoomOut size={16}/></button>
+    <button onClick={resetZoom} title="Reset Skala 100% (0)" className="zoom-indicator"><strong>{zoom}%</strong></button>
+    <button onClick={zoomIn} title="Zoom In (+)" disabled={zoom>=160}><ZoomIn size={16}/></button>
+    <button onClick={toggleFullscreen} title={isFullscreen?"Keluar Layar Penuh (F)":"Layar Penuh (F)"}>
+     {isFullscreen?<Minimize size={16}/>:<Maximize size={16}/>}
+    </button>
+   </div>
   </div>
   {open&&<div className="drawer">
    <div className="drawer-head"><h2>Daftar Slide Presentasi</h2><button onClick={()=>setOpen(false)}>Tutup</button></div>
