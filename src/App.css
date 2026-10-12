@@ -117,10 +117,6 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .smart-tv-player{display:flex;flex-direction:column;width:100%;max-width:920px;margin:12px auto;border:2.5px solid var(--ink);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:#0f172a}
 .smart-tv-viewport{position:relative;width:100%;max-height:450px;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
 .smart-tv-media{width:100%;max-height:450px;display:block;object-fit:contain}
-.smart-tv-overlay-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);transition:background .2s}
-.smart-tv-overlay-play:hover{background:rgba(0,0,0,.2)}
-.play-badge{width:76px;height:76px;border-radius:50%;background:var(--blue);border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.5);transition:transform .15s ease}
-.play-badge:hover{transform:scale(1.1)}
 .smart-tv-deckbar{display:flex;flex-direction:column;gap:10px;padding:12px 18px;background:#1e293b;border-top:2px solid rgba(255,255,255,.1)}
 .tv-track-row{display:flex;align-items:center;gap:12px;width:100%}
 .tv-time-badge{font-family:monospace;font-size:.9rem;font-weight:700;color:#94a3b8;min-width:48px;text-align:center}

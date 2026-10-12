@@ -267,13 +267,6 @@ function SmartTvVideoPlayer({videoUrl}:{videoUrl:string}){
     onPause={()=>setIsPlaying(false)}
     onEnded={()=>setIsPlaying(false)}
    />
-   {!isPlaying&&(
-    <div className="smart-tv-overlay-play">
-     <div className="play-badge">
-      <Play size={44} fill="#fff"/>
-     </div>
-    </div>
-   )}
   </div>
 
   <div className="smart-tv-deckbar">
