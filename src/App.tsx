@@ -1,6 +1,6 @@
-import {useCallback,useEffect,useState,type CSSProperties} from 'react'
+import {useCallback,useEffect,useRef,useState,type CSSProperties} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {BookOpen,ChevronLeft,ChevronRight,FlaskConical,Maximize,Minimize,Play,Presentation,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
+import {BookOpen,ChevronLeft,ChevronRight,FastForward,FlaskConical,Maximize,Minimize,Pause,Play,Presentation,Rewind,RotateCcw,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
 import {
   solveGauss,
   solveLUGauss,
@@ -104,7 +104,6 @@ const slides=[
 
 const examples={
  'Contoh Numerik Crout 3×3':{
-  manimSlidesUrl:'/manim_slides.html',
   videoUrl:'/videos/contoh_soal_metode_crout.mp4',
   prompt:[
    '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
@@ -197,56 +196,135 @@ const examples={
  }
 } as const
 
-function StepExample({data}:{data:any}){
- const [step,setStep]=useState(0);
- const [viewMode,setViewMode]=useState<'slides'|'video'|'steps'>(
-  data.manimSlidesUrl ? 'slides' : data.videoUrl ? 'video' : 'steps'
- );
+function SmartTvVideoPlayer({videoUrl}:{videoUrl:string}){
+ const videoRef=useRef<HTMLVideoElement>(null);
+ const [isPlaying,setIsPlaying]=useState(false);
+ const [currentTime,setCurrentTime]=useState(0);
+ const [duration,setDuration]=useState(0);
 
- return <div className="example">
-  <div className="example-header-bar">
-   <div className="example-prompt">{data.prompt.map((line:string)=><BlockMath math={line} key={line}/>)}</div>
-   {(data.manimSlidesUrl || data.videoUrl)&&(
-    <div className="example-view-toggle">
-     {data.manimSlidesUrl && (
-      <button type="button" className={viewMode==='slides'?'active':''} onClick={()=>setViewMode('slides')}>
-       🖥️ Manim Slide Interaktif
-      </button>
-     )}
-     {data.videoUrl && (
-      <button type="button" className={viewMode==='video'?'active':''} onClick={()=>setViewMode('video')}>
-       🎬 Video Penuh
-      </button>
-     )}
-     <button type="button" className={viewMode==='steps'?'active':''} onClick={()=>setViewMode('steps')}>
-      📋 Teks Langkah ({step+1}/{data.steps.length})
-     </button>
+ const togglePlay=()=>{
+  if(!videoRef.current) return;
+  if(videoRef.current.paused){
+   videoRef.current.play().catch(()=>{});
+   setIsPlaying(true);
+  }else{
+   videoRef.current.pause();
+   setIsPlaying(false);
+  }
+ };
+
+ const skip=(secs:number)=>{
+  if(!videoRef.current) return;
+  const target=Math.max(0,Math.min(videoRef.current.duration||0,videoRef.current.currentTime+secs));
+  videoRef.current.currentTime=target;
+  setCurrentTime(target);
+ };
+
+ const restart=()=>{
+  if(!videoRef.current) return;
+  videoRef.current.currentTime=0;
+  setCurrentTime(0);
+  videoRef.current.play().catch(()=>{});
+  setIsPlaying(true);
+ };
+
+ const toggleFullscreen=()=>{
+  if(!videoRef.current) return;
+  if(document.fullscreenElement){
+   document.exitFullscreen().catch(()=>{});
+  }else{
+   if(videoRef.current.requestFullscreen){
+    videoRef.current.requestFullscreen().catch(()=>{});
+   }
+  }
+ };
+
+ const handleSeek=(e:React.ChangeEvent<HTMLInputElement>)=>{
+  const val=parseFloat(e.target.value);
+  if(videoRef.current){
+   videoRef.current.currentTime=val;
+   setCurrentTime(val);
+  }
+ };
+
+ const fmtTime=(sec:number)=>{
+  if(isNaN(sec)) return '00:00';
+  const m=Math.floor(sec/60);
+  const s=Math.floor(sec%60);
+  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+ };
+
+ return <div className="smart-tv-player">
+  <div className="smart-tv-viewport" onClick={togglePlay}>
+   <video
+    ref={videoRef}
+    src={videoUrl}
+    className="smart-tv-media"
+    playsInline
+    onTimeUpdate={()=>{if(videoRef.current) setCurrentTime(videoRef.current.currentTime)}}
+    onLoadedMetadata={()=>{if(videoRef.current) setDuration(videoRef.current.duration)}}
+    onPlay={()=>setIsPlaying(true)}
+    onPause={()=>setIsPlaying(false)}
+    onEnded={()=>setIsPlaying(false)}
+   />
+   {!isPlaying&&(
+    <div className="smart-tv-overlay-play">
+     <div className="play-badge">
+      <Play size={44} fill="#fff"/>
+     </div>
     </div>
    )}
   </div>
 
-  {viewMode==='slides' && data.manimSlidesUrl ? (
-   <div className="manim-slides-container">
-    <iframe
-     src={data.manimSlidesUrl}
-     className="manim-slides-frame"
-     title="Manim Interactive Slides"
-     allowFullScreen
+  <div className="smart-tv-deckbar">
+   <div className="tv-track-row">
+    <span className="tv-time-badge">{fmtTime(currentTime)}</span>
+    <input
+     type="range"
+     min={0}
+     max={duration||100}
+     step={0.5}
+     value={currentTime}
+     onChange={handleSeek}
+     className="tv-track-slider"
+     title="Geser Waktu Animasi"
     />
-    <div className="manim-slides-hint">
-     <span>💡 <strong>Navigasi Manim Slide:</strong> Klik frame lalu tekan panah kanan/spasi untuk lanjut, atau gunakan panah navigasi di sudut kanan bawah.</span>
-     <button type="button" className="btn-open-newtab" onClick={()=>window.open(data.manimSlidesUrl, '_blank')}>
-      Layar Penuh Tab Baru ↗
-     </button>
-    </div>
+    <span className="tv-time-badge">{fmtTime(duration)}</span>
    </div>
-  ) : viewMode==='video' && data.videoUrl ? (
-   <div className="video-container">
-    <video controls autoPlay={false} className="manim-video-player" src={data.videoUrl}>
-     Browser Anda tidak mendukung pemutar video.
-    </video>
-    <small className="video-caption">Animasi Matematika Manim: Faktorisasi Crout A = LU, Substitusi Maju Ly = b, dan Substitusi Mundur Ux = y</small>
+
+   <div className="tv-control-buttons">
+    <button type="button" className="tv-ctrl-btn tv-ctrl-step" onClick={()=>skip(-5)} title="Mundur 5 Detik">
+     <Rewind size={22}/>
+     <span>-5 Detik</span>
+    </button>
+    <button type="button" className={`tv-ctrl-btn tv-ctrl-main ${isPlaying?'active-pause':''}`} onClick={togglePlay} title={isPlaying?'Jeda Video':'Putar Video'}>
+     {isPlaying?<><Pause size={24} fill="currentColor"/><span>Jeda</span></>:<><Play size={24} fill="currentColor"/><span>Putar</span></>}
+    </button>
+    <button type="button" className="tv-ctrl-btn tv-ctrl-step" onClick={()=>skip(5)} title="Maju 5 Detik">
+     <FastForward size={22}/>
+     <span>+5 Detik</span>
+    </button>
+    <button type="button" className="tv-ctrl-btn tv-ctrl-sub" onClick={restart} title="Putar Dari Awal">
+     <RotateCcw size={20}/>
+     <span>Ulang</span>
+    </button>
+    <button type="button" className="tv-ctrl-btn tv-ctrl-sub" onClick={toggleFullscreen} title="Layar Penuh TV">
+     <Maximize size={20}/>
+     <span>Layar Penuh</span>
+    </button>
    </div>
+  </div>
+ </div>
+}
+
+function StepExample({data}:{data:any}){
+ const [step,setStep]=useState(0);
+
+ return <div className="example">
+  <div className="example-prompt">{data.prompt.map((line:string)=><BlockMath math={line} key={line}/>)}</div>
+
+  {data.videoUrl ? (
+   <SmartTvVideoPlayer videoUrl={data.videoUrl}/>
   ) : (
    <>
     <div className="step">
