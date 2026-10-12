@@ -67,27 +67,33 @@ const slides=[
   'Pencegahan: Lakukan pertukaran baris (pivoting) pada matriks awal A sebelum menerapkan algoritma Crout.'
  ]],
  ['Metode Dekomposisi Cholesky','A = L \\cdot L^T',[
-  'Faktorisasi khusus untuk matriks bujursangkar simetris dan definit positif.',
-  'Matriks atas U tidak perlu dicari terpisah karena U identik dengan transpos L, yaitu U = Lᵀ.'
+  'Analogi Cermin Ajaib: Membagi matriks tepat di depan cermin! Matriks atas U tidak perlu dihitung karena otomatis adalah bayangan transpos L (U = Lᵀ).',
+  'Faktorisasi khusus paling efisien di dunia untuk matriks bujursangkar simetris dan definit positif.',
+  'Hanya menghitung satu matriks segitiga bawah L; kerja komputasi dan memori terpangkas 50% dibanding metode LU biasa.'
  ]],
  ['Syarat Mutlak Metode Cholesky','A = A^T \\quad \\& \\quad \\mathbf{x}^T A \\mathbf{x} > 0',[
-  '1. Simetris: Elemen a_ij harus sama persis dengan a_ji.',
-  '2. Definit Positif: Semua determinan submatriks utama (kriteria Sylvester) bernilai positif strictly > 0.'
+  'Syarat 1 (Simetris A = Aᵀ): Cermin tidak pernah bohong. Karena (L·Lᵀ)ᵀ = L·Lᵀ = A, matriks A wajib simetris sempurna (a_ij = a_ji). Beda satu angka saja, Cholesky gugur!',
+  'Syarat 2 (Definit Positif xᵀAx > 0): Rumus diagonal memakai akar kuadrat l_jj = √(a_jj - ∑ l_jk²). Angka di dalam akar HARUS positif murni agar tidak muncul bilangan imajiner!',
+  'Uji Kriteria Sylvester: Potong submatriks utama dari pojok kiri atas bertahap; semua determinan minor M_1, M_2, ..., M_n wajib > 0.'
  ]],
  ['Algoritma Faktorisasi Cholesky','l_{jj} = \\sqrt{a_{jj} - \\sum l_{jk}^2}',[
-  'Elemen diagonal L dihitung menggunakan akar kuadrat dari selisih koefisien asal dengan kuadrat elemen sebelumnya.',
-  'Elemen di bawah diagonal diperoleh dengan membagi selisih produk silang terhadap elemen diagonal l_jj.'
+  'Elemen Diagonal (l_jj): Ditarik akar kuadrat dari elemen asal dikurangi jumlah kuadrat elemen sebelumnya pada baris yang sama.',
+  'Elemen Bawah Diagonal (l_ij): Elemen asal dikurangi produk silang elemen sebelumnya, lalu dibagi poros diagonal l_jj.',
+  'Efek Kembar: Begitu matriks segitiga bawah L selesai dihitung, matriks segitiga atas langsung diperoleh gratis via transpos (U = Lᵀ).'
  ]],
  ['Efisiensi Komputasi Cholesky','50\\% \\text{ Lebih Hemat Memori & Waktu}',[
-  'Hanya perlu menyimpan satu matriks segitiga L (hemat memori 50%).',
-  'Jumlah operasi perkalian/pembagian hanya sekitar n³/6, dua kali lebih cepat dibanding Gauss/Doolittle/Crout.'
+  'Hemat Memori 50%: Komputer hanya perlu menyimpan satu matriks segitiga L; matriks U tidak memerlukan alokasi memori tambahan.',
+  'Kecepatan 2× Lipat: Beban operasi hanya ~n³/6 flops, memangkas separuh beban Eliminasi Gauss dan Crout/Doolittle (~n³/3 flops).',
+  'Stabilitas Numerik Alami: Khusus matriks definit positif, Cholesky dijamin stabil tanpa memerlukan pertukaran baris (tanpa pivoting).'
  ]],
  ['Contoh Numerik Cholesky 3×3','A = L \\cdot L^T \\implies \\mathbf{x} = [-1, 2.5, -0.5]^T',[
-  'Simulasi pemfaktoran sistem simetris definit positif 3x3 dengan akurasi tinggi dan residu mendekati nol.'
+  'Simulasi pemfaktoran sistem simetris definit positif 3x3 dengan video animasi Manim interaktif khusus Smart TV.',
+  'Langkah lengkap: verifikasi syarat simetris & Sylvester, faktorisasi L, cermin Lᵀ, hingga substitusi maju-mundur.'
  ]],
  ['Jebakan Fatal: Bilangan Non-Positif dalam Akar','a_{jj} - \\sum l_{jk}^2 \\le 0 \\implies \\text{Gagal Cholesky}',[
-  'Jika matriks tidak definit positif, nilai di dalam akar menjadi negatif atau nol (menghasilkan bilangan imajiner).',
-  'Algoritma komputer akan melempar galat domain matematika jika matriks gagal memenuhi syarat definit positif.'
+  'Bahaya Akar Imajiner: Jika matriks tidak definit positif, nilai di dalam akar menjadi negatif atau nol (muncul bilangan imajiner i = √-1).',
+  'Respon Komputer: Program Python (scipy/numpy) atau MATLAB langsung melempar galat LinAlgError: Matrix is not positive definite.',
+  'Solusi Alternatif: Jika matriks simetris tak-definit positif, gunakan faktorisasi LDLᵀ (tanpa penarikan akar) atau metode Crout dengan partial pivoting.'
  ]],
  ['Perbandingan Komparatif Tiga Metode','\\text{Doolittle vs Crout vs Cholesky}',[
   'Doolittle: Umum, l_ii = 1. Crout: Umum, u_ii = 1 (cocok bila substitusi balik dioptimalkan).',
@@ -154,6 +160,7 @@ const examples={
   conclusion:['Solusi eksak metode Crout adalah ', '\\mathbf{x} = \\begin{bmatrix} -1 \\\\ 2.5 \\\\ -0.5 \\end{bmatrix}', '. Terverifikasi 100% memenuhi sistem persamaan linier asal A x = b dengan residu nol!']
  },
  'Contoh Numerik Cholesky 3×3':{
+  videoUrl:'/videos/contoh_soal_metode_cholesky.mp4',
   prompt:[
    '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
    '\\text{Uji Simetri & Definit Positif, lalu faktorkan } A = L \\cdot L^T \\text{ (Cholesky)}'
