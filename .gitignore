@@ -25,3 +25,4 @@ pw_check*.py
 *.njsproj
 *.sln
 *.sw?
+__pycache__/
