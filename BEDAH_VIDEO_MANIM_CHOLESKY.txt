@@ -54,11 +54,11 @@ BABAK 1: TAHAP VERIFIKASI 2 SYARAT MUTLAK (ARAHAN DOSEN)
      - Badge: "✔ Syarat 1 Terpenuhi: Simetris Sempurna"
 
    * Syarat 2: Definit Positif (Kriteria Sylvester)
-     - Logika: Semua determinan minor utama harus positif (> 0).
-     - Perhitungan Determinan Minor:
-       M₁ = |4| = 4 > 0
-       M₂ = 4(10) - 2(2) = 40 - 4 = 36 > 0
-       M₃ = det(A) = 144 > 0
+     - Logika: Semua determinan minor utama bertahap dari pojok kiri atas harus positif (> 0).
+     - Perhitungan Langkah per Langkah (dengan kotak sorotan dinamis pada Matriks A):
+       M₁ (ordo 1×1): |4| = 4 > 0 (sorotan kotak hijau di elemen a₁₁)
+       M₂ (ordo 2×2): |4 2; 2 10| = 4(10) - 2(2) = 40 - 4 = 36 > 0 (sorotan kotak kuning di submatriks 2×2)
+       M₃ (ordo 3×3): det(A) = 4(56) - 2(16) - 2(24) = 224 - 80 = 144 > 0 (sorotan kotak biru di seluruh matriks A)
      - Badge: "✔ Syarat 2 Terpenuhi: Bebas Akar Imajiner!"
 
 

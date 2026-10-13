@@ -102,77 +102,54 @@ class CholeskyUnifiedExplainer(Scene):
         # ========================================================
         # 1. TAHAP VERIFIKASI 2 SYARAT MUTLAK (ARAHAN IBU LINDA)
         # ========================================================
-        header_title = Tex(r"\textbf{Syarat Mutlak Dekomposisi Cholesky}", font_size=32, color=YELLOW_C)
-        header_sub = Tex(r"\textbf{Peringatan:} Tidak semua matriks bisa diselesaikan dengan Cholesky!", font_size=20, color=ORANGE_C)
-        header_syarat = VGroup(header_title, header_sub).arrange(DOWN, buff=0.18).to_edge(UP, buff=0.35)
+        header_title = Tex(r"\textbf{Syarat Mutlak Dekomposisi Cholesky}", font_size=30, color=YELLOW_C)
+        header_sub = Tex(r"\textbf{Peringatan:} Tidak semua matriks bisa diselesaikan dengan Cholesky!", font_size=18, color=ORANGE_C)
+        header_syarat = VGroup(header_title, header_sub).arrange(DOWN, buff=0.15).to_edge(UP, buff=0.32)
 
-        self.play(FadeIn(header_syarat, shift=DOWN * 0.15), run_time=0.7)
-        self.wait(0.5)
+        self.play(FadeIn(header_syarat, shift=DOWN * 0.15), run_time=0.6)
+        self.wait(0.4)
 
         # Panel Kiri: Matriks A
         mat_A_check = Matrix([["4", "2", "-2"], ["2", "10", "2"], ["-2", "2", "6"]], h_buff=0.9, v_buff=0.75).scale(0.88)
-        mat_A_check.move_to(LEFT * 4.0 + DOWN * 0.45)
+        mat_A_check.move_to(LEFT * 4.0 + DOWN * 0.55)
         lbl_A_check = Tex(r"\textbf{Matriks $A$ ($3 \times 3$)}", font_size=22, color=WHITE_C).next_to(mat_A_check, UP, buff=0.25)
         grp_A_check = VGroup(lbl_A_check, mat_A_check)
-        self.play(FadeIn(grp_A_check), run_time=0.7)
+        self.play(FadeIn(grp_A_check), run_time=0.6)
 
         # Card Kanan: Pemeriksaan Syarat
         card_syarat = RoundedRectangle(
             corner_radius=0.15,
-            width=7.9,
-            height=5.4,
+            width=8.0,
+            height=5.2,
             fill_color=CARD_BG,
             fill_opacity=0.95,
             stroke_color=BLUE_C,
             stroke_width=2.2
-        ).move_to(RIGHT * 2.7 + DOWN * 0.45)
+        ).move_to(RIGHT * 2.7 + DOWN * 0.55)
+        self.play(Create(card_syarat), run_time=0.5)
 
         # --------------------------------------------------------
         # SYARAT 1: SIMETRIS
         # --------------------------------------------------------
-        t_s1_title = Tex(r"\textbf{1. Syarat Simetris: } $A = A^T$", font_size=24, color=BLUE_C).move_to(card_syarat.get_top() + DOWN * 0.45).align_to(card_syarat, LEFT).shift(RIGHT * 0.45)
-        desc_s1 = Tex(r"Elemen saling bercermin terhadap diagonal utama:", font_size=19, color=WHITE_C).next_to(t_s1_title, DOWN, buff=0.15).align_to(t_s1_title, LEFT)
-        
+        t_s1_title = Tex(r"\textbf{1. Syarat Simetris: } $A = A^T$", font_size=25, color=BLUE_C)
+        t_s1_title.move_to(card_syarat.get_top() + DOWN * 0.55).align_to(card_syarat, LEFT).shift(RIGHT * 0.45)
+
+        desc_s1 = Tex(r"Elemen saling bercermin terhadap diagonal utama ($a_{ij} = a_{ji}$):", font_size=19, color=WHITE_C)
+        desc_s1.next_to(t_s1_title, DOWN, buff=0.22).align_to(t_s1_title, LEFT)
+
         calc_s1 = MathTex(
             r"\begin{aligned}"
             r"a_{12} &= a_{21} = 2 \\"
             r"a_{13} &= a_{31} = -2 \\"
             r"a_{23} &= a_{32} = 2"
             r"\end{aligned}",
-            font_size=22,
+            font_size=23,
             color=YELLOW_C
-        ).next_to(desc_s1, DOWN, buff=0.15).align_to(t_s1_title, LEFT).shift(RIGHT * 0.4)
+        ).next_to(desc_s1, DOWN, buff=0.22).align_to(t_s1_title, LEFT).shift(RIGHT * 0.4)
 
-        badge_s1 = Tex(r"\textbf{\checkmark\ Syarat 1 Terpenuhi: Simetris Sempurna}", font_size=19, color=GREEN_C).next_to(calc_s1, DOWN, buff=0.16).align_to(t_s1_title, LEFT)
+        badge_s1 = Tex(r"\textbf{\checkmark\ Syarat 1 Terpenuhi: Simetris Sempurna}", font_size=20, color=GREEN_C)
+        badge_s1.next_to(calc_s1, DOWN, buff=0.28).align_to(t_s1_title, LEFT)
 
-        # Garis Pembatas
-        div_line = Line(LEFT * 3.4, RIGHT * 3.4, color=BORDER_C, stroke_width=1.5).next_to(badge_s1, DOWN, buff=0.2).align_to(t_s1_title, LEFT)
-
-        # --------------------------------------------------------
-        # SYARAT 2: DEFINIT POSITIF (KRITERIA SYLVESTER)
-        # --------------------------------------------------------
-        t_s2_title = Tex(r"\textbf{2. Syarat Definit Positif (Kriteria Sylvester)}", font_size=24, color=BLUE_C).next_to(div_line, DOWN, buff=0.2).align_to(t_s1_title, LEFT)
-        desc_s2 = Tex(r"Semua determinan minor utama harus positif ($> 0$):", font_size=19, color=WHITE_C).next_to(t_s2_title, DOWN, buff=0.15).align_to(t_s1_title, LEFT)
-
-        calc_s2 = MathTex(
-            r"\begin{aligned}"
-            r"M_1 &= |4| = 4 > 0 \\"
-            r"M_2 &= 4(10) - 2(2) = 40 - 4 = 36 > 0 \\"
-            r"M_3 &= \det(A) = 144 > 0"
-            r"\end{aligned}",
-            font_size=22,
-            color=YELLOW_C
-        ).next_to(desc_s2, DOWN, buff=0.15).align_to(t_s1_title, LEFT).shift(RIGHT * 0.4)
-
-        badge_s2 = Tex(r"\textbf{\checkmark\ Syarat 2 Terpenuhi: Bebas Akar Imajiner!}", font_size=19, color=GREEN_C).next_to(calc_s2, DOWN, buff=0.16).align_to(t_s1_title, LEFT)
-
-        content_syarat_grp = VGroup(t_s1_title, desc_s1, calc_s1, badge_s1, div_line, t_s2_title, desc_s2, calc_s2, badge_s2)
-        card_syarat.surround(content_syarat_grp, buff=0.32)
-        card_syarat.set_width(7.9)
-
-        self.play(Create(card_syarat), run_time=0.6)
-
-        # Kotak penyorot individual yang rapi
         e12 = SurroundingRectangle(mat_A_check.get_entries()[1], color=GREEN_C, buff=0.06)
         e21 = SurroundingRectangle(mat_A_check.get_entries()[3], color=GREEN_C, buff=0.06)
         e13 = SurroundingRectangle(mat_A_check.get_entries()[2], color=YELLOW_C, buff=0.06)
@@ -181,25 +158,85 @@ class CholeskyUnifiedExplainer(Scene):
         e32 = SurroundingRectangle(mat_A_check.get_entries()[7], color=BLUE_C, buff=0.06)
         highlight_sim = VGroup(e12, e21, e13, e31, e23, e32)
 
-        self.play(FadeIn(t_s1_title), FadeIn(desc_s1), run_time=0.6)
-        self.play(Create(highlight_sim), Write(calc_s1), run_time=0.9)
+        self.play(FadeIn(t_s1_title), FadeIn(desc_s1), run_time=0.5)
+        self.play(Create(highlight_sim), Write(calc_s1), run_time=0.8)
         self.play(FadeIn(badge_s1), run_time=0.5)
-        self.wait(2.0)
+        self.wait(2.5)
 
-        self.play(FadeOut(highlight_sim), run_time=0.3)
-        self.play(Create(div_line), FadeIn(t_s2_title), FadeIn(desc_s2), run_time=0.6)
-        self.play(Write(calc_s2), run_time=0.9)
+        # Transisi mulus: Hapus isi Syarat 1 untuk masuk ke detail Syarat 2
+        self.play(
+            FadeOut(VGroup(t_s1_title, desc_s1, calc_s1, badge_s1, highlight_sim)),
+            run_time=0.5
+        )
+
+        # --------------------------------------------------------
+        # SYARAT 2: DEFINIT POSITIF (KRITERIA SYLVESTER)
+        # --------------------------------------------------------
+        t_s2_title = Tex(r"\textbf{2. Syarat Definit Positif (Kriteria Sylvester)}", font_size=24, color=BLUE_C)
+        t_s2_title.move_to(card_syarat.get_top() + DOWN * 0.55).align_to(card_syarat, LEFT).shift(RIGHT * 0.45)
+
+        desc_s2 = Tex(r"Hitung determinan minor utama bertahap dari pojok kiri atas ($> 0$):", font_size=18, color=WHITE_C)
+        desc_s2.next_to(t_s2_title, DOWN, buff=0.18).align_to(t_s2_title, LEFT)
+
+        calc_m1 = Tex(
+            r"\textbf{Minor $M_1$ ($1 \times 1$):}\quad "
+            r"$|4| = \mathbf{4 > 0}$",
+            font_size=20,
+            color=YELLOW_C
+        ).next_to(desc_s2, DOWN, buff=0.25).align_to(t_s2_title, LEFT).shift(RIGHT * 0.25)
+
+        calc_m2 = Tex(
+            r"\textbf{Minor $M_2$ ($2 \times 2$):}\quad "
+            r"$\begin{vmatrix} 4 & 2 \\ 2 & 10 \end{vmatrix} = 4(10) - 2(2) = 40 - 4 = \mathbf{36 > 0}$",
+            font_size=19,
+            color=YELLOW_C
+        ).next_to(calc_m1, DOWN, buff=0.22).align_to(t_s2_title, LEFT).shift(RIGHT * 0.25)
+
+        calc_m3 = Tex(
+            r"\textbf{Minor $M_3$ ($3 \times 3$):}\quad "
+            r"$\det(A) = 4(56) - 2(16) - 2(24) = 224 - 80 = \mathbf{144 > 0}$",
+            font_size=19,
+            color=YELLOW_C
+        ).next_to(calc_m2, DOWN, buff=0.22).align_to(t_s2_title, LEFT).shift(RIGHT * 0.25)
+
+        badge_s2 = Tex(
+            r"\textbf{\checkmark\ Syarat 2 Terpenuhi: Bebas Akar Imajiner!}",
+            font_size=20,
+            color=GREEN_C
+        ).next_to(calc_m3, DOWN, buff=0.28).align_to(t_s2_title, LEFT)
+
+        self.play(FadeIn(t_s2_title), FadeIn(desc_s2), run_time=0.5)
+
+        # Penjelasan bertahap Minor M1
+        hl_box = SurroundingRectangle(mat_A_check.get_entries()[0], color=GREEN_C, buff=0.08)
+        self.play(Create(hl_box), Write(calc_m1), run_time=0.8)
+        self.wait(1.5)
+
+        # Penjelasan bertahap Minor M2
+        hl_m2_target = SurroundingRectangle(
+            VGroup(mat_A_check.get_entries()[0], mat_A_check.get_entries()[1], mat_A_check.get_entries()[3], mat_A_check.get_entries()[4]),
+            color=YELLOW_C,
+            buff=0.08
+        )
+        self.play(Transform(hl_box, hl_m2_target), Write(calc_m2), run_time=0.8)
+        self.wait(1.8)
+
+        # Penjelasan bertahap Minor M3
+        hl_m3_target = SurroundingRectangle(mat_A_check, color=BLUE_C, buff=0.1)
+        self.play(Transform(hl_box, hl_m3_target), Write(calc_m3), run_time=0.8)
+        self.wait(1.8)
+
+        # Tampilkan badge centang hijau lolos uji definit positif
         self.play(FadeIn(badge_s2), run_time=0.5)
-        self.wait(3.0)
+        self.wait(2.8)
 
-        # Bersihkan layar untuk faktorisasi
+        # Bersihkan layar untuk masuk ke Babak 2 (Faktorisasi)
         self.play(
             FadeOut(header_syarat),
             FadeOut(grp_A_check),
             FadeOut(card_syarat),
-            FadeOut(t_s1_title), FadeOut(desc_s1), FadeOut(calc_s1), FadeOut(badge_s1),
-            FadeOut(div_line),
-            FadeOut(t_s2_title), FadeOut(desc_s2), FadeOut(calc_s2), FadeOut(badge_s2),
+            FadeOut(hl_box),
+            FadeOut(VGroup(t_s2_title, desc_s2, calc_m1, calc_m2, calc_m3, badge_s2)),
             run_time=0.6
         )
 
