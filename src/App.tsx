@@ -1092,17 +1092,46 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 3: Reduksi Crout u_ii = 1 */}
    {index===3&&<g>
-    <rect x="35" y="15" width="95" height="90" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
-    <text x="82" y="40" textAnchor="middle" fontSize="13" fill="#166534">Matriks L</text>
-    <text x="82" y="65" textAnchor="middle" fontSize="11" fill="#15803d">l_11, l_21...</text>
-    <text x="82" y="88" textAnchor="middle" fontSize="10" fill="#65a30d">Bebas</text>
-    <text x="140" y="65" textAnchor="middle" fontSize="20" fill="#222">·</text>
-    <rect x="150" y="15" width="95" height="90" rx="8" fill="#dbeafe" stroke="#222" strokeWidth="2"/>
-    <text x="197" y="40" textAnchor="middle" fontSize="13" fill="#1e40af">Matriks U</text>
-    <text x="197" y="68" textAnchor="middle" fontSize="18" fill="#1d4ed8">1 &nbsp; 1 &nbsp; 1</text>
-    <text x="197" y="90" textAnchor="middle" fontSize="9.5" fill="#2563eb">Diagonal = 1</text>
-    <rect x="40" y="118" width="200" height="24" rx="5" fill="#0284c7"/>
-    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">Ciri Khas Crout: Diagonal U = 1</text>
+    {/* Matriks L */}
+    <rect x="20" y="15" width="110" height="92" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
+    <text x="75" y="30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#166534">Matriks L (Bebas)</text>
+    <path d="M 37 38 L 33 38 L 33 86 L 37 86" fill="none" stroke="#166534" strokeWidth="1.5"/>
+    <path d="M 113 38 L 117 38 L 117 86 L 113 86" fill="none" stroke="#166534" strokeWidth="1.5"/>
+    {/* Baris L */}
+    <text x="49" y="52" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₁₁</text>
+    <text x="75" y="52" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="101" y="52" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="49" y="68" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₂₁</text>
+    <text x="75" y="68" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₂₂</text>
+    <text x="101" y="68" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="49" y="84" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₃₁</text>
+    <text x="75" y="84" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₃₂</text>
+    <text x="101" y="84" fontSize="10" fontWeight="bold" fill="#15803d" textAnchor="middle">l₃₃</text>
+    <text x="75" y="100" textAnchor="middle" fontSize="8.5" fill="#166534" fontWeight="600">Segitiga Bawah</text>
+
+    {/* Titik Perkalian */}
+    <text x="140" y="65" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#222">·</text>
+
+    {/* Matriks U */}
+    <rect x="150" y="15" width="110" height="92" rx="8" fill="#dbeafe" stroke="#222" strokeWidth="2"/>
+    <text x="205" y="30" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1e40af">Matriks U (Crout)</text>
+    <path d="M 167 38 L 163 38 L 163 86 L 167 86" fill="none" stroke="#1e40af" strokeWidth="1.5"/>
+    <path d="M 243 38 L 247 38 L 247 86 L 243 86" fill="none" stroke="#1e40af" strokeWidth="1.5"/>
+    {/* Baris U */}
+    <text x="179" y="52" fontSize="11" fontWeight="bold" fill="#dc2626" textAnchor="middle">1</text>
+    <text x="205" y="52" fontSize="10" fontWeight="bold" fill="#2563eb" textAnchor="middle">u₁₂</text>
+    <text x="231" y="52" fontSize="10" fontWeight="bold" fill="#2563eb" textAnchor="middle">u₁₃</text>
+    <text x="179" y="68" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="205" y="68" fontSize="11" fontWeight="bold" fill="#dc2626" textAnchor="middle">1</text>
+    <text x="231" y="68" fontSize="10" fontWeight="bold" fill="#2563eb" textAnchor="middle">u₂₃</text>
+    <text x="179" y="84" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="205" y="84" fontSize="10" fill="#94a3b8" textAnchor="middle">0</text>
+    <text x="231" y="84" fontSize="11" fontWeight="bold" fill="#dc2626" textAnchor="middle">1</text>
+    <text x="205" y="100" textAnchor="middle" fontSize="8.5" fill="#1e40af" fontWeight="bold">Diagonal = 1</text>
+
+    {/* Banner Bawah */}
+    <rect x="25" y="116" width="230" height="24" rx="5" fill="#0284c7" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="132" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#fff">Ciri Khas Crout: Diagonal U = 1</text>
    </g>}
 
    {/* Slide 4: Algoritma Rekursif Crout */}
