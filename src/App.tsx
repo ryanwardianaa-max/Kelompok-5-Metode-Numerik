@@ -1191,11 +1191,11 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 11: Algoritma Akar Diagonal Cholesky */}
    {index===11&&<g>
-    <rect x="35" y="15" width="210" height="90" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
+    <rect x="25" y="15" width="230" height="90" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
     <text x="140" y="45" textAnchor="middle" fontSize="18" fill="#15803d">l_jj = √(a_jj - ∑ l_jk²)</text>
-    <text x="140" y="75" textAnchor="middle" fontSize="11" fill="#475569">Akar kuadrat selalu riil jika definit positif</text>
-    <rect x="45" y="118" width="190" height="24" rx="5" fill="#059669"/>
-    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">Akar Diagonal Khusus Cholesky</text>
+    <text x="140" y="75" textAnchor="middle" fontSize="10.5" fill="#475569">Akar kuadrat selalu riil jika definit positif</text>
+    <rect x="25" y="116" width="230" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="132" textAnchor="middle" fontSize="11" fill="#fff">Akar Diagonal Khusus Cholesky</text>
    </g>}
 
    {/* Slide 12: Efisiensi 50% Memori & Kecepatan 2x */}
@@ -1229,11 +1229,13 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 14: Jebakan Akar Negatif */}
    {index===14&&<g>
-    <circle cx="140" cy="55" r="45" fill="#fee2e2" stroke="#dc2626" strokeWidth="2.5"/>
-    <text x="140" y="50" textAnchor="middle" fontSize="22" fill="#b91c1c">√(-Δ)</text>
-    <text x="140" y="75" textAnchor="middle" fontSize="11" fill="#7f1d1d">Bilangan Imajiner!</text>
-    <rect x="35" y="112" width="210" height="26" rx="6" fill="#dc2626"/>
-    <text x="140" y="129" textAnchor="middle" fontSize="11" fill="#fff">Bukan Definit Positif → Cholesky Gagal</text>
+    <rect x="25" y="14" width="230" height="86" rx="8" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
+    <circle cx="140" cy="44" r="24" fill="#fecaca" stroke="#dc2626" strokeWidth="1.5"/>
+    <text x="140" y="51" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#b91c1c">√(-Δ)</text>
+    <text x="140" y="85" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#7f1d1d">⚠️ Muncul Bilangan Imajiner (i ∉ ℝ)</text>
+    <rect x="25" y="108" width="230" height="32" rx="6" fill="#dc2626" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="122" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#ffffff">Bukan Definit Positif</text>
+    <text x="140" y="134" textAnchor="middle" fontSize="9.5" fill="#fecaca">→ Metode Cholesky Gagal</text>
    </g>}
 
    {/* Slide 15: Perbandingan Tiga Metode */}
