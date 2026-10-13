@@ -39,3 +39,12 @@
    - Video dirender ulang 1080p60 Manim ke `public/videos/contoh_soal_metode_cholesky.mp4`.
    - Dilakukan ekstraksi dan analisis visual frame via `vision_analyze` untuk memverifikasi keterbacaan, headroom teks, dan sinkronisasi sorotan.
    - Self-check engine dan build Vite sukses tanpa regresi.
+
+
+## Bab 16: Optimalisasi Skala Font & Padding Card Babak 1 (Syarat Simetris & Sylvester)
+- **Tujuan**: Memperbesar font teks dan rumus di dalam card Syarat 1 dan Syarat 2 agar terbaca sangat nyaman dan mengisi card secara proporsional.
+- **Perubahan**: 
+  * Judul Syarat 1: font_size 32, subteks: font_size 24, rumus kesamaan elemen simetris: font_size 32, badge: font_size 26.
+  * Penyesuaian padding card_s1 dan card_s2 dengan spacing vertikal proporsional (buff=0.36) tanpa dead space berlebih.
+  * Kompilasi ulang Manim 1080p60 `contoh_soal_metode_cholesky.mp4`.
+  * Verifikasi visual frame t=14s dan t=25s via vision_analyze: teks tajam, font besar, kontras tinggi, siap tayang.
