@@ -81,7 +81,7 @@ const slides=[
   'Elemen Bawah Diagonal (l_ij): Elemen asal dikurangi produk silang elemen sebelumnya, lalu dibagi poros diagonal l_jj.',
   'Efek Kembar: Begitu matriks segitiga bawah L selesai dihitung, matriks segitiga atas langsung diperoleh gratis via transpos (U = Lᵀ).'
  ]],
- ['Efisiensi Komputasi Cholesky','\\sim \\frac{1}{6}n^3 \\text{ Operasi} \\quad (\\text{Hemat 50\\% Memori \\& Waktu})',[
+ ['Efisiensi Komputasi Cholesky','\\sim \\frac{1}{6}n^3 \\text{ Operasi} \\quad (\\text{Hemat 50\\% Memori dan Waktu})',[
   'Hemat Memori 50%: Komputer hanya perlu menyimpan satu matriks segitiga L; matriks U tidak memerlukan alokasi memori tambahan.',
   'Kecepatan 2× Lipat: Beban operasi hanya ~n³/6 flops, memangkas separuh beban Eliminasi Gauss dan Crout/Doolittle (~n³/3 flops).',
   'Stabilitas Numerik Alami: Khusus matriks definit positif, Cholesky dijamin stabil tanpa memerlukan pertukaran baris (tanpa pivoting).'
@@ -163,7 +163,7 @@ const examples={
   videoUrl:'/videos/contoh_soal_metode_cholesky.mp4',
   prompt:[
    '\\begin{bmatrix} 4 & 2 & -2 \\\\ 2 & 10 & 2 \\\\ -2 & 2 & 6 \\end{bmatrix} \\begin{bmatrix} x_1 \\\\ x_2 \\\\ x_3 \\end{bmatrix} = \\begin{bmatrix} 2 \\\\ 22 \\\\ 4 \\end{bmatrix}',
-   '\\text{Uji Simetri & Definit Positif, lalu faktorkan } A = L \\cdot L^T \\text{ (Cholesky)}'
+   '\\text{Uji Simetri dan Definit Positif, lalu faktorkan } A = L \\cdot L^T \\text{ (Cholesky)}'
   ],
   steps:[
    [
