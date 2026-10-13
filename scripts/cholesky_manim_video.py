@@ -467,7 +467,7 @@ class CholeskyUnifiedExplainer(Scene):
             r"\textbf{Hasil Dekomposisi Cholesky: } $A = L \cdot L^{\mathrm{T}}$",
             font_size=32,
             color=WHITE_C,
-        ).to_edge(UP, buff=0.45)
+        ).to_edge(UP, buff=0.40)
         self.play(FadeIn(header_decomp), run_time=0.7)
 
         mat_L_final = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], bracket_h_buff=0.12, bracket_v_buff=0.12, h_buff=0.95, v_buff=0.72)
@@ -476,9 +476,9 @@ class CholeskyUnifiedExplainer(Scene):
             mat_L_final.get_entries()[i].set_color(c).scale(1.05)
 
         lbl_L_final = Tex(r"\textbf{Matriks $L$ (Segitiga Bawah)}", font_size=21, color=GREEN_C)
-        grp_L_final = VGroup(lbl_L_final, mat_L_final).arrange(DOWN, buff=0.32).move_to(LEFT * 3.3 + DOWN * 0.15)
+        grp_L_final = VGroup(lbl_L_final, mat_L_final).arrange(DOWN, buff=0.28).move_to(LEFT * 3.3 + UP * 0.60)
 
-        dot_mult = MathTex(r"\cdot", font_size=48, color=WHITE_C).move_to(DOWN * 0.15)
+        dot_mult = MathTex(r"\cdot", font_size=48, color=WHITE_C).move_to(UP * 0.60)
 
         mat_LT_final = Matrix([["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]], bracket_h_buff=0.12, bracket_v_buff=0.12, h_buff=0.95, v_buff=0.72)
         for i, val in enumerate(["2", "1", "-1", "0", "3", "1", "0", "0", "2"]):
@@ -486,33 +486,33 @@ class CholeskyUnifiedExplainer(Scene):
             mat_LT_final.get_entries()[i].set_color(c).scale(1.05)
 
         lbl_LT_final = Tex(r"\textbf{Matriks $L^{\mathrm{T}}$ (Transpos = Segitiga Atas)}", font_size=21, color=BLUE_C)
-        grp_LT_final = VGroup(lbl_LT_final, mat_LT_final).arrange(DOWN, buff=0.32).move_to(RIGHT * 3.3 + DOWN * 0.15)
+        grp_LT_final = VGroup(lbl_LT_final, mat_LT_final).arrange(DOWN, buff=0.28).move_to(RIGHT * 3.3 + UP * 0.60)
 
         self.play(FadeIn(grp_L_final, shift=RIGHT * 0.2), run_time=0.7)
         self.play(Write(dot_mult), run_time=0.3)
         self.play(FadeIn(grp_LT_final, shift=LEFT * 0.2), run_time=0.7)
 
-        # Card Catatan Efisiensi (kompak, padat, TeX formal)
+        # Card Catatan Efisiensi (kompak, padat, TeX formal, dinaikkan ke safe zone tinggi aman fullscreen)
         txt_line1 = Tex(
             r"\textbf{Catatan Efisiensi: } Matriks $L^{\mathrm{T}}$ didapat langsung dari transpos tanpa eliminasi tambahan!",
-            font_size=20,
+            font_size=22,
             color=WHITE_C,
         )
         txt_line2 = Tex(
-            r"Menghemat $50\%$ beban komputasi dan memori dibanding eliminasi Gauss/LU standar.",
-            font_size=17,
-            color=GREEN_C,
+            r"\textbf{Keunggulan: } Menghemat $50\%$ beban komputasi dan memori dibanding eliminasi Gauss/LU standar.",
+            font_size=20,
+            color=YELLOW_C,
         )
-        content_box = VGroup(txt_line1, txt_line2).arrange(DOWN, buff=0.15)
+        content_box = VGroup(txt_line1, txt_line2).arrange(DOWN, buff=0.16)
         card_magic = RoundedRectangle(
             width=content_box.width + 0.8,
-            height=content_box.height + 0.45,
+            height=content_box.height + 0.48,
             corner_radius=0.14,
             fill_color=CARD_BG,
-            fill_opacity=0.95,
+            fill_opacity=0.98,
             stroke_color=GREEN_C,
-            stroke_width=2.0,
-        ).move_to(DOWN * 2.85)
+            stroke_width=2.5,
+        ).move_to(DOWN * 1.70)
         content_box.move_to(card_magic.get_center())
 
         self.play(FadeIn(card_magic), FadeIn(content_box), run_time=0.8)
