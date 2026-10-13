@@ -1136,16 +1136,27 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 4: Algoritma Rekursif Crout */}
    {index===4&&<g>
-    <rect x="25" y="20" width="105" height="50" rx="6" fill="#e0f2fe" stroke="#222" strokeWidth="1.5"/>
-    <text x="77" y="42" textAnchor="middle" fontSize="11" fill="#0369a1">Kolom k matriks L</text>
-    <text x="77" y="58" textAnchor="middle" fontSize="9" fill="#075985">l_ik = a_ik - ∑...</text>
-    <path d="M 130 45 L 150 45 L 150 85 L 155 85" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
-    <polygon points="153,81 160,85 153,89" fill="#ea580c"/>
-    <rect x="160" y="65" width="105" height="50" rx="6" fill="#fef3c7" stroke="#222" strokeWidth="1.5"/>
-    <text x="212" y="87" textAnchor="middle" fontSize="11" fill="#b45309">Baris k matriks U</text>
-    <text x="212" y="103" textAnchor="middle" fontSize="9" fill="#78350f">u_kj = (...) / l_kk</text>
-    <rect x="40" y="122" width="200" height="22" rx="4" fill="#0f172a"/>
-    <text x="140" y="137" textAnchor="middle" fontSize="10.5" fill="#fff">Bergantian Kolom L → Baris U</text>
+    {/* Langkah 1: Kolom k Matriks L */}
+    <rect x="15" y="10" width="118" height="52" rx="7" fill="#e0f2fe" stroke="#222" strokeWidth="1.8"/>
+    <text x="74" y="24" textAnchor="middle" fontSize="9.5" fontWeight="bold" fill="#0369a1">1. Hitung Kolom k (L)</text>
+    <text x="74" y="44" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#075985">lᵢₖ = aᵢₖ - ∑ lᵢₚ uₚₖ</text>
+    <text x="74" y="56" textAnchor="middle" fontSize="7.5" fill="#0369a1">(i = k, k+1, ..., n)</text>
+
+    {/* Panah alur bergantian */}
+    <path d="M 133 36 L 148 36 L 148 84 L 152 84" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round"/>
+    <polygon points="150,80 157,84 150,88" fill="#ea580c"/>
+
+    {/* Langkah 2: Baris k Matriks U (Pecahan Bertingkat) */}
+    <rect x="152" y="58" width="116" height="56" rx="7" fill="#fef3c7" stroke="#222" strokeWidth="1.8"/>
+    <text x="210" y="71" textAnchor="middle" fontSize="9.5" fontWeight="bold" fill="#b45309">2. Hitung Baris k (U)</text>
+    <text x="173" y="93" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#78350f">uₖⱼ =</text>
+    <text x="222" y="85" textAnchor="middle" fontSize="8.5" fontWeight="bold" fill="#78350f">aₖⱼ - ∑ lₖₚ uₚⱼ</text>
+    <line x1="187" y1="89" x2="257" y2="89" stroke="#78350f" strokeWidth="1.2"/>
+    <text x="222" y="102" textAnchor="middle" fontSize="9.5" fontWeight="bold" fill="#dc2626">lₖₖ</text>
+
+    {/* Banner Bawah */}
+    <rect x="25" y="120" width="230" height="24" rx="5" fill="#0284c7" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="136" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#ffffff">Bergantian: Kolom L → Baris U (k = 1...n)</text>
    </g>}
 
    {/* Slide 5: Substitusi Maju Crout L y = b */}
