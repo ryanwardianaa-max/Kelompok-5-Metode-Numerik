@@ -1161,26 +1161,78 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 5: Substitusi Maju Crout L y = b */}
    {index===5&&<g>
-    <rect x="35" y="15" width="85" height="90" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
-    <polygon points="40,20 40,95 110,95" fill="#a7f3d0"/>
-    <text x="77" y="55" textAnchor="middle" fontSize="14" fill="#065f46">L</text>
-    <text x="140" y="65" textAnchor="middle" fontSize="18" fill="#222">· y = b</text>
-    <rect x="175" y="15" width="70" height="90" rx="8" fill="#fed7aa" stroke="#222" strokeWidth="2"/>
-    <text x="210" y="62" textAnchor="middle" fontSize="16" fill="#9a3412">y</text>
-    <rect x="35" y="118" width="210" height="24" rx="5" fill="#059669"/>
-    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">Maju: Atas ke Bawah (i = 1 → n)</text>
+    {/* Card Matriks L */}
+    <rect x="18" y="15" width="80" height="92" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
+    <text x="58" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#065f46">Matriks L</text>
+    <polygon points="28,42 28,84 88,84" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5"/>
+    <text x="46" y="74" fontSize="14" fontWeight="bold" fill="#065f46">L</text>
+    <text x="58" y="100" textAnchor="middle" fontSize="8" fontWeight="600" fill="#065f46">Segitiga Bawah</text>
+
+    {/* Simbol Titik Perkalian · */}
+    <text x="107" y="64" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#222">·</text>
+
+    {/* Card Vektor y (Maju dari Atas ke Bawah) */}
+    <rect x="116" y="15" width="54" height="92" rx="8" fill="#fed7aa" stroke="#222" strokeWidth="2"/>
+    <text x="143" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#9a3412">Vektor y</text>
+    <text x="135" y="50" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#c2410c">y₁</text>
+    <text x="135" y="68" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#c2410c">y₂</text>
+    <text x="135" y="86" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#c2410c">y₃</text>
+    <path d="M 154 46 L 154 84" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"/>
+    <polygon points="151,80 154,86 157,80" fill="#ea580c"/>
+    <text x="143" y="100" textAnchor="middle" fontSize="7.5" fontWeight="bold" fill="#9a3412">Maju ↓</text>
+
+    {/* Simbol Sama Dengan = */}
+    <text x="179" y="64" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#222">=</text>
+
+    {/* Card Vektor b (Ruas Kanan) */}
+    <rect x="188" y="15" width="74" height="92" rx="8" fill="#e0f2fe" stroke="#222" strokeWidth="2"/>
+    <text x="225" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#0369a1">Vektor b</text>
+    <text x="225" y="50" textAnchor="middle" fontSize="10" fontWeight="600" fill="#0284c7">b₁</text>
+    <text x="225" y="68" textAnchor="middle" fontSize="10" fontWeight="600" fill="#0284c7">b₂</text>
+    <text x="225" y="86" textAnchor="middle" fontSize="10" fontWeight="600" fill="#0284c7">b₃</text>
+    <text x="225" y="100" textAnchor="middle" fontSize="8" fontWeight="600" fill="#0369a1">Ruas Kanan</text>
+
+    {/* Banner Bawah */}
+    <rect x="25" y="118" width="230" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="134" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#fff">Substitusi Maju: L · y = b (Atas ke Bawah)</text>
    </g>}
 
    {/* Slide 6: Substitusi Mundur Crout U x = y */}
    {index===6&&<g>
-    <rect x="35" y="15" width="85" height="90" rx="8" fill="#dbeafe" stroke="#222" strokeWidth="2"/>
-    <polygon points="40,20 115,20 115,95" fill="#bfdbfe"/>
-    <text x="77" y="55" textAnchor="middle" fontSize="14" fill="#1e40af">U</text>
-    <text x="140" y="65" textAnchor="middle" fontSize="18" fill="#222">· x = y</text>
-    <rect x="175" y="15" width="70" height="90" rx="8" fill="#bbf7d0" stroke="#222" strokeWidth="2"/>
-    <text x="210" y="62" textAnchor="middle" fontSize="16" fill="#166534">x</text>
-    <rect x="35" y="118" width="210" height="24" rx="5" fill="#2563eb"/>
-    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">Mundur: Bawah ke Atas (Bebas Bagi!)</text>
+    {/* Card Matriks U */}
+    <rect x="18" y="15" width="80" height="92" rx="8" fill="#dbeafe" stroke="#222" strokeWidth="2"/>
+    <text x="58" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#1e40af">Matriks U</text>
+    <polygon points="28,42 88,42 88,84" fill="#bfdbfe" stroke="#2563eb" strokeWidth="1.5"/>
+    <text x="64" y="62" fontSize="14" fontWeight="bold" fill="#1e40af">U</text>
+    <text x="58" y="100" textAnchor="middle" fontSize="8" fontWeight="600" fill="#1e40af">Segitiga Atas</text>
+
+    {/* Simbol Titik Perkalian · */}
+    <text x="107" y="64" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#222">·</text>
+
+    {/* Card Vektor x (Mundur dari Bawah ke Atas) */}
+    <rect x="116" y="15" width="54" height="92" rx="8" fill="#dcfce7" stroke="#222" strokeWidth="2"/>
+    <text x="143" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#166534">Vektor x</text>
+    <text x="135" y="50" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#15803d">x₁</text>
+    <text x="135" y="68" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#15803d">x₂</text>
+    <text x="135" y="86" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#15803d">x₃</text>
+    <path d="M 154 84 L 154 46" fill="none" stroke="#15803d" strokeWidth="2" strokeLinecap="round"/>
+    <polygon points="151,50 154,44 157,50" fill="#15803d"/>
+    <text x="143" y="100" textAnchor="middle" fontSize="7.5" fontWeight="bold" fill="#166534">Mundur ↑</text>
+
+    {/* Simbol Sama Dengan = */}
+    <text x="179" y="64" textAnchor="middle" fontSize="16" fontWeight="bold" fill="#222">=</text>
+
+    {/* Card Vektor y (Hasil Maju) */}
+    <rect x="188" y="15" width="74" height="92" rx="8" fill="#fed7aa" stroke="#222" strokeWidth="2"/>
+    <text x="225" y="30" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#9a3412">Vektor y</text>
+    <text x="225" y="50" textAnchor="middle" fontSize="10" fontWeight="600" fill="#c2410c">y₁</text>
+    <text x="225" y="68" textAnchor="middle" fontSize="10" fontWeight="600" fill="#c2410c">y₂</text>
+    <text x="225" y="86" textAnchor="middle" fontSize="10" fontWeight="600" fill="#c2410c">y₃</text>
+    <text x="225" y="100" textAnchor="middle" fontSize="8" fontWeight="600" fill="#9a3412">Hasil Maju</text>
+
+    {/* Banner Bawah */}
+    <rect x="25" y="118" width="230" height="24" rx="5" fill="#2563eb" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="134" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#fff">Substitusi Mundur: U · x = y (Bebas Bagi!)</text>
    </g>}
 
    {/* Slide 7: Contoh Crout 3x3 */}
