@@ -67,21 +67,22 @@ class CholeskyUnifiedExplainer(Scene):
         self.wait(0.8)
 
         # Card Pengenalan Karakteristik Khusus Cholesky
+        card_txt_intro = MarkupText(
+            'Ciri Khas Cholesky: Matriks Segitiga Atas U adalah Transpos dari L (U = L<sup>T</sup>)\nHemat 50% Ruang Memori &amp; 50% Jumlah Operasi Komputasi!',
+            font_size=16,
+            color=WHITE_C,
+            line_spacing=0.9
+        )
         card_intro = RoundedRectangle(
             corner_radius=0.15,
-            width=11.2,
-            height=1.0,
+            width=card_txt_intro.width + 0.65,
+            height=card_txt_intro.height + 0.45,
             fill_color=CARD_BG,
             fill_opacity=0.95,
             stroke_color=YELLOW_C,
             stroke_width=2.0
         ).move_to(DOWN * 2.1)
-        card_txt_intro = Text(
-            "Ciri Khas Cholesky: Matriks Segitiga Atas U adalah Transpos dari L (U = L^T)\nHemat 50% Ruang Memori & 50% Jumlah Operasi Komputasi!",
-            font_size=15,
-            color=WHITE_C,
-            line_spacing=0.8
-        ).move_to(card_intro.get_center())
+        card_txt_intro.move_to(card_intro.get_center())
         grp_card_intro = VGroup(card_intro, card_txt_intro)
 
         self.play(Create(card_intro), FadeIn(card_txt_intro), run_time=0.8)

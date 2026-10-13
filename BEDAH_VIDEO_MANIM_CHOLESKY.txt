@@ -1,0 +1,155 @@
+================================================================================
+BEDAH STRUKTUR & ELEMEN VIDEO ANIMASI MANIM: METODE DEKOMPOSISI CHOLESKY
+Kelompok 4 - Metode Numerik (Kelas C)
+File Skrip : scripts/cholesky_manim_video.py
+File Video : public/videos/contoh_soal_metode_cholesky.mp4
+Durasi     : ~74 Detik (1080p60)
+================================================================================
+
+--------------------------------------------------------------------------------
+BABAK 0: PEMBUKAAN SOAL SISTEM PERSAMAAN LINIER (A · x = b)
+--------------------------------------------------------------------------------
+1. Teks Judul & Subjudul:
+   - Judul: "Dekomposisi Cholesky: Metode & Contoh Soal"
+   - Subjudul: "Selesaikan SPL: A · x = b (Dekomposisi A = L · Lᵀ)"
+
+2. Visual Matriks & Vektor:
+   - Matriks A (3×3):
+     [  4   2  -2 ]
+     [  2  10   2 ]
+     [ -2   2   6 ]
+
+   - Vektor x (variabel):
+     [ x₁ ]
+     [ x₂ ]
+     [ x₃ ]
+
+   - Vektor b (ruas kanan / beban):
+     [  2 ]
+     [ 22 ]
+     [  4 ]
+
+3. Card Pesan Kunci Inti:
+   - "Ciri Khas Cholesky: Matriks Segitiga Atas U adalah Transpos dari L (U = Lᵀ)"
+   - "Hemat 50% Ruang Memori & 50% Jumlah Operasi Komputasi!"
+
+
+--------------------------------------------------------------------------------
+BABAK 1: TAHAP VERIFIKASI 2 SYARAT MUTLAK (ARAHAN DOSEN)
+--------------------------------------------------------------------------------
+1. Header & Peringatan:
+   - Header: "Syarat Mutlak Dekomposisi Cholesky"
+   - Subheader Peringatan: "Peringatan: Tidak semua matriks bisa diselesaikan dengan Cholesky!"
+
+2. Panel Kiri:
+   - Menampilkan Matriks A (3×3) dengan kotak sorotan warna-warni antar elemen cermin.
+
+3. Card Kanan:
+   * Syarat 1: Simetris (A = Aᵀ)
+     - Logika: Elemen saling bercermin terhadap diagonal utama.
+     - Pemeriksaan:
+       a₁₂ = a₂₁ = 2
+       a₁₃ = a₃₁ = -2
+       a₂₃ = a₃₂ = 2
+     - Badge: "✔ Syarat 1 Terpenuhi: Simetris Sempurna"
+
+   * Syarat 2: Definit Positif (Kriteria Sylvester)
+     - Logika: Semua determinan minor utama harus positif (> 0).
+     - Perhitungan Determinan Minor:
+       M₁ = |4| = 4 > 0
+       M₂ = 4(10) - 2(2) = 40 - 4 = 36 > 0
+       M₃ = det(A) = 144 > 0
+     - Badge: "✔ Syarat 2 Terpenuhi: Bebas Akar Imajiner!"
+
+
+--------------------------------------------------------------------------------
+BABAK 2: TAHAP FAKTORISASI A = L · Lᵀ (KOLOM DEMI KOLOM)
+--------------------------------------------------------------------------------
+Header: "Faktorisasi Cholesky: A = L · Lᵀ"
+Rumus Acuan:
+  - Diagonal : lⱼⱼ = √(aⱼⱼ - ∑ lⱼₖ²)
+  - Non-Diag : lᵢⱼ = (aᵢⱼ - ∑ lᵢₖ lⱼₖ) / lⱼⱼ
+
+Panel Kiri: Matriks A (asal) dan matriks segitiga bawah L yang terisi bertahap.
+
+1. Langkah 1 (Menghitung Kolom 1 Matriks L):
+   - l₁₁ = √a₁₁ = √4 = 2
+   - l₂₁ = a₂₁ / l₁₁ = 2 / 2 = 1
+   - l₃₁ = a₃₁ / l₁₁ = -2 / 2 = -1
+   - Hasil Kolom 1: L₁ = [ 2,  1, -1 ]ᵀ
+
+2. Langkah 2 (Menghitung Kolom 2 Matriks L):
+   - l₂₂ = √(a₂₂ - l₂₁²) = √(10 - 1²) = √9 = 3
+   - l₃₂ = (a₃₂ - l₃₁·l₂₁) / l₂₂ = (2 - (-1)(1)) / 3 = 3 / 3 = 1
+   - Hasil Kolom 2: L₂ = [ 0,  3,  1 ]ᵀ
+
+3. Langkah 3 (Menghitung Kolom 3 Matriks L):
+   - l₃₃ = √(a₃₃ - (l₃₁² + l₃₂²))
+         = √(6 - ((-1)² + 1²))
+         = √(6 - 2) = √4 = 2
+   - Hasil Kolom 3: L₃ = [ 0,  0,  2 ]ᵀ
+
+4. Display Hasil Akhir Faktorisasi (Cermin Transpos):
+   - Matriks L:
+     [  2   0   0 ]
+     [  1   3   0 ]
+     [ -1   1   2 ]
+
+   - Matriks Lᵀ (Transpos = Segitiga Atas U):
+     [  2   1  -1 ]
+     [  0   3   1 ]
+     [  0   0   2 ]
+
+   - Catatan Efisiensi: Matriks Lᵀ gratis didapat dari transpos tanpa eliminasi tambahan!
+
+
+--------------------------------------------------------------------------------
+BABAK 3: PENYELESAIAN SPL DUA TAHAP
+--------------------------------------------------------------------------------
+3.A TAHAP 1: SUBSTITUSI MAJU (L · y = b)
+   - Persamaan:
+     [  2   0   0 ] [ y₁ ]   [  2 ]
+     [  1   3   0 ] [ y₂ ] = [ 22 ]
+     [ -1   1   2 ] [ y₃ ]   [  4 ]
+
+   - Perhitungan Maju (Atas ke Bawah):
+     Baris 1 : 2 y₁ = 2  ==>  y₁ = 1
+     Baris 2 : 1(1) + 3 y₂ = 22  ==>  3 y₂ = 21  ==>  y₂ = 7
+     Baris 3 : -1(1) + 1(7) + 2 y₃ = 4  ==>  6 + 2 y₃ = 4  ==>  2 y₃ = -2  ==>  y₃ = -1
+
+   - Hasil Vektor Antara: y = [ 1,  7, -1 ]ᵀ
+
+
+3.B TAHAP 2: SUBSTITUSI MUNDUR (Lᵀ · x = y)
+   - Persamaan:
+     [  2   1  -1 ] [ x₁ ]   [  1 ]
+     [  0   3   1 ] [ x₂ ] = [  7 ]
+     [  0   0   2 ] [ x₃ ]   [ -1 ]
+
+   - Perhitungan Mundur (Bawah ke Atas):
+     Baris 3 : 2 x₃ = -1  ==>  x₃ = -0,5
+     Baris 2 : 3 x₂ + 1(-0,5) = 7  ==>  3 x₂ = 7,5  ==>  x₂ = 2,5
+     Baris 1 : 2 x₁ + 1(2,5) - 1(-0,5) = 1
+               2 x₁ + 2,5 + 0,5 = 1
+               2 x₁ + 3 = 1  ==>  2 x₁ = -2  ==>  x₁ = -1
+
+   - Hasil Solusi Akhir: x = [ -1,  2,5, -0,5 ]ᵀ
+
+
+--------------------------------------------------------------------------------
+BABAK 4: KESIMPULAN AKHIR & VERIFIKASI RESIDU
+--------------------------------------------------------------------------------
+1. Kotak Solusi Eksak:
+   x₁ = -1
+   x₂ = 2,5
+   x₃ = -0,5
+
+2. Verifikasi Residu (Substitusi Balik A · x):
+   [  4   2  -2 ] [  -1 ]   [  4(-1) +  2(2,5) - 2(-0,5) ]   [ -4 +  5 + 1 ]   [  2 ]
+   [  2  10   2 ] [ 2,5 ] = [  2(-1) + 10(2,5) + 2(-0,5) ] = [ -2 + 25 - 1 ] = [ 22 ] = b
+   [ -2   2   6 ] [-0,5 ]   [ -2(-1) +  2(2,5) + 6(-0,5) ]   [  2 +  5 - 3 ]   [  4 ]
+
+3. Status:
+   ✔ Solusi 100% Eksak · Residu ||Ax - b|| = 0
+   "Presentasi Dekomposisi Cholesky Selesai"
+================================================================================
