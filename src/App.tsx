@@ -1200,15 +1200,18 @@ function SlideVisual({index,score}:{index:number;score:number}){
 
    {/* Slide 12: Efisiensi 50% Memori & Kecepatan 2x */}
    {index===12&&<g>
-    <rect x="30" y="20" width="100" height="85" rx="8" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
-    <text x="80" y="50" textAnchor="middle" fontSize="12" fill="#991b1b">LU Biasa</text>
-    <text x="80" y="80" textAnchor="middle" fontSize="16" fill="#b91c1c">n³ / 3 Ops</text>
-    <text x="140" y="65" textAnchor="middle" fontSize="16" fill="#059669">VS</text>
-    <rect x="150" y="20" width="100" height="85" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
-    <text x="200" y="50" textAnchor="middle" fontSize="12" fill="#065f46">Cholesky</text>
-    <text x="200" y="80" textAnchor="middle" fontSize="16" fill="#047857">n³ / 6 Ops ⚡</text>
-    <rect x="35" y="118" width="210" height="24" rx="5" fill="#047857"/>
-    <text x="140" y="134" textAnchor="middle" fontSize="11" fill="#fff">2× Lebih Cepat &amp; Hemat 50% RAM</text>
+    <rect x="26" y="18" width="100" height="88" rx="8" fill="#fee2e2" stroke="#222" strokeWidth="2"/>
+    <text x="76" y="44" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#991b1b">LU Biasa</text>
+    <text x="76" y="70" textAnchor="middle" fontSize="15" fontWeight="bold" fill="#b91c1c">n³ / 3 Ops</text>
+    <text x="76" y="88" textAnchor="middle" fontSize="9.5" fill="#7f1d1d">100% Beban</text>
+    <circle cx="140" cy="62" r="13" fill="#f1f5f9" stroke="#222" strokeWidth="1.5"/>
+    <text x="140" y="66" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#0f172a">VS</text>
+    <rect x="154" y="18" width="100" height="88" rx="8" fill="#d1fae5" stroke="#222" strokeWidth="2"/>
+    <text x="204" y="44" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#065f46">Cholesky</text>
+    <text x="204" y="70" textAnchor="middle" fontSize="15" fontWeight="bold" fill="#047857">n³ / 6 Ops</text>
+    <text x="204" y="88" textAnchor="middle" fontSize="9.5" fontWeight="bold" fill="#059669">Hemat 50%</text>
+    <rect x="30" y="118" width="220" height="24" rx="6" fill="#047857"/>
+    <text x="140" y="134" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#fff">⚡ 2× Lebih Cepat &amp; Hemat 50% RAM</text>
    </g>}
 
    {/* Slide 13: Contoh Cholesky 3x3 */}
