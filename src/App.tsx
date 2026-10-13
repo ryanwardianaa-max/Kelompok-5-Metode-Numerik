@@ -29,80 +29,88 @@ const members=[
  ['Nabila Fitria Nuroktavianty Rosadi','232151088']
 ] as const
 
+function renderMathText(text: string) {
+  if (!text.includes('$')) return text
+  const parts = text.split('$')
+  return parts.map((part, idx) => (
+    idx % 2 === 1 ? <InlineMath math={part} key={idx} /> : part
+  ))
+}
+
 const slides=[
- ['Dekomposisi LU: Crout & Cholesky','A = L \\cdot U \\quad \\& \\quad A = L \\cdot L^T',[
+ ['Dekomposisi LU: Crout & Cholesky','A = L \cdot U \quad \& \quad A = L \cdot L^T',[
   'Kelompok 4 · Presentasi Pertemuan 08 Metode Numerik (Kelas C).',
   'Membahas tuntas Dekomposisi LU Metode Reduksi Crout dan Metode Dekomposisi Cholesky.'
  ]],
- ['Mengapa Dekomposisi Matriks?','\\mathcal{O}(n^3) \\to \\mathcal{O}(n^2)',[
-  'Pada persoalan rekayasa, matriks koefisien A tetap konstan, tetapi vektor beban b berganti berulang kali.',
-  'Dekomposisi memfaktorkan A cukup SEKALI (O(n³)), lalu tiap vektor b diselesaikan via substitusi kilat O(n²).'
+ ['Mengapa Dekomposisi Matriks?','\mathcal{O}(n^3) \to \mathcal{O}(n^2)',[
+  'Pada persoalan rekayasa, matriks koefisien $A$ tetap konstan, tetapi vektor beban $\mathbf{b}$ berganti berulang kali.',
+  'Dekomposisi memfaktorkan $A$ cukup SEKALI ($\mathcal{O}(n^3)$), lalu tiap vektor $\mathbf{b}$ diselesaikan via substitusi kilat $\mathcal{O}(n^2)$.'
  ]],
- ['Tiga Varian Dekomposisi LU','\\text{Doolittle} \\quad | \\quad \\text{Crout} \\quad | \\quad \\text{Cholesky}',[
-  'Doolittle: Diagonal L = 1, diagonal U bebas (standar LU Gauss).',
-  'Crout: Diagonal U = 1, diagonal L bebas. Cholesky: Khusus simetris definit positif, A = L · Lᵀ.'
+ ['Tiga Varian Dekomposisi LU','\text{Doolittle} \quad | \quad \text{Crout} \quad | \quad \text{Cholesky}',[
+  'Doolittle: Diagonal $L = 1$ ($l_{ii} = 1$), diagonal $U$ bebas (standar LU Gauss).',
+  'Crout: Diagonal $U = 1$ ($u_{ii} = 1$), diagonal $L$ bebas. Cholesky: Khusus simetris definit positif, $A = L \cdot L^T$.'
  ]],
- ['Metode Reduksi Crout','A = L \\cdot U,\\quad u_{ii} = 1',[
-  'Metode Crout mengunci semua elemen diagonal utama matriks segitiga atas U bernilai tepat 1.',
-  'Matriks segitiga bawah L memuat elemen diagonal bebas yang menanggung bobot pembagian numerik.'
+ ['Metode Reduksi Crout','A = L \cdot U,\quad u_{ii} = 1',[
+  'Metode Crout mengunci semua elemen diagonal utama matriks segitiga atas $U$ bernilai tepat 1 ($u_{ii} = 1$).',
+  'Matriks segitiga bawah $L$ memuat elemen diagonal bebas yang menanggung bobot pembagian numerik.'
  ]],
- ['Algoritma Rekursif Crout','l_{ik} = a_{ik} - \\sum l_{im}u_{mk},\\quad u_{kj} = \\frac{a_{kj} - \\sum l_{km}u_{mj}}{l_{kk}}',[
-  'Pola pengerjaan teratur: Tentukan kolom ke-k matriks L, lalu tentukan baris ke-k matriks U.',
-  'Langkah bergantian kolom-baris ini berlanjut dari k = 1 hingga k = n tanpa perlu eliminasi baris manual.'
+ ['Algoritma Rekursif Crout','l_{ik} = a_{ik} - \sum l_{im}u_{mk},\quad u_{kj} = \frac{a_{kj} - \sum l_{km}u_{mj}}{l_{kk}}',[
+  'Pola pengerjaan teratur: Tentukan kolom ke-$k$ matriks $L$, lalu tentukan baris ke-$k$ matriks $U$.',
+  'Langkah bergantian kolom-baris ini berlanjut dari $k = 1$ hingga $k = n$ tanpa perlu eliminasi baris manual.'
  ]],
- ['Tahap 1: Substitusi Maju Crout','L\\mathbf{y} = \\mathbf{b}',[
-  'Menyelesaikan sistem segitiga bawah L y = b dari baris teratas (i = 1) ke baris terbawah (i = n).',
-  'Karena l_ii ≠ 1 pada Crout, setiap elemen y_i dihitung dengan pembagian: y_i = (b_i - ∑ l_ij y_j) / l_ii.'
+ ['Tahap 1: Substitusi Maju Crout','L\mathbf{y} = \mathbf{b}',[
+  'Menyelesaikan sistem segitiga bawah $L\mathbf{y} = \mathbf{b}$ dari baris teratas ($i = 1$) ke baris terbawah ($i = n$).',
+  'Karena $l_{ii} \ne 1$ pada Crout, setiap elemen $y_i$ dihitung dengan pembagian bertingkat: $y_i = \frac{b_i - \sum_{j=1}^{i-1} l_{ij} y_j}{l_{ii}}$.'
  ]],
- ['Tahap 2: Substitusi Mundur Crout','U\\mathbf{x} = \\mathbf{y},\\quad u_{ii} = 1',[
-  'Menyelesaikan sistem segitiga atas U x = y dari baris terbawah (i = n) ke baris teratas (i = 1).',
-  'Karena diagonal U tepat 1, tidak ada pembagian pada tahap ini: x_i = y_i - ∑ u_ij x_j.'
+ ['Tahap 2: Substitusi Mundur Crout','U\mathbf{x} = \mathbf{y},\quad u_{ii} = 1',[
+  'Menyelesaikan sistem segitiga atas $U\mathbf{x} = \mathbf{y}$ dari baris terbawah ($i = n$) ke baris teratas ($i = 1$).',
+  'Karena diagonal $U$ tepat 1 ($u_{ii} = 1$), tidak ada pembagian pada tahap ini: $x_i = y_i - \sum_{j=i+1}^{n} u_{ij} x_j$.'
  ]],
- ['Contoh Numerik Crout 3×3','A\\mathbf{x} = \\mathbf{b} \\implies \\mathbf{x} = [-1, 2.5, -0.5]^T',[
-  'Simulasi lengkap pemfaktoran Crout 3x3 bersesuaian dengan naskah video animasi Manim.',
-  'Mencakup faktorisasi A = LU, substitusi maju Ly = b, dan substitusi mundur Ux = y.'
+ ['Contoh Numerik Crout 3×3','A\mathbf{x} = \mathbf{b} \implies \mathbf{x} = [-1, 2.5, -0.5]^T',[
+  'Simulasi lengkap pemfaktoran Crout 3×3 bersesuaian dengan naskah video animasi Manim.',
+  'Mencakup faktorisasi $A = LU$, substitusi maju $L\mathbf{y} = \mathbf{b}$, dan substitusi mundur $U\mathbf{x} = \mathbf{y}$.'
  ]],
- ['Jebakan Poros Nol pada Crout','l_{kk} = 0 \\implies \\text{Pembagian Nol}',[
-  'Jika elemen diagonal L bernilai nol (l_kk = 0), rumus baris U akan mengalami pembagian dengan nol.',
-  'Pencegahan: Lakukan pertukaran baris (pivoting) pada matriks awal A sebelum menerapkan algoritma Crout.'
+ ['Jebakan Poros Nol pada Crout','l_{kk} = 0 \implies \text{Pembagian Nol}',[
+  'Jika elemen diagonal $L$ bernilai nol ($l_{kk} = 0$), rumus baris $U$ akan mengalami pembagian dengan nol.',
+  'Pencegahan: Lakukan pertukaran baris (pivoting) pada matriks awal $A$ sebelum menerapkan algoritma Crout.'
  ]],
- ['Metode Dekomposisi Cholesky','A = L \\cdot L^T',[
-  'Analogi Cermin Ajaib: Membagi matriks tepat di depan cermin! Matriks atas U tidak perlu dihitung karena otomatis adalah bayangan transpos L (U = Lᵀ).',
+ ['Metode Dekomposisi Cholesky','A = L \cdot L^T',[
+  'Analogi Cermin Ajaib: Membagi matriks tepat di depan cermin! Matriks atas $U$ tidak perlu dihitung karena otomatis adalah bayangan transpos $L$ ($U = L^T$).',
   'Faktorisasi khusus paling efisien di dunia untuk matriks bujursangkar simetris dan definit positif.',
-  'Hanya menghitung satu matriks segitiga bawah L; kerja komputasi dan memori terpangkas 50% dibanding metode LU biasa.'
+  'Hanya menghitung satu matriks segitiga bawah $L$; kerja komputasi dan memori terpangkas 50% dibanding metode LU biasa.'
  ]],
- ['Syarat Mutlak Metode Cholesky','A = A^T \\quad \\& \\quad \\mathbf{x}^T A \\mathbf{x} > 0',[
-  'Syarat 1 (Simetris A = Aᵀ): Cermin tidak pernah bohong. Karena (L·Lᵀ)ᵀ = L·Lᵀ = A, matriks A wajib simetris sempurna (a_ij = a_ji). Beda satu angka saja, Cholesky gugur!',
-  'Syarat 2 (Definit Positif xᵀAx > 0): Rumus diagonal memakai akar kuadrat l_jj = √(a_jj - ∑ l_jk²). Angka di dalam akar HARUS positif murni agar tidak muncul bilangan imajiner!',
-  'Uji Kriteria Sylvester: Potong submatriks utama dari pojok kiri atas bertahap; semua determinan minor M_1, M_2, ..., M_n wajib > 0.'
+ ['Syarat Mutlak Metode Cholesky','A = A^T \quad \& \quad \mathbf{x}^T A \mathbf{x} > 0',[
+  'Syarat 1 (Simetris $A = A^T$): Cermin tidak pernah bohong. Karena $(L \cdot L^T)^T = L \cdot L^T = A$, matriks $A$ wajib simetris sempurna ($a_{ij} = a_{ji}$). Beda satu angka saja, Cholesky gugur!',
+  'Syarat 2 (Definit Positif $\mathbf{x}^T A \mathbf{x} > 0$): Rumus diagonal memakai akar kuadrat $l_{jj} = \sqrt{a_{jj} - \sum l_{jk}^2}$. Angka di dalam akar HARUS positif murni agar tidak muncul bilangan imajiner!',
+  'Uji Kriteria Sylvester: Potong submatriks utama dari pojok kiri atas bertahap; semua determinan minor $M_1, M_2, \dots, M_n > 0$.'
  ]],
- ['Algoritma Faktorisasi Cholesky','l_{jj} = \\sqrt{a_{jj} - \\sum l_{jk}^2}',[
-  'Elemen Diagonal (l_jj): Ditarik akar kuadrat dari elemen asal dikurangi jumlah kuadrat elemen sebelumnya pada baris yang sama.',
-  'Elemen Bawah Diagonal (l_ij): Elemen asal dikurangi produk silang elemen sebelumnya, lalu dibagi poros diagonal l_jj.',
-  'Efek Kembar: Begitu matriks segitiga bawah L selesai dihitung, matriks segitiga atas langsung diperoleh gratis via transpos (U = Lᵀ).'
+ ['Algoritma Faktorisasi Cholesky','l_{jj} = \sqrt{a_{jj} - \sum l_{jk}^2}',[
+  'Elemen Diagonal ($l_{jj}$): Ditarik akar kuadrat dari elemen asal dikurangi jumlah kuadrat elemen sebelumnya pada baris yang sama: $l_{jj} = \sqrt{a_{jj} - \sum_{k=1}^{j-1} l_{jk}^2}$.',
+  'Elemen Bawah Diagonal ($l_{ij}$): Elemen asal dikurangi produk silang elemen sebelumnya, lalu dibagi poros diagonal $l_{jj}$: $l_{ij} = \frac{a_{ij} - \sum_{k=1}^{j-1} l_{ik} l_{jk}}{l_{jj}}$.',
+  'Efek Kembar: Begitu matriks segitiga bawah $L$ selesai dihitung, matriks segitiga atas langsung diperoleh gratis via transpos ($U = L^T$).'
  ]],
- ['Efisiensi Komputasi Cholesky','\\sim \\frac{1}{6}n^3 \\text{ Operasi} \\quad (\\text{Hemat 50\\% Memori dan Waktu})',[
-  'Hemat Memori 50%: Komputer hanya perlu menyimpan satu matriks segitiga L; matriks U tidak memerlukan alokasi memori tambahan.',
-  'Kecepatan 2× Lipat: Beban operasi hanya ~n³/6 flops, memangkas separuh beban Eliminasi Gauss dan Crout/Doolittle (~n³/3 flops).',
+ ['Efisiensi Komputasi Cholesky','\sim \frac{1}{6}n^3 \text{ Operasi} \quad (\text{Hemat 50\% Memori dan Waktu})',[
+  'Hemat Memori 50%: Komputer hanya perlu menyimpan satu matriks segitiga $L$; matriks $U$ tidak memerlukan alokasi memori tambahan.',
+  'Kecepatan 2× Lipat: Beban operasi hanya $\sim \frac{1}{6}n^3$ operasi, memangkas separuh beban Eliminasi Gauss dan Crout/Doolittle ($\sim \frac{1}{3}n^3$ operasi).',
   'Stabilitas Numerik Alami: Khusus matriks definit positif, Cholesky dijamin stabil tanpa memerlukan pertukaran baris (tanpa pivoting).'
  ]],
- ['Contoh Numerik Cholesky 3×3','A = L \\cdot L^T \\implies \\mathbf{x} = [-1, 2.5, -0.5]^T',[
-  'Simulasi pemfaktoran sistem simetris definit positif 3x3 dengan video animasi Manim interaktif khusus Smart TV.',
-  'Langkah lengkap: verifikasi syarat simetris & Sylvester, faktorisasi L, cermin Lᵀ, hingga substitusi maju-mundur.'
+ ['Contoh Numerik Cholesky 3×3','A = L \cdot L^T \implies \mathbf{x} = [-1, 2.5, -0.5]^T',[
+  'Simulasi pemfaktoran sistem simetris definit positif 3×3 dengan video animasi Manim interaktif khusus Smart TV.',
+  'Langkah lengkap: verifikasi syarat simetris & Sylvester, faktorisasi $L$, cermin $L^T$, hingga substitusi maju-mundur.'
  ]],
- ['Jebakan Fatal: Bilangan Non-Positif dalam Akar','a_{jj} - \\sum l_{jk}^2 \\le 0 \\implies \\text{Gagal Cholesky}',[
-  'Bahaya Akar Imajiner: Jika matriks tidak definit positif, nilai di dalam akar menjadi negatif atau nol (muncul bilangan imajiner i = √-1).',
+ ['Jebakan Fatal: Bilangan Non-Positif dalam Akar','a_{jj} - \sum l_{jk}^2 \le 0 \implies \text{Gagal Cholesky}',[
+  'Bahaya Akar Imajiner: Jika matriks tidak definit positif, nilai di dalam akar menjadi non-positif sehingga muncul bilangan imajiner ($i = \sqrt{-1}$).',
   'Respon Komputer: Program Python (scipy/numpy) atau MATLAB langsung melempar galat LinAlgError: Matrix is not positive definite.',
-  'Solusi Alternatif: Jika matriks simetris tak-definit positif, gunakan faktorisasi LDLᵀ (tanpa penarikan akar) atau metode Crout dengan partial pivoting.'
+  'Solusi Alternatif: Jika matriks simetris tak-definit positif, gunakan faktorisasi $LDL^T$ (tanpa penarikan akar) atau metode Crout dengan partial pivoting.'
  ]],
- ['Perbandingan Komparatif Tiga Metode','\\text{Doolittle vs Crout vs Cholesky}',[
-  'Doolittle: Umum, l_ii = 1. Crout: Umum, u_ii = 1 (cocok bila substitusi balik dioptimalkan).',
+ ['Perbandingan Komparatif Tiga Metode','\text{Doolittle vs Crout vs Cholesky}',[
+  'Doolittle: Umum, $l_{ii} = 1$. Crout: Umum, $u_{ii} = 1$ (cocok bila substitusi balik dioptimalkan).',
   'Cholesky: Spesifik simetris definit positif, paling cepat dan paling stabil secara numerik.'
  ]],
- ['Latihan & Kuis Interaktif','\\text{Kuis Konseptual: } 3\\text{ Babak}',[
+ ['Latihan & Kuis Interaktif','\text{Kuis Konseptual: } 3\text{ Babak}',[
   'Uji pemahaman konsep: Diagonal Crout, syarat Cholesky, dan analisis efisiensi komputasi numerik.'
  ]],
- ['Kesimpulan & Pembagian Peran Kelompok 4','A = L \\cdot U \\quad \\longleftrightarrow \\quad A = L \\cdot L^T',[
+ ['Kesimpulan & Pembagian Peran Kelompok 4','A = L \cdot U \quad \longleftrightarrow \quad A = L \cdot L^T',[
   'Kelompok 4 siap mempresentasikan Dekomposisi Crout & Cholesky secara interaktif.',
   'Ryan: Konsep Teori & Demo Lab, Najla: Metode Crout, Nabila: Metode Cholesky & Tanya Jawab.'
  ]]
@@ -346,18 +354,18 @@ function StepExample({data}:{data:any}){
 
 const questions=[
  {
-  prompt:'\\text{Pada Dekomposisi LU metode Reduksi Crout, komponen manakah yang diagonal utamanya bernilai 1?}',
-  options:['Matriks segitiga bawah L (l_{ii} = 1)', 'Matriks segitiga atas U (u_{ii} = 1)', 'Matriks koefisien asal A (a_{ii} = 1)', 'Vektor ruas kanan b (b_i = 1)'],
+  prompt:'\text{Pada Dekomposisi LU metode Reduksi Crout, komponen manakah yang diagonal utamanya bernilai 1?}',
+  options:['Matriks segitiga bawah $L$ ($l_{ii} = 1$)', 'Matriks segitiga atas $U$ ($u_{ii} = 1$)', 'Matriks koefisien asal $A$ ($a_{ii} = 1$)', 'Vektor ruas kanan $\mathbf{b}$ ($b_i = 1$)'],
   answer:1
  },
  {
-  prompt:'\\text{Apa dua syarat mutlak matriks A agar dapat difaktorkan dengan Dekomposisi Cholesky } A = L \\cdot L^T\\text{?}',
-  options:['Matriks diagonal dan determinannya 0', 'Matriks harus simetris (A = A^T) dan definit positif (x^T A x > 0)', 'Matriks harus ortogonal dan berordo ganjil', 'Matriks segitiga atas dan berdeterminan 1'],
+  prompt:'\text{Apa dua syarat mutlak matriks A agar dapat difaktorkan dengan Dekomposisi Cholesky } A = L \cdot L^T\text{?}',
+  options:['Matriks diagonal dan determinannya 0', 'Matriks harus simetris ($A = A^T$) dan definit positif ($\mathbf{x}^T A \mathbf{x} > 0$)', 'Matriks harus ortogonal dan berordo ganjil', 'Matriks segitiga atas dan berdeterminan 1'],
   answer:1
  },
  {
-  prompt:'\\text{Mengapa metode Cholesky kira-kira 2 kali lebih cepat dibanding metode LU biasa (Doolittle/Crout)?}',
-  options:['Karena tidak memerlukan proses substitusi maju', 'Karena hanya perlu menghitung matriks L; penutup atasnya cukup transpos L^T tanpa hitung ulang', 'Karena semua nilai koefisiennya langsung bernilai nol', 'Karena determinannya selalu bernilai konstan'],
+  prompt:'\text{Mengapa metode Cholesky kira-kira 2 kali lebih cepat dibanding metode LU biasa (Doolittle/Crout)?}',
+  options:['Karena tidak memerlukan proses substitusi maju', 'Karena hanya perlu menghitung matriks $L$; penutup atasnya cukup transpos $L^T$ tanpa hitung ulang', 'Karena semua nilai koefisiennya langsung bernilai nol', 'Karena determinannya selalu bernilai konstan'],
   answer:1
  }
 ] as const
@@ -385,7 +393,7 @@ function Quiz({answers,onChange}:{answers:(number|undefined)[];onChange:(answers
        className={picked!==undefined?isCorrect?'correct':isPicked?'wrong':'':''}
        onClick={()=>picked===undefined&&onChange(answers.map((x,i)=>i===n?idx:x))}
       >
-       <span>{String.fromCharCode(65+idx)}.</span> {opt}
+       <span>{String.fromCharCode(65+idx)}.</span> {renderMathText(opt)}
       </button>
      })}
     </div>
@@ -414,8 +422,8 @@ function VariantComparisonSlide(){
    </div>
    <div className="variant-tab-buttons">
     <button className={tab==='all'?'active':''} onClick={()=>setTab('all')}>Semua Varian (3 Kolom)</button>
-    <button className={tab==='doolittle'?'active':''} onClick={()=>setTab('doolittle')}>1. Doolittle (l_ii = 1)</button>
-    <button className={tab==='crout'?'active':''} onClick={()=>setTab('crout')}>2. Crout (u_ii = 1)</button>
+    <button className={tab==='doolittle'?'active':''} onClick={()=>setTab('doolittle')}>1. Doolittle (lᵢᵢ = 1)</button>
+    <button className={tab==='crout'?'active':''} onClick={()=>setTab('crout')}>2. Crout (uᵢᵢ = 1)</button>
     <button className={tab==='cholesky'?'active':''} onClick={()=>setTab('cholesky')}>3. Cholesky (A = L · Lᵀ)</button>
    </div>
   </div>
@@ -424,7 +432,7 @@ function VariantComparisonSlide(){
    {(tab==='all'||tab==='doolittle')&&<article className="variant-card doolittle">
     <div className="variant-card-title">
      <span>1. Metode Doolittle</span>
-     <span className="badge">l_ii = 1</span>
+     <span className="badge"><InlineMath math="l_{ii} = 1" /></span>
     </div>
     <p className="variant-rule">Kunci angka <b>1</b> di diagonal <b>L</b>. Matriks <b>U</b> menampung sisa.</p>
     <div className="variant-math-stack">
@@ -447,7 +455,7 @@ function VariantComparisonSlide(){
    {(tab==='all'||tab==='crout')&&<article className="variant-card crout">
     <div className="variant-card-title">
      <span>2. Metode Crout</span>
-     <span className="badge">u_ii = 1</span>
+     <span className="badge"><InlineMath math="u_{ii} = 1" /></span>
     </div>
     <p className="variant-rule">Kunci angka <b>1</b> di diagonal <b>U</b>. Matriks <b>L</b> menampung sisa.</p>
     <div className="variant-math-stack">
@@ -555,13 +563,13 @@ function SlideDeck(){
     <div>
      <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
      <h1>{slide[0]}</h1>
-     {i===0?<Cover/>:isVariantSlide?<VariantComparisonSlide/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
+     {i===0?<Cover/>:isVariantSlide?<VariantComparisonSlide/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map((x,idx)=><li key={idx}>{renderMathText(x)}</li>)}</ul></>}
     </div>
    {!fullWidth&&<aside className={special?'compact-visual':''}>
     <SlideVisual index={i} score={score}/>
     {!special&&<div className="slide-takeaway">
      <div className="takeaway-header"><span className="sticker">INTI KONSEP</span><small className="nav-hint">Gunakan ← → / Space</small></div>
-     <strong>{slide[2][0]}</strong>
+     <strong>{renderMathText(slide[2][0])}</strong>
     </div>}
    </aside>}
   </article>
@@ -1079,10 +1087,10 @@ function SlideVisual({index,score}:{index:number;score:number}){
    {index===2&&<g>
     <rect x="15" y="25" width="75" height="90" rx="6" fill="#fef3c7" stroke="#222" strokeWidth="1.5"/>
     <text x="52" y="50" textAnchor="middle" fontSize="10" fill="#92400e">Doolittle</text>
-    <text x="52" y="80" textAnchor="middle" fontSize="13" fill="#78350f">l_ii = 1</text>
+    <text x="52" y="80" textAnchor="middle" fontSize="13" fill="#78350f">lᵢᵢ = 1</text>
     <rect x="102" y="25" width="75" height="90" rx="6" fill="#e0f2fe" stroke="#222" strokeWidth="1.5"/>
     <text x="140" y="50" textAnchor="middle" fontSize="10" fill="#0369a1">Crout</text>
-    <text x="140" y="80" textAnchor="middle" fontSize="13" fill="#075985">u_ii = 1</text>
+    <text x="140" y="80" textAnchor="middle" fontSize="13" fill="#075985">uᵢᵢ = 1</text>
     <rect x="190" y="25" width="75" height="90" rx="6" fill="#dcfce7" stroke="#222" strokeWidth="1.5"/>
     <text x="227" y="50" textAnchor="middle" fontSize="10" fill="#166534">Cholesky</text>
     <text x="227" y="80" textAnchor="middle" fontSize="13" fill="#14532d">L · Lᵀ</text>
@@ -1254,7 +1262,7 @@ function SlideVisual({index,score}:{index:number;score:number}){
     <path d="M 140 28 L 140 62" stroke="#b91c1c" strokeWidth="5" strokeLinecap="round"/>
     <circle cx="140" cy="74" r="4" fill="#b91c1c"/>
     <rect x="35" y="112" width="210" height="26" rx="6" fill="#ef4444" stroke="#222" strokeWidth="1.5"/>
-    <text x="140" y="129" textAnchor="middle" fontSize="11" fill="#fff">Poros l_kk = 0 (Pembagian Nol)</text>
+    <text x="140" y="129" textAnchor="middle" fontSize="11" fill="#fff">Poros lₖₖ = 0 (Pembagian Nol)</text>
    </g>}
 
    {/* Slide 9: Dekomposisi Cholesky A = L · L^T */}
@@ -1284,7 +1292,7 @@ function SlideVisual({index,score}:{index:number;score:number}){
    {/* Slide 11: Algoritma Akar Diagonal Cholesky */}
    {index===11&&<g>
     <rect x="25" y="15" width="230" height="90" rx="8" fill="#f0fdf4" stroke="#222" strokeWidth="2"/>
-    <text x="140" y="45" textAnchor="middle" fontSize="18" fill="#15803d">l_jj = √(a_jj - ∑ l_jk²)</text>
+    <text x="140" y="45" textAnchor="middle" fontSize="18" fill="#15803d">lⱼⱼ = √(aⱼⱼ - ∑ lⱼₖ²)</text>
     <text x="140" y="75" textAnchor="middle" fontSize="10.5" fill="#475569">Akar kuadrat selalu riil jika definit positif</text>
     <rect x="25" y="116" width="230" height="24" rx="5" fill="#059669" stroke="#222" strokeWidth="1.5"/>
     <text x="140" y="132" textAnchor="middle" fontSize="11" fill="#fff">Akar Diagonal Khusus Cholesky</text>
@@ -1334,11 +1342,11 @@ function SlideVisual({index,score}:{index:number;score:number}){
    {index===15&&<g>
     <rect x="15" y="20" width="75" height="95" rx="6" fill="#fef3c7" stroke="#222" strokeWidth="1.5"/>
     <text x="52" y="44" textAnchor="middle" fontSize="10" fill="#92400e">Doolittle</text>
-    <text x="52" y="70" textAnchor="middle" fontSize="11" fill="#78350f">l_ii = 1</text>
+    <text x="52" y="70" textAnchor="middle" fontSize="11" fill="#78350f">lᵢᵢ = 1</text>
     <text x="52" y="95" textAnchor="middle" fontSize="8.5" fill="#b45309">Umum</text>
     <rect x="102" y="20" width="75" height="95" rx="6" fill="#e0f2fe" stroke="#222" strokeWidth="1.5"/>
     <text x="140" y="44" textAnchor="middle" fontSize="10" fill="#0369a1">Crout</text>
-    <text x="140" y="70" textAnchor="middle" fontSize="11" fill="#075985">u_ii = 1</text>
+    <text x="140" y="70" textAnchor="middle" fontSize="11" fill="#075985">uᵢᵢ = 1</text>
     <text x="140" y="95" textAnchor="middle" fontSize="8.5" fill="#0284c7">Umum</text>
     <rect x="190" y="20" width="75" height="95" rx="6" fill="#dcfce7" stroke="#222" strokeWidth="1.5"/>
     <text x="227" y="44" textAnchor="middle" fontSize="10" fill="#166534">Cholesky</text>
