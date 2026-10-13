@@ -208,137 +208,243 @@ class CholeskyUnifiedExplainer(Scene):
         # ========================================================
         # 2. TAHAP FAKTORISASI A = L · L^T (KOLOM DEMI KOLOM)
         # ========================================================
+        # 2. PROSES FAKTORISASI CHOLESKY (KOLOM DEMI KOLOM)
+        # ========================================================
         header_faktorisasi = VGroup(
-            Text("Faktorisasi Cholesky: A = L · L^T", font_size=25, color=BLUE_C, weight=BOLD),
-            MathTex(r"l_{jj} = \sqrt{a_{jj} - \sum_{k=1}^{j-1} l_{jk}^2},\quad l_{ij} = \frac{a_{ij} - \sum_{k=1}^{j-1} l_{ik}l_{jk}}{l_{jj}}", font_size=19, color=WHITE_C)
-        ).arrange(DOWN, buff=0.15).to_edge(UP, buff=0.35)
-        self.play(FadeIn(header_faktorisasi), run_time=0.7)
+            Tex(r"\textbf{Faktorisasi Cholesky: } $A = L \cdot L^{\mathrm{T}}$", font_size=28, color=BLUE_C),
+            MathTex(
+                r"l_{jj} = \sqrt{a_{jj} - \sum_{k=1}^{j-1} l_{jk}^2},\quad l_{ij} = \frac{a_{ij} - \sum_{k=1}^{j-1} l_{ik}l_{jk}}{l_{jj}}",
+                font_size=20,
+                color=WHITE_C,
+            )
+        ).arrange(DOWN, buff=0.12).to_edge(UP, buff=0.25)
+        self.play(FadeIn(header_faktorisasi), run_time=0.6)
 
         # Matriks A & Template Matriks L di Panel Kiri
-        mat_A = Matrix([["4", "2", "-2"], ["2", "10", "2"], ["-2", "2", "6"]], h_buff=0.8, v_buff=0.65).scale(0.7)
-        lbl_A = Text("Matriks A", font_size=15, color=WHITE_C, weight=BOLD).next_to(mat_A, UP, buff=0.2)
-        grp_A_left = VGroup(lbl_A, mat_A).move_to(LEFT * 4.2 + UP * 0.9)
+        vals_A = [["4", "2", "-2"], ["2", "10", "2"], ["-2", "2", "6"]]
+        mat_A = Matrix(vals_A, bracket_h_buff=0.1, bracket_v_buff=0.1, h_buff=0.8, v_buff=0.6)
+        lbl_A = Tex(r"\textbf{Matriks $A$}", font_size=20, color=WHITE_C)
+        grp_A_left = VGroup(lbl_A, mat_A).arrange(DOWN, buff=0.15).move_to(LEFT * 4.0 + UP * 1.1)
 
-        mat_L_curr = Matrix([["l_{11}", "0", "0"], ["l_{21}", "l_{22}", "0"], ["l_{31}", "l_{32}", "l_{33}"]], h_buff=0.8, v_buff=0.65).scale(0.7)
-        lbl_L_curr = Text("Matriks Segitiga Bawah L", font_size=15, color=GREEN_C, weight=BOLD).next_to(mat_L_curr, UP, buff=0.2)
-        grp_L_left = VGroup(lbl_L_curr, mat_L_curr).move_to(LEFT * 4.2 + DOWN * 1.6)
+        vals_L_init = [["l_{11}", "0", "0"], ["l_{21}", "l_{22}", "0"], ["l_{31}", "l_{32}", "l_{33}"]]
+        mat_L_curr = Matrix(vals_L_init, bracket_h_buff=0.1, bracket_v_buff=0.1, h_buff=0.8, v_buff=0.6)
+        lbl_L_curr = Tex(r"\textbf{Matriks Segitiga Bawah $L$}", font_size=20, color=GREEN_C)
+        grp_L_left = VGroup(lbl_L_curr, mat_L_curr).arrange(DOWN, buff=0.15).move_to(LEFT * 4.0 + DOWN * 1.8)
+
+        # Redupkan elemen 0 pada matriks L
+        for idx in [1, 2, 5]:
+            mat_L_curr.get_entries()[idx].set_color(MUTED_C)
 
         self.play(FadeIn(grp_A_left), FadeIn(grp_L_left), run_time=0.8)
-        self.wait(0.4)
+        self.wait(0.5)
 
-        # Card Kalkulasi Kanan
-        card_calc = RoundedRectangle(
-            corner_radius=0.15,
-            width=6.8,
-            height=4.6,
+        # ----------------------------------------------------
+        # LANGKAH 1: MENGIHITUNG KOLOM 1 MATRIKS L
+        # ----------------------------------------------------
+        card_l1_title = Tex(r"\textbf{Langkah 1: Menghitung Kolom 1 Matriks $L$}", font_size=25, color=YELLOW_C)
+        l11_calc = MathTex(r"l_{11} = \sqrt{a_{11}} = \sqrt{4} = \mathbf{2}", font_size=25, color=WHITE_C)
+        l21_calc = MathTex(r"l_{21} = \frac{a_{21}}{l_{11}} = \frac{2}{2} = \mathbf{1}", font_size=25, color=WHITE_C)
+        l31_calc = MathTex(r"l_{31} = \frac{a_{31}}{l_{11}} = \frac{-2}{2} = \mathbf{-1}", font_size=25, color=WHITE_C)
+        l1_badge = Tex(
+            r"\textbf{\checkmark\ Kolom 1 Matriks $L$ Selesai: } $\begin{bmatrix} 2 & 1 & -1 \end{bmatrix}^{\mathrm{T}}$",
+            font_size=22,
+            color=GREEN_C,
+        )
+
+        content_l1 = VGroup(card_l1_title, l11_calc, l21_calc, l31_calc, l1_badge).arrange(DOWN, buff=0.32, aligned_edge=LEFT)
+        card_l1_bg = RoundedRectangle(
+            width=6.6,
+            height=content_l1.height + 0.55,
+            corner_radius=0.14,
             fill_color=CARD_BG,
             fill_opacity=0.95,
             stroke_color=YELLOW_C,
-            stroke_width=2.0
-        ).move_to(RIGHT * 2.8 + DOWN * 0.35)
-        self.play(Create(card_calc), run_time=0.6)
+            stroke_width=2.0,
+        ).move_to(RIGHT * 2.7 + DOWN * 0.35)
+        content_l1.move_to(card_l1_bg.get_center())
 
-        # ----------------------------------------------------
-        # KOLOM 1 MATRIKS L
-        # ----------------------------------------------------
-        t_col1 = Text("Langkah 1: Menghitung Kolom 1 Matriks L", font_size=16, color=YELLOW_C, weight=BOLD).move_to(card_calc.get_top() + DOWN * 0.35)
-        self.play(Write(t_col1), run_time=0.5)
+        self.play(FadeIn(card_l1_bg), FadeIn(card_l1_title), run_time=0.6)
 
-        calc_col1 = MathTex(
-            r"\begin{aligned}"
-            r"l_{11} &= \sqrt{a_{11}} = \sqrt{4} = \mathbf{2} \\[6pt]"
-            r"l_{21} &= \frac{a_{21}}{l_{11}} = \frac{2}{2} = \mathbf{1} \\[6pt]"
-            r"l_{31} &= \frac{a_{31}}{l_{11}} = \frac{-2}{2} = \mathbf{-1}"
-            r"\end{aligned}",
-            font_size=19,
-            color=WHITE_C
-        ).next_to(t_col1, DOWN, buff=0.3).align_to(card_calc, LEFT).shift(RIGHT * 0.5)
+        # Tektokan l11
+        box_focus = SurroundingRectangle(mat_A.get_entries()[0], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l11_calc), run_time=0.7)
+        self.wait(0.8)
 
-        badge_res1 = MathTex(
-            r"\text{Kolom 1 Matriks } L = \begin{bmatrix} 2 & 1 & -1 \end{bmatrix}^T",
-            font_size=16,
-            color=GREEN_C
-        ).next_to(calc_col1, DOWN, buff=0.35).align_to(calc_col1, LEFT)
-
-        self.play(Write(calc_col1), run_time=1.2)
-        self.play(FadeIn(badge_res1), run_time=0.5)
-
-        # Update Matriks L di kiri
-        mat_L_step1 = Matrix([["2", "0", "0"], ["1", "l_{22}", "0"], ["-1", "l_{32}", "l_{33}"]], h_buff=0.8, v_buff=0.65).scale(0.7).move_to(mat_L_curr.get_center())
-        box_L1 = SurroundingRectangle(mat_L_step1.get_columns()[0], color=GREEN_C, buff=0.08)
-        self.play(Transform(mat_L_curr, mat_L_step1), Create(box_L1), run_time=0.8)
-        self.wait(2.0)
-
-        # Bersihkan Card untuk Kolom 2
+        new_l11 = MathTex(r"\mathbf{2}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[0].get_center())
+        target_box_l11 = SurroundingRectangle(new_l11, color=GREEN_C, buff=0.14, corner_radius=0.08)
         self.play(
-            FadeOut(t_col1), FadeOut(calc_col1), FadeOut(badge_res1), FadeOut(box_L1),
-            run_time=0.4
+            ReplacementTransform(box_focus, target_box_l11),
+            Transform(mat_L_curr.get_entries()[0], new_l11),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l11), run_time=0.3)
+
+        # Tektokan l21
+        box_focus = SurroundingRectangle(mat_A.get_entries()[3], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l21_calc), run_time=0.7)
+        self.wait(0.8)
+
+        new_l21 = MathTex(r"\mathbf{1}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[3].get_center())
+        target_box_l21 = SurroundingRectangle(new_l21, color=GREEN_C, buff=0.14, corner_radius=0.08)
+        self.play(
+            ReplacementTransform(box_focus, target_box_l21),
+            Transform(mat_L_curr.get_entries()[3], new_l21),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l21), run_time=0.3)
+
+        # Tektokan l31
+        box_focus = SurroundingRectangle(mat_A.get_entries()[6], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l31_calc), run_time=0.7)
+        self.wait(0.8)
+
+        new_l31 = MathTex(r"\mathbf{-1}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[6].get_center())
+        target_box_l31 = SurroundingRectangle(new_l31, color=GREEN_C, buff=0.14, corner_radius=0.08)
+        self.play(
+            ReplacementTransform(box_focus, target_box_l31),
+            Transform(mat_L_curr.get_entries()[6], new_l31),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l31), run_time=0.3)
+
+        # Selesai Kolom 1
+        col1_entries = VGroup(mat_L_curr.get_entries()[0], mat_L_curr.get_entries()[3], mat_L_curr.get_entries()[6])
+        box_col1_all = SurroundingRectangle(col1_entries, color=GREEN_C, buff=0.12, corner_radius=0.1)
+        self.play(Create(box_col1_all), FadeIn(l1_badge), run_time=0.7)
+        self.wait(1.8)
+        self.play(
+            FadeOut(box_col1_all),
+            FadeOut(card_l1_bg),
+            FadeOut(card_l1_title),
+            FadeOut(l11_calc),
+            FadeOut(l21_calc),
+            FadeOut(l31_calc),
+            FadeOut(l1_badge),
+            run_time=0.6,
         )
 
         # ----------------------------------------------------
-        # KOLOM 2 MATRIKS L
+        # LANGKAH 2: MENGIHITUNG KOLOM 2 MATRIKS L
         # ----------------------------------------------------
-        t_col2 = Text("Langkah 2: Menghitung Kolom 2 Matriks L", font_size=16, color=YELLOW_C, weight=BOLD).move_to(card_calc.get_top() + DOWN * 0.35)
-        self.play(Write(t_col2), run_time=0.5)
+        card_l2_title = Tex(r"\textbf{Langkah 2: Menghitung Kolom 2 Matriks $L$}", font_size=25, color=YELLOW_C)
+        l22_calc = MathTex(r"l_{22} = \sqrt{a_{22} - l_{21}^2} = \sqrt{10 - 1^2} = \sqrt{9} = \mathbf{3}", font_size=24, color=WHITE_C)
+        l32_calc = MathTex(r"l_{32} = \frac{a_{32} - l_{31}l_{21}}{l_{22}} = \frac{2 - (-1)(1)}{3} = \frac{3}{3} = \mathbf{1}", font_size=24, color=WHITE_C)
+        l2_badge = Tex(
+            r"\textbf{\checkmark\ Kolom 2 Matriks $L$ Selesai: } $\begin{bmatrix} 0 & 3 & 1 \end{bmatrix}^{\mathrm{T}}$",
+            font_size=22,
+            color=GREEN_C,
+        )
 
-        calc_col2 = MathTex(
-            r"\begin{aligned}"
-            r"l_{22} &= \sqrt{a_{22} - l_{21}^2} = \sqrt{10 - 1^2} = \sqrt{9} = \mathbf{3} \\[8pt]"
-            r"l_{32} &= \frac{a_{32} - l_{31}l_{21}}{l_{22}} = \frac{2 - (-1)(1)}{3} = \frac{3}{3} = \mathbf{1}"
-            r"\end{aligned}",
-            font_size=18,
-            color=WHITE_C
-        ).next_to(t_col2, DOWN, buff=0.35).align_to(card_calc, LEFT).shift(RIGHT * 0.5)
+        content_l2 = VGroup(card_l2_title, l22_calc, l32_calc, l2_badge).arrange(DOWN, buff=0.35, aligned_edge=LEFT)
+        card_l2_bg = RoundedRectangle(
+            width=6.6,
+            height=content_l2.height + 0.55,
+            corner_radius=0.14,
+            fill_color=CARD_BG,
+            fill_opacity=0.95,
+            stroke_color=YELLOW_C,
+            stroke_width=2.0,
+        ).move_to(RIGHT * 2.7 + DOWN * 0.35)
+        content_l2.move_to(card_l2_bg.get_center())
 
-        badge_res2 = MathTex(
-            r"\text{Kolom 2 Matriks } L = \begin{bmatrix} 0 & 3 & 1 \end{bmatrix}^T",
-            font_size=16,
-            color=GREEN_C
-        ).next_to(calc_col2, DOWN, buff=0.4).align_to(calc_col2, LEFT)
+        self.play(FadeIn(card_l2_bg), FadeIn(card_l2_title), run_time=0.6)
 
-        self.play(Write(calc_col2), run_time=1.2)
-        self.play(FadeIn(badge_res2), run_time=0.5)
+        # Tektokan l22
+        box_focus = SurroundingRectangle(mat_A.get_entries()[4], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l22_calc), run_time=0.7)
+        self.wait(0.8)
 
-        mat_L_step2 = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "l_{33}"]], h_buff=0.8, v_buff=0.65).scale(0.7).move_to(mat_L_curr.get_center())
-        box_L2 = SurroundingRectangle(mat_L_step2.get_columns()[1], color=GREEN_C, buff=0.08)
-        self.play(Transform(mat_L_curr, mat_L_step2), Create(box_L2), run_time=0.8)
-        self.wait(2.0)
-
-        # Bersihkan Card untuk Kolom 3
+        new_l22 = MathTex(r"\mathbf{3}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[4].get_center())
+        target_box_l22 = SurroundingRectangle(new_l22, color=GREEN_C, buff=0.14, corner_radius=0.08)
         self.play(
-            FadeOut(t_col2), FadeOut(calc_col2), FadeOut(badge_res2), FadeOut(box_L2),
-            run_time=0.4
+            ReplacementTransform(box_focus, target_box_l22),
+            Transform(mat_L_curr.get_entries()[4], new_l22),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l22), run_time=0.3)
+
+        # Tektokan l32
+        box_focus = SurroundingRectangle(mat_A.get_entries()[7], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l32_calc), run_time=0.7)
+        self.wait(0.8)
+
+        new_l32 = MathTex(r"\mathbf{1}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[7].get_center())
+        target_box_l32 = SurroundingRectangle(new_l32, color=GREEN_C, buff=0.14, corner_radius=0.08)
+        self.play(
+            ReplacementTransform(box_focus, target_box_l32),
+            Transform(mat_L_curr.get_entries()[7], new_l32),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l32), run_time=0.3)
+
+        # Selesai Kolom 2
+        col2_entries = VGroup(mat_L_curr.get_entries()[4], mat_L_curr.get_entries()[7])
+        box_col2_all = SurroundingRectangle(col2_entries, color=GREEN_C, buff=0.12, corner_radius=0.1)
+        self.play(Create(box_col2_all), FadeIn(l2_badge), run_time=0.7)
+        self.wait(1.8)
+        self.play(
+            FadeOut(box_col2_all),
+            FadeOut(card_l2_bg),
+            FadeOut(card_l2_title),
+            FadeOut(l22_calc),
+            FadeOut(l32_calc),
+            FadeOut(l2_badge),
+            run_time=0.6,
         )
 
         # ----------------------------------------------------
-        # KOLOM 3 MATRIKS L
+        # LANGKAH 3: MENGIHITUNG KOLOM 3 MATRIKS L
         # ----------------------------------------------------
-        t_col3 = Text("Langkah 3: Menghitung Kolom 3 Matriks L", font_size=16, color=YELLOW_C, weight=BOLD).move_to(card_calc.get_top() + DOWN * 0.35)
-        self.play(Write(t_col3), run_time=0.5)
+        card_l3_title = Tex(r"\textbf{Langkah 3: Menghitung Kolom 3 Matriks $L$}", font_size=25, color=YELLOW_C)
+        l33_calc = MathTex(
+            r"l_{33} = \sqrt{a_{33} - (l_{31}^2 + l_{32}^2)} = \sqrt{6 - ((-1)^2 + 1^2)} = \sqrt{4} = \mathbf{2}",
+            font_size=23,
+            color=WHITE_C,
+        )
+        l3_badge = Tex(
+            r"\textbf{\checkmark\ Kolom 3 Matriks $L$ Selesai: } $\begin{bmatrix} 0 & 0 & 2 \end{bmatrix}^{\mathrm{T}}$",
+            font_size=22,
+            color=GREEN_C,
+        )
 
-        calc_col3 = MathTex(
-            r"\begin{aligned}"
-            r"l_{33} &= \sqrt{a_{33} - (l_{31}^2 + l_{32}^2)} \\[4pt]"
-            r"&= \sqrt{6 - ((-1)^2 + 1^2)} \\[4pt]"
-            r"&= \sqrt{6 - (1 + 1)} = \sqrt{4} = \mathbf{2}"
-            r"\end{aligned}",
-            font_size=18,
-            color=WHITE_C
-        ).next_to(t_col3, DOWN, buff=0.3).align_to(card_calc, LEFT).shift(RIGHT * 0.5)
+        content_l3 = VGroup(card_l3_title, l33_calc, l3_badge).arrange(DOWN, buff=0.38, aligned_edge=LEFT)
+        card_l3_bg = RoundedRectangle(
+            width=6.6,
+            height=content_l3.height + 0.55,
+            corner_radius=0.14,
+            fill_color=CARD_BG,
+            fill_opacity=0.95,
+            stroke_color=YELLOW_C,
+            stroke_width=2.0,
+        ).move_to(RIGHT * 2.7 + DOWN * 0.35)
+        content_l3.move_to(card_l3_bg.get_center())
 
-        badge_res3 = MathTex(
-            r"\text{Kolom 3 Matriks } L = \begin{bmatrix} 0 & 0 & 2 \end{bmatrix}^T",
-            font_size=16,
-            color=GREEN_C
-        ).next_to(calc_col3, DOWN, buff=0.35).align_to(calc_col3, LEFT)
+        self.play(FadeIn(card_l3_bg), FadeIn(card_l3_title), run_time=0.6)
 
-        self.play(Write(calc_col3), run_time=1.2)
-        self.play(FadeIn(badge_res3), run_time=0.5)
+        # Tektokan l33
+        box_focus = SurroundingRectangle(mat_A.get_entries()[8], color=YELLOW_C, buff=0.14, corner_radius=0.08)
+        self.play(Create(box_focus), FadeIn(l33_calc), run_time=0.7)
+        self.wait(0.8)
 
-        mat_L_step3 = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], h_buff=0.8, v_buff=0.65).scale(0.7).move_to(mat_L_curr.get_center())
-        box_L3 = SurroundingRectangle(mat_L_step3.get_columns()[2], color=GREEN_C, buff=0.08)
-        self.play(Transform(mat_L_curr, mat_L_step3), Create(box_L3), run_time=0.8)
-        self.wait(2.2)
+        new_l33 = MathTex(r"\mathbf{2}", font_size=26, color=GREEN_C).move_to(mat_L_curr.get_entries()[8].get_center())
+        target_box_l33 = SurroundingRectangle(new_l33, color=GREEN_C, buff=0.14, corner_radius=0.08)
+        self.play(
+            ReplacementTransform(box_focus, target_box_l33),
+            Transform(mat_L_curr.get_entries()[8], new_l33),
+            run_time=0.7,
+        )
+        self.wait(0.8)
+        self.play(FadeOut(target_box_l33), run_time=0.3)
+
+        # Selesai Kolom 3
+        box_col3_all = SurroundingRectangle(new_l33, color=GREEN_C, buff=0.12, corner_radius=0.1)
+        self.play(Create(box_col3_all), FadeIn(l3_badge), run_time=0.7)
+        self.wait(2.0)
 
         # Bersihkan seluruh layar faktorisasi
         self.play(
@@ -346,48 +452,70 @@ class CholeskyUnifiedExplainer(Scene):
             FadeOut(grp_A_left),
             FadeOut(grp_L_left),
             FadeOut(mat_L_curr),
-            FadeOut(card_calc),
-            FadeOut(t_col3), FadeOut(calc_col3), FadeOut(badge_res3),
-            FadeOut(box_L3),
-            run_time=0.6
+            FadeOut(card_l3_bg),
+            FadeOut(card_l3_title),
+            FadeOut(l33_calc),
+            FadeOut(l3_badge),
+            FadeOut(box_col3_all),
+            run_time=0.7,
         )
 
         # ----------------------------------------------------
         # HASIL DEKOMPOSISI L DAN L^T (EFEK CERMIN TRANSPOS)
         # ----------------------------------------------------
-        header_decomp = Text("Hasil Dekomposisi Cholesky: A = L · L^T", font_size=25, color=WHITE_C, weight=BOLD).to_edge(UP, buff=0.5)
-        self.play(Write(header_decomp), run_time=0.7)
+        header_decomp = Tex(
+            r"\textbf{Hasil Dekomposisi Cholesky: } $A = L \cdot L^{\mathrm{T}}$",
+            font_size=32,
+            color=WHITE_C,
+        ).to_edge(UP, buff=0.45)
+        self.play(FadeIn(header_decomp), run_time=0.7)
 
-        mat_L_final = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], h_buff=0.8, v_buff=0.7).scale(0.75)
-        lbl_L_final = Text("Matriks L (Segitiga Bawah)", font_size=16, color=GREEN_C, weight=BOLD).next_to(mat_L_final, UP, buff=0.2)
-        grp_L_final = VGroup(lbl_L_final, mat_L_final).move_to(LEFT * 2.9 + UP * 0.25)
+        mat_L_final = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], bracket_h_buff=0.12, bracket_v_buff=0.12, h_buff=0.95, v_buff=0.72)
+        for i, val in enumerate(["2", "0", "0", "1", "3", "0", "-1", "1", "2"]):
+            c = MUTED_C if val == "0" else GREEN_C
+            mat_L_final.get_entries()[i].set_color(c).scale(1.05)
 
-        dot_mult = MathTex(r"\cdot", font_size=40, color=WHITE_C).move_to(ORIGIN + UP * 0.25)
+        lbl_L_final = Tex(r"\textbf{Matriks $L$ (Segitiga Bawah)}", font_size=21, color=GREEN_C)
+        grp_L_final = VGroup(lbl_L_final, mat_L_final).arrange(DOWN, buff=0.32).move_to(LEFT * 3.3 + DOWN * 0.15)
 
-        mat_LT_final = Matrix([["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]], h_buff=0.8, v_buff=0.7).scale(0.75)
-        lbl_LT_final = Text("Matriks L^T (Transpos = Segitiga Atas)", font_size=16, color=BLUE_C, weight=BOLD).next_to(mat_LT_final, UP, buff=0.2)
-        grp_LT_final = VGroup(lbl_LT_final, mat_LT_final).move_to(RIGHT * 2.9 + UP * 0.25)
+        dot_mult = MathTex(r"\cdot", font_size=48, color=WHITE_C).move_to(DOWN * 0.15)
+
+        mat_LT_final = Matrix([["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]], bracket_h_buff=0.12, bracket_v_buff=0.12, h_buff=0.95, v_buff=0.72)
+        for i, val in enumerate(["2", "1", "-1", "0", "3", "1", "0", "0", "2"]):
+            c = MUTED_C if val == "0" else BLUE_C
+            mat_LT_final.get_entries()[i].set_color(c).scale(1.05)
+
+        lbl_LT_final = Tex(r"\textbf{Matriks $L^{\mathrm{T}}$ (Transpos = Segitiga Atas)}", font_size=21, color=BLUE_C)
+        grp_LT_final = VGroup(lbl_LT_final, mat_LT_final).arrange(DOWN, buff=0.32).move_to(RIGHT * 3.3 + DOWN * 0.15)
 
         self.play(FadeIn(grp_L_final, shift=RIGHT * 0.2), run_time=0.7)
         self.play(Write(dot_mult), run_time=0.3)
         self.play(FadeIn(grp_LT_final, shift=LEFT * 0.2), run_time=0.7)
 
+        # Card Catatan Efisiensi (kompak, padat, TeX formal)
+        txt_line1 = Tex(
+            r"\textbf{Catatan Efisiensi: } Matriks $L^{\mathrm{T}}$ didapat langsung dari transpos tanpa eliminasi tambahan!",
+            font_size=20,
+            color=WHITE_C,
+        )
+        txt_line2 = Tex(
+            r"Menghemat $50\%$ beban komputasi dan memori dibanding eliminasi Gauss/LU standar.",
+            font_size=17,
+            color=GREEN_C,
+        )
+        content_box = VGroup(txt_line1, txt_line2).arrange(DOWN, buff=0.15)
         card_magic = RoundedRectangle(
-            corner_radius=0.15,
-            width=10.8,
-            height=1.0,
+            width=content_box.width + 0.8,
+            height=content_box.height + 0.45,
+            corner_radius=0.14,
             fill_color=CARD_BG,
             fill_opacity=0.95,
             stroke_color=GREEN_C,
-            stroke_width=2.0
-        ).move_to(DOWN * 2.05)
-        txt_magic = Text(
-            "Keunggulan Cholesky: Matriks atas L^T diperoleh langsung dari transpos L!\nTidak memerlukan perhitungan eliminasi tambahan untuk bagian atas.",
-            font_size=15,
-            color=WHITE_C,
-            line_spacing=0.8
-        ).move_to(card_magic.get_center())
-        self.play(Create(card_magic), Write(txt_magic), run_time=0.9)
+            stroke_width=2.0,
+        ).move_to(DOWN * 2.85)
+        content_box.move_to(card_magic.get_center())
+
+        self.play(FadeIn(card_magic), FadeIn(content_box), run_time=0.8)
         self.wait(3.0)
 
         self.play(
@@ -396,7 +524,7 @@ class CholeskyUnifiedExplainer(Scene):
             FadeOut(dot_mult),
             FadeOut(grp_LT_final),
             FadeOut(card_magic),
-            FadeOut(txt_magic),
+            FadeOut(content_box),
             run_time=0.6
         )
 
@@ -459,8 +587,8 @@ class CholeskyUnifiedExplainer(Scene):
         )
 
         # 3.B SUBSTITUSI MUNDUR L^T x = y
-        header_spl2 = Text("Tahap 2 SPL: Substitusi Mundur L^T · x = y", font_size=23, color=BLUE_C, weight=BOLD).to_edge(UP, buff=0.45)
-        self.play(Write(header_spl2), run_time=0.7)
+        header_spl2 = Tex(r"\textbf{Tahap 2 SPL: Substitusi Mundur } $L^{\mathrm{T}} \cdot \mathbf{x} = \mathbf{y}$", font_size=25, color=BLUE_C).to_edge(UP, buff=0.45)
+        self.play(FadeIn(header_spl2), run_time=0.7)
 
         mat_LT_bwd = Matrix([["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]], h_buff=0.75, v_buff=0.65).scale(0.7)
         vec_x_bwd = Matrix([["x_1"], ["x_2"], ["x_3"]], h_buff=0.55, v_buff=0.65).scale(0.7)

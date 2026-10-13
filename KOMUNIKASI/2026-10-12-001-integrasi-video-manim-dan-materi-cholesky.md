@@ -31,9 +31,12 @@
    - Card Kanan menampilkan Syarat 1 (Simetris: $A = A^T$) dengan font besar, pemeriksaan elemen $a_{12}=a_{21}=2$, $a_{13}=a_{31}=-2$, $a_{23}=a_{32}=2$, sorotan visual elemen cermin pada Matriks A, dan badge centang hijau `✓ Syarat 1 Terpenuhi: Simetris Sempurna`.
    - Setelah penonton selesai membaca (~2.5 detik), isi berganti secara elegan ke Syarat 2 (Definit Positif - Kriteria Sylvester).
 2. **Visualisasi Dinamis Perhitungan Minor Sylvester:**
-   - **Minor $M_1$ ($1 	imes 1$):** Kotak sorotan hijau menyorot elemen $a_{11} = [4]$ pada Matriks A $ightarrow$ baris perhitungan: `Minor M₁ (1×1): |4| = 4 > 0`.
-   - **Minor $M_2$ ($2 	imes 2$):** Kotak sorotan meluas ke submatriks $2 	imes 2$ kiri atas $ightarrow$ baris perhitungan: `Minor M₂ (2×2): det = 4(10) - 2(2) = 40 - 4 = 36 > 0`.
-   - **Minor $M_3$ ($3 	imes 3$):** Kotak sorotan meluas ke matriks penuh $3 	imes 3$ $ightarrow$ baris perhitungan: `Minor M₃ (3×3): det(A) = 4(56) - 2(16) - 2(24) = 224 - 80 = 144 > 0`.
+   - **Minor $M_1$ ($1 	imes 1$):** Kotak sorotan hijau menyorot elemen $a_{11} = [4]$ pada Matriks A $
+ightarrow$ baris perhitungan: `Minor M₁ (1×1): |4| = 4 > 0`.
+   - **Minor $M_2$ ($2 	imes 2$):** Kotak sorotan meluas ke submatriks $2 	imes 2$ kiri atas $
+ightarrow$ baris perhitungan: `Minor M₂ (2×2): det = 4(10) - 2(2) = 40 - 4 = 36 > 0`.
+   - **Minor $M_3$ ($3 	imes 3$):** Kotak sorotan meluas ke matriks penuh $3 	imes 3$ $
+ightarrow$ baris perhitungan: `Minor M₃ (3×3): det(A) = 4(56) - 2(16) - 2(24) = 224 - 80 = 144 > 0`.
    - Muncul badge centang hijau `✓ Syarat 2 Terpenuhi: Bebas Akar Imajiner!`.
 3. **Validasi & Verifikasi Video:**
    - Video dirender ulang 1080p60 Manim ke `public/videos/contoh_soal_metode_cholesky.mp4`.
@@ -48,3 +51,12 @@
   * Penyesuaian padding card_s1 dan card_s2 dengan spacing vertikal proporsional (buff=0.36) tanpa dead space berlebih.
   * Kompilasi ulang Manim 1080p60 `contoh_soal_metode_cholesky.mp4`.
   * Verifikasi visual frame t=14s dan t=25s via vision_analyze: teks tajam, font besar, kontras tinggi, siap tayang.
+
+## Bab 17: Revisi Babak 2 (Faktorisasi Cholesky Kolom demi Kolom, Animasi Tektokan, Notasi LaTeX L^T, & Desain Card Efisiensi)
+- **Tujuan**: Mengimplementasikan alur tektokan dinamis bertempo tenang pada perhitungan kolom 1, 2, dan 3 matriks L, memperbesar font rumus dalam card, memperbaiki notasi pangkat formal LaTeX $L^{\mathrm{T}}$ (menghapus caret `^`), serta merapikan card Catatan Efisiensi agar padat dan proporsional.
+- **Perubahan**:
+  * **Animasi Tektokan & Tempo Matriks**: Tiap penghitungan elemen ($l_{11}, l_{21}, l_{31}$, dst.), kotak sorot kuning mengitari elemen terkait pada Matriks A, jeda pembacaan, bertransformasi mengalir ke posisi elemen Matriks L penampung, dan memperbarui nilainya dengan angka hijau tebal. Di akhir tiap langkah, kotak hijau melingkupi seluruh kolom hasil yang telah tuntas.
+  * **Tipografi & Card Dinamis**: Mengganti `Text` Pango dengan `Tex`/`MathTex` murni berukuran besar (`font_size=23-25`) dengan container yang membungkus konten rapat tanpa dead space kosong di bawah.
+  * **Notasi Pangkat $L^{\mathrm{T}}$**: Seluruh judul, subjudul, dan keterangan yang sebelumnya menggunakan karakter caret literal `L^T` diperbaiki menjadi notasi formal LaTeX $L^{\mathrm{T}}$ (`L^{\mathrm{T}}`).
+  * **Card Catatan Efisiensi**: Diperkecil dan dipadatkan secara elegan membungkus teks inti (hemat 50% komputasi tanpa eliminasi tambahan).
+  * **Render & Verifikasi**: Video 1080p60 Manim dikompilasi ulang ke `public/videos/contoh_soal_metode_cholesky.mp4`, diverifikasi frame visualnya via `vision_analyze` (lolos tanpa cacat visual), build engine/web lulus.
