@@ -719,10 +719,10 @@ function Lab(){
           <button type="button" className={`pill ${dim===3?'active':''}`} onClick={()=>handleDimChange(3)}>3 × 3</button>
         </div>
 
-        <div style={{display:'flex',gap:'14px',alignItems:'center',overflowX:'auto',paddingBottom:'8px'}}>
+        <div style={{display:'flex',gap:'12px',alignItems:'center',overflowX:'auto',paddingBottom:'8px'}}>
           <div>
-            <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#1e3a8a'}}>Matriks A:</div>
-            <div style={{display:'grid',gridTemplateColumns:`repeat(${dim}, 62px)`,gap:'6px'}}>
+            <div style={{fontSize:'0.82rem',fontWeight:800,marginBottom:'6px',color:'#1e3a8a'}}>Matriks A:</div>
+            <div style={{display:'grid',gridTemplateColumns:`repeat(${dim}, 64px)`,gap:'6px'}}>
               {matrixA.map((row, r)=>row.map((val, c)=><input
                 key={`${r}-${c}`}
                 type="number"
@@ -732,31 +732,31 @@ function Lab(){
                   next[r][c]=Number(e.target.value);
                   setMatrixA(next);
                 }}
-                style={{padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+                style={{width:'64px',height:'42px',padding:'6px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700,fontSize:'1rem'}}
               />))}
             </div>
           </div>
 
           {matrixMode !== 'definit' && (
             <>
-              <div style={{fontSize:'1.4rem',color:'#64748b'}}>·</div>
+              <div style={{fontSize:'1.8rem',color:'#64748b',fontWeight:800,padding:'0 4px'}}>·</div>
 
               <div>
-                <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#047857'}}>Vektor x:</div>
+                <div style={{fontSize:'0.82rem',fontWeight:800,marginBottom:'6px',color:'#047857'}}>Vektor x:</div>
                 <div style={{display:'grid',gap:'6px'}}>
                   {Array.from({length:dim}).map((_, i)=><div
                     key={i}
-                    style={{width:'52px',padding:'7px 0',textAlign:'center',background:'#f1f5f9',borderRadius:'6px',border:'1px dashed #94a3b8',fontSize:'0.82rem',fontWeight:800,color:'#475569'}}
+                    style={{width:'56px',height:'42px',display:'flex',alignItems:'center',justifyContent:'center',background:'#f1f5f9',borderRadius:'6px',border:'1.5px dashed #94a3b8',fontSize:'1.05rem',fontWeight:800,color:'#334155'}}
                   >
-                    x_{i+1}
+                    <InlineMath math={`x_{${i+1}}`} />
                   </div>)}
                 </div>
               </div>
 
-              <div style={{fontSize:'1.4rem',color:'#64748b'}}>=</div>
+              <div style={{fontSize:'1.8rem',color:'#64748b',fontWeight:800,padding:'0 4px'}}>=</div>
 
               <div>
-                <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#b45309'}}>Vektor b:</div>
+                <div style={{fontSize:'0.82rem',fontWeight:800,marginBottom:'6px',color:'#b45309'}}>Vektor b:</div>
                 <div style={{display:'grid',gap:'6px'}}>
                   {vectorB.map((val, i)=><input
                     key={i}
@@ -767,7 +767,7 @@ function Lab(){
                       next[i]=Number(e.target.value);
                       setVectorB(next);
                     }}
-                    style={{width:'62px',padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+                    style={{width:'64px',height:'42px',padding:'6px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700,fontSize:'1rem'}}
                   />)}
                 </div>
               </div>
@@ -794,30 +794,34 @@ function Lab(){
         {/* 1. CROUT RESULT */}
         {croutOut&&croutOut.status==='converged'&&(
           <div>
-            <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-              <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+            <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'14px 18px',marginBottom:'16px'}}>
+              <div style={{fontWeight:800,color:'#065f46',marginBottom:'8px',fontSize:'0.95rem',display:'flex',alignItems:'center',gap:'6px'}}>
                 <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Crout):</span>
               </div>
-              <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
-                {croutOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+              <div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginBottom:'12px'}}>
+                {croutOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'8px 16px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 2px 4px rgba(0,0,0,0.06)',display:'inline-flex',alignItems:'center',fontSize:'1.2rem',fontWeight:800,color:'#065f46'}}>
                   <InlineMath math={`x_{${idx+1}} = ${fmtLatex(val)}`} />
                 </div>)}
               </div>
-              <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+              <div style={{fontWeight:700,fontSize:'0.88rem',color:'#047857',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
                 <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-                <InlineMath math={`\\mathbf{y} = [${croutOut.y.map(v=>fmtLatex(v)).join(', ')}]^\\mathrm{T}`} />
+              </div>
+              <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
+                {croutOut.y.map((val, idx)=><div key={idx} style={{background:'#f0fdf4',padding:'6px 14px',borderRadius:'8px',border:'1px solid #86efac',display:'inline-flex',alignItems:'center',fontSize:'1.1rem',color:'#166534',fontWeight:700}}>
+                  <InlineMath math={`y_{${idx+1}} = ${fmtLatex(val)}`} />
+                </div>)}
               </div>
             </div>
 
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
-              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-                <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px',marginBottom:'16px'}}>
+              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'12px'}}>
+                <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.88rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'6px'}}>
                   <span>Matriks Segitiga Bawah</span> <InlineMath math="L" /> (Diagonal Bebas):
                 </div>
-                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'1.05rem'}}>
                   <tbody>
                     {croutOut.L.map((row, ri)=><tr key={ri}>
-                      {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
+                      {row.map((val, ci)=><td key={ci} style={{border:'1.5px solid #cbd5e1',padding:'10px 14px',minWidth:'55px',minHeight:'46px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
                         <InlineMath math={fmtLatex(val)} />
                       </td>)}
                     </tr>)}
@@ -825,14 +829,14 @@ function Lab(){
                 </table>
               </div>
 
-              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-                <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'12px'}}>
+                <div style={{fontWeight:800,color:'#047857',fontSize:'0.88rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'6px'}}>
                   <span>Matriks Segitiga Atas</span> <InlineMath math="U" /> <b>(Diagonal 1):</b>
                 </div>
-                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'1.05rem'}}>
                   <tbody>
                     {croutOut.U.map((row, ri)=><tr key={ri}>
-                      {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci>=ri?'#eff6ff':'transparent'}}>
+                      {row.map((val, ci)=><td key={ci} style={{border:'1.5px solid #cbd5e1',padding:'10px 14px',minWidth:'55px',minHeight:'46px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci>=ri?'#eff6ff':'transparent'}}>
                         <InlineMath math={fmtLatex(val)} />
                       </td>)}
                     </tr>)}
@@ -842,12 +846,12 @@ function Lab(){
             </div>
 
             <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>1. Langkah Faktorisasi Elemen Matriks L &amp; U:</div>
-            <div style={{display:'grid',gap:'8px',marginBottom:'14px',maxHeight:'260px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+            <div style={{display:'grid',gap:'10px',marginBottom:'16px',maxHeight:'320px',overflowY:'auto',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
               {croutOut.steps.map((st, idx)=>(
-                <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                  <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
-                  <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
-                  {st.explanationLatex&&<div style={{marginTop:'4px',color:'#2563eb'}}><InlineMath math={st.explanationLatex}/></div>}
+                <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                  <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px'}}>{st.title}</div>
+                  <div style={{color:'#475569',marginBottom:'6px',lineHeight:1.5}}>{st.explanation}</div>
+                  {st.explanationLatex&&<div style={{marginTop:'4px',padding:'8px 12px',background:'#eff6ff',borderRadius:'6px',color:'#1e40af',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.explanationLatex}/></div>}
                 </div>
               ))}
             </div>
@@ -855,11 +859,13 @@ function Lab(){
             {croutOut.forwardSteps && croutOut.forwardSteps.length > 0 && (
               <>
                 <div style={{fontWeight:800,color:'#047857',marginBottom:'8px'}}>2. Langkah Substitusi Maju (<InlineMath math="L\mathbf{y} = \mathbf{b}" />):</div>
-                <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                <div style={{display:'grid',gap:'10px',marginBottom:'16px',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
                   {croutOut.forwardSteps.map((st, idx)=>(
-                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                      <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
-                      {st.latex ? <div style={{margin:'4px 0',color:'#047857'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                    <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}>
+                        <span>Baris {st.row}: Menghitung</span> <InlineMath math={st.latexVar || `y_{${st.row}}`} />
+                      </div>
+                      {st.latex ? <div style={{margin:'6px 0',padding:'8px 12px',background:'#f0fdf4',borderRadius:'6px',color:'#047857',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
                     </div>
                   ))}
                 </div>
@@ -869,11 +875,13 @@ function Lab(){
             {croutOut.backwardSteps && croutOut.backwardSteps.length > 0 && (
               <>
                 <div style={{fontWeight:800,color:'#b45309',marginBottom:'8px'}}>3. Langkah Substitusi Mundur (<InlineMath math="U\mathbf{x} = \mathbf{y}" />):</div>
-                <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                <div style={{display:'grid',gap:'10px',marginBottom:'16px',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
                   {croutOut.backwardSteps.map((st, idx)=>(
-                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                      <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
-                      {st.latex ? <div style={{margin:'4px 0',color:'#b45309'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                    <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}>
+                        <span>Baris {st.row}: Menghitung</span> <InlineMath math={st.latexVar || `x_{${st.row}}`} />
+                      </div>
+                      {st.latex ? <div style={{margin:'6px 0',padding:'8px 12px',background:'#fffbeb',borderRadius:'6px',color:'#b45309',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
                     </div>
                   ))}
                 </div>
@@ -883,23 +891,27 @@ function Lab(){
             {croutOut.verificationRows && croutOut.verificationRows.length > 0 && (
               <>
                 <div style={{fontWeight:800,color:'#1e293b',marginBottom:'8px'}}>4. Verifikasi Solusi (<InlineMath math="A\mathbf{x} = \mathbf{b}" />):</div>
-                <div style={{background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
-                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.8rem'}}>
+                <div style={{background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.9rem'}}>
                     <thead>
                       <tr style={{background:'#e2e8f0',textAlign:'left'}}>
-                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Baris</th>
-                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
-                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
-                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Status</th>
+                        <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Baris</th>
+                        <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
+                        <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
+                        <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {croutOut.verificationRows.map((vr, idx)=>(
                         <tr key={idx} style={{background:'white'}}>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {fmtFrac(vr.lhsValue)}</td>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{fmtFrac(vr.rhsTarget)}</td>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
+                          <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',fontWeight:700}}>Baris {vr.row}</td>
+                          <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',fontSize:'1.05rem'}}>
+                            {vr.lhsLatex ? <InlineMath math={`${vr.lhsLatex} = ${fmtLatex(vr.lhsValue)}`} /> : `${vr.lhsExpression} = ${fmtFrac(vr.lhsValue)}`}
+                          </td>
+                          <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',fontSize:'1.05rem'}}>
+                            <InlineMath math={fmtLatex(vr.rhsTarget)} />
+                          </td>
+                          <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
                             {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${fmtFrac(vr.residual)}`}
                           </td>
                         </tr>
@@ -917,30 +929,34 @@ function Lab(){
           <div>
             {choleskyOut.status==='converged' ? (
               <div>
-                <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-                  <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'14px 18px',marginBottom:'16px'}}>
+                  <div style={{fontWeight:800,color:'#065f46',marginBottom:'8px',fontSize:'0.95rem',display:'flex',alignItems:'center',gap:'6px'}}>
                     <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Cholesky</span> <InlineMath math="A = L \cdot L^T" /><span>):</span>
                   </div>
-                  <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
-                    {choleskyOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+                  <div style={{display:'flex',gap:'12px',flexWrap:'wrap',marginBottom:'12px'}}>
+                    {choleskyOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'8px 16px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 2px 4px rgba(0,0,0,0.06)',display:'inline-flex',alignItems:'center',fontSize:'1.2rem',fontWeight:800,color:'#065f46'}}>
                       <InlineMath math={`x_{${idx+1}} = ${fmtLatex(val)}`} />
                     </div>)}
                   </div>
-                  <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+                  <div style={{fontWeight:700,fontSize:'0.88rem',color:'#047857',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
                     <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-                    <InlineMath math={`\\mathbf{y} = [${choleskyOut.y.map(v=>fmtLatex(v)).join(', ')}]^\\mathrm{T}`} />
+                  </div>
+                  <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
+                    {choleskyOut.y.map((val, idx)=><div key={idx} style={{background:'#f0fdf4',padding:'6px 14px',borderRadius:'8px',border:'1px solid #86efac',display:'inline-flex',alignItems:'center',fontSize:'1.1rem',color:'#166534',fontWeight:700}}>
+                      <InlineMath math={`y_{${idx+1}} = ${fmtLatex(val)}`} />
+                    </div>)}
                   </div>
                 </div>
 
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
-                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-                    <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'14px',marginBottom:'16px'}}>
+                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'12px'}}>
+                    <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.88rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'6px'}}>
                       <span>Matriks Segitiga Bawah</span> <InlineMath math="L" />:
                     </div>
-                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'1.05rem'}}>
                       <tbody>
                         {choleskyOut.L.map((row, ri)=><tr key={ri}>
-                          {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
+                          {row.map((val, ci)=><td key={ci} style={{border:'1.5px solid #cbd5e1',padding:'10px 14px',minWidth:'55px',minHeight:'46px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
                             <InlineMath math={fmtLatex(val)} />
                           </td>)}
                         </tr>)}
@@ -948,14 +964,14 @@ function Lab(){
                     </table>
                   </div>
 
-                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-                    <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'12px'}}>
+                    <div style={{fontWeight:800,color:'#047857',fontSize:'0.88rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'6px'}}>
                       <span>Matriks Segitiga Atas</span> <InlineMath math="L^T" /> <b>(Transpos L):</b>
                     </div>
-                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'1.05rem'}}>
                       <tbody>
                         {choleskyOut.LT.map((row, ri)=><tr key={ri}>
-                          {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
+                          {row.map((val, ci)=><td key={ci} style={{border:'1.5px solid #cbd5e1',padding:'10px 14px',minWidth:'55px',minHeight:'46px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
                             <InlineMath math={fmtLatex(val)} />
                           </td>)}
                         </tr>)}
@@ -965,12 +981,12 @@ function Lab(){
                 </div>
 
                 <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>1. Langkah Faktorisasi Cholesky (<InlineMath math="A = L \cdot L^T" />):</div>
-                <div style={{display:'grid',gap:'8px',marginBottom:'14px',maxHeight:'260px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                <div style={{display:'grid',gap:'10px',marginBottom:'16px',maxHeight:'320px',overflowY:'auto',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
                   {choleskyOut.steps.map((st, idx)=>(
-                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                      <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
-                      <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
-                      {st.explanationLatex&&<div style={{marginTop:'4px',color:'#10b981'}}><InlineMath math={st.explanationLatex}/></div>}
+                    <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px'}}>{st.title}</div>
+                      <div style={{color:'#475569',marginBottom:'6px',lineHeight:1.5}}>{st.explanation}</div>
+                      {st.explanationLatex&&<div style={{marginTop:'4px',padding:'8px 12px',background:'#ecfdf5',borderRadius:'6px',color:'#047857',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.explanationLatex}/></div>}
                     </div>
                   ))}
                 </div>
@@ -978,11 +994,13 @@ function Lab(){
                 {choleskyOut.forwardSteps && choleskyOut.forwardSteps.length > 0 && (
                   <>
                     <div style={{fontWeight:800,color:'#047857',marginBottom:'8px'}}>2. Langkah Substitusi Maju (<InlineMath math="L\mathbf{y} = \mathbf{b}" />):</div>
-                    <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                    <div style={{display:'grid',gap:'10px',marginBottom:'16px',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
                       {choleskyOut.forwardSteps.map((st, idx)=>(
-                        <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                          <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
-                          {st.latex ? <div style={{margin:'4px 0',color:'#047857'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                        <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                          <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}>
+                            <span>Baris {st.row}: Menghitung</span> <InlineMath math={st.latexVar || `y_{${st.row}}`} />
+                          </div>
+                          {st.latex ? <div style={{margin:'6px 0',padding:'8px 12px',background:'#f0fdf4',borderRadius:'6px',color:'#047857',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
                         </div>
                       ))}
                     </div>
@@ -992,11 +1010,13 @@ function Lab(){
                 {choleskyOut.backwardSteps && choleskyOut.backwardSteps.length > 0 && (
                   <>
                     <div style={{fontWeight:800,color:'#b45309',marginBottom:'8px'}}>3. Langkah Substitusi Mundur (<InlineMath math="L^T\mathbf{x} = \mathbf{y}" />):</div>
-                    <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                    <div style={{display:'grid',gap:'10px',marginBottom:'16px',background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
                       {choleskyOut.backwardSteps.map((st, idx)=>(
-                        <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-                          <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
-                          {st.latex ? <div style={{margin:'4px 0',color:'#b45309'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                        <div key={idx} style={{fontSize:'0.88rem',background:'white',padding:'10px 14px',borderRadius:'8px',border:'1px solid #cbd5e1'}}>
+                          <div style={{fontWeight:700,color:'#0f172a',marginBottom:'4px',display:'flex',alignItems:'center',gap:'6px'}}>
+                            <span>Baris {st.row}: Menghitung</span> <InlineMath math={st.latexVar || `x_{${st.row}}`} />
+                          </div>
+                          {st.latex ? <div style={{margin:'6px 0',padding:'8px 12px',background:'#fffbeb',borderRadius:'6px',color:'#b45309',fontSize:'1.1rem',overflowX:'auto'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
                         </div>
                       ))}
                     </div>
@@ -1006,23 +1026,27 @@ function Lab(){
                 {choleskyOut.verificationRows && choleskyOut.verificationRows.length > 0 && (
                   <>
                     <div style={{fontWeight:800,color:'#1e293b',marginBottom:'8px'}}>4. Verifikasi Solusi (<InlineMath math="A\mathbf{x} = \mathbf{b}" />):</div>
-                    <div style={{background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
-                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.8rem'}}>
+                    <div style={{background:'#f8fafc',padding:'12px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.9rem'}}>
                         <thead>
                           <tr style={{background:'#e2e8f0',textAlign:'left'}}>
-                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Baris</th>
-                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
-                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
-                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Status</th>
+                            <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Baris</th>
+                            <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
+                            <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
+                            <th style={{padding:'8px 12px',border:'1px solid #cbd5e1'}}>Status</th>
                           </tr>
                         </thead>
                         <tbody>
                           {choleskyOut.verificationRows.map((vr, idx)=>(
                             <tr key={idx} style={{background:'white'}}>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {fmtFrac(vr.lhsValue)}</td>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{fmtFrac(vr.rhsTarget)}</td>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
+                              <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',fontWeight:700}}>Baris {vr.row}</td>
+                              <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',fontSize:'1.05rem'}}>
+                                {vr.lhsLatex ? <InlineMath math={`${vr.lhsLatex} = ${fmtLatex(vr.lhsValue)}`} /> : `${vr.lhsExpression} = ${fmtFrac(vr.lhsValue)}`}
+                              </td>
+                              <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',fontSize:'1.05rem'}}>
+                                <InlineMath math={fmtLatex(vr.rhsTarget)} />
+                              </td>
+                              <td style={{padding:'8px 12px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
                                 {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${fmtFrac(vr.residual)}`}
                               </td>
                             </tr>
@@ -1118,30 +1142,30 @@ function Lab(){
                   borderRadius:'8px',
                   padding:'12px 14px'
                 }}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
-                    <span style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
+                    <span style={{fontWeight:800,color:'#0f172a',fontSize:'0.92rem'}}>
                       Minor Utama ke-{m.k} (<InlineMath math={`\\Delta_{${m.k}}`} /> - Submatriks {m.k}×{m.k}):
                     </span>
                     <span style={{
-                      fontSize:'0.75rem',
+                      fontSize:'0.82rem',
                       fontWeight:800,
-                      padding:'2px 8px',
-                      borderRadius:'4px',
+                      padding:'3px 10px',
+                      borderRadius:'6px',
                       background: m.isPositive ? '#dcfce7' : '#fee2e2',
                       color: m.isPositive ? '#166534' : '#991b1b',
                       border: `1px solid ${m.isPositive ? '#86efac' : '#fca5a5'}`
                     }}>
-                      {m.isPositive ? `Δ_${m.k} > 0 (Positif)` : `Δ_${m.k} ≤ 0 (Non-Positif)`}
+                      {m.isPositive ? <><InlineMath math={`\\Delta_{${m.k}} > 0`} /> (Positif)</> : <><InlineMath math={`\\Delta_{${m.k}} \\leq 0`} /> (Non-Positif)</>}
                     </span>
                   </div>
 
-                  <div style={{display:'flex',gap:'14px',alignItems:'center',flexWrap:'wrap',margin:'8px 0'}}>
-                    <table style={{borderCollapse:'collapse',fontSize:'0.8rem',background:'#f8fafc',border:'1px solid #cbd5e1'}}>
+                  <div style={{display:'flex',gap:'16px',alignItems:'center',flexWrap:'wrap',margin:'10px 0'}}>
+                    <table style={{borderCollapse:'collapse',fontSize:'1.05rem',background:'#f8fafc',border:'1.5px solid #cbd5e1'}}>
                       <tbody>
                         {m.matrix.map((row, ri)=>(
                           <tr key={ri}>
                             {row.map((val, ci)=>(
-                              <td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 8px',textAlign:'center',fontWeight:600}}>
+                              <td key={ci} style={{border:'1.5px solid #cbd5e1',padding:'8px 12px',minWidth:'50px',textAlign:'center',fontWeight:600}}>
                                 <InlineMath math={fmtLatex(val)} />
                               </td>
                             ))}
@@ -1150,13 +1174,13 @@ function Lab(){
                       </tbody>
                     </table>
 
-                    <div style={{flex:1,fontSize:'0.85rem'}}>
+                    <div style={{flex:1,fontSize:'1.05rem'}}>
                       {m.explanationLatex ? (
-                        <div style={{color:'#1e3a8a'}}><InlineMath math={m.explanationLatex}/></div>
+                        <div style={{color:'#1e3a8a',padding:'6px 12px',background:'#eff6ff',borderRadius:'6px'}}><InlineMath math={m.explanationLatex}/></div>
                       ) : (
                         <div style={{fontFamily:'monospace'}}>{m.detFormula}</div>
                       )}
-                      <div style={{fontSize:'0.78rem',color:'#64748b',marginTop:'3px'}}>{m.explanation}</div>
+                      <div style={{fontSize:'0.85rem',color:'#64748b',marginTop:'6px',lineHeight:1.4}}>{m.explanation}</div>
                     </div>
                   </div>
                 </div>

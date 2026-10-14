@@ -160,7 +160,7 @@ footer{display:flex;align-items:center;justify-content:center;padding:16px;backg
 .methods .chosen{border-width:2.5px;transform:translate(2px,2px);box-shadow:.15rem .15rem 0 #222}
 
 /* Numerical Lab Grid */
-.labgrid{display:grid;grid-template-columns:310px 1fr;gap:16px}
+.labgrid{display:grid;grid-template-columns:minmax(400px, 460px) 1fr;gap:24px}
 .panel,.arenaform,.inspector,.tablepanel,.chart,.matrix{background:var(--low);border:1.5px solid var(--ink);border-radius:10px;padding:16px}
 .controls label,.arenaform label{display:grid;gap:5px;margin:8px 0;font-size:.75rem;font-weight:600}
 input{min-height:36px;border:1.5px solid var(--ink);border-radius:6px;padding:6px 10px;background:var(--dim);min-width:0;font-size:.84rem}

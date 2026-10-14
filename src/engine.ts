@@ -23,6 +23,7 @@ export type MatrixStep = {
 export type SubstitutionStep = {
   row: number;
   variable: string;
+  latexVar?: string;
   equation: string;
   calculation: string;
   latex?: string;
@@ -32,6 +33,7 @@ export type SubstitutionStep = {
 export type VerificationRow = {
   row: number;
   lhsExpression: string;
+  lhsLatex?: string;
   lhsValue: number;
   rhsTarget: number;
   residual: number;
@@ -343,6 +345,18 @@ export function solveLUGauss(A_input: number[][], b_input: number[]): LUResult {
 }
 
 // Helper konversi desimal/pecahan eksak rasional murni
+const subMap: Record<string, string> = {
+  '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+  '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+  'i': 'ᵢ', 'j': 'ⱼ', 'k': 'ₖ', 'm': 'ₘ', 'n': 'ₙ',
+  'T': 'ᵀ'
+};
+
+export function toSub(val: string | number): string {
+  const s = String(val);
+  return s.split('').map(c => subMap[c] || c).join('');
+}
+
 export function toFraction(val: number, tolerance = 1e-7): { num: number; den: number; str: string; latex: string } {
   if (isNaN(val)) return { num: 0, den: 1, str: 'NaN', latex: '\\text{NaN}' };
   if (!isFinite(val)) return { num: val > 0 ? 1 : -1, den: 0, str: val > 0 ? '∞' : '-∞', latex: val > 0 ? '\\infty' : '-\\infty' };
@@ -382,7 +396,7 @@ export function toFraction(val: number, tolerance = 1e-7): { num: number; den: n
   }
 
   const str = `${num}/${den}`;
-  const latex = sign < 0 ? `-\\frac{${Math.abs(num)}}{${den}}` : `\\frac{${num}}{${den}}`;
+  const latex = sign < 0 ? `-\\dfrac{${Math.abs(num)}}{${den}}` : `\\dfrac{${num}}{${den}}`;
   return { num, den, str, latex };
 }
 
@@ -407,10 +421,6 @@ export function formatSqrt(diff: number): { str: string; latex: string; val: num
   return { str: `√(${fracDiff.str})`, latex: `\\sqrt{${fracDiff.latex}}`, val: root };
 }
 
-function fmt(val: number): string {
-  return fmtFrac(val);
-}
-
 // 4. SPL Solver: Crout LU Decomposition (U has 1s on diagonal)
 export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
   const n = A_input.length;
@@ -425,7 +435,7 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
     matrix: A_input.map(r => [...r]),
     b: [...b_input],
     action: 'Mulai Crout: A = L · U',
-    explanation: 'Pada metode Crout, diagonal matriks U ditetapkan bernilai 1 (u_ii = 1), sedangkan diagonal matriks L dihitung bebas.'
+    explanation: 'Pada metode Crout, diagonal matriks U ditetapkan bernilai 1 (uᵢᵢ = 1), sedangkan diagonal matriks L dihitung bebas.'
   });
 
   for (let k = 0; k < n; k++) {
@@ -436,8 +446,8 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const sumTermsLatexArr: string[] = [];
       for (let m = 0; m < k; m++) {
         sum += L[i][m] * U[m][k];
-        sumTermsArr.push(`${fmtFrac(L[i][m])} · ${fmtFrac(U[m][k])}`);
-        sumTermsLatexArr.push(`(${fmtLatex(L[i][m])})(${fmtLatex(U[m][k])})`);
+        sumTermsArr.push(`${fmtFrac(L[i][m])} × ${fmtFrac(U[m][k])}`);
+        sumTermsLatexArr.push(`(${fmtLatex(L[i][m])}) \\cdot (${fmtLatex(U[m][k])})`);
       }
       L[i][k] = A_input[i][k] - sum;
 
@@ -445,12 +455,12 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const sumLatexStr = sumTermsLatexArr.length > 0 ? ` - [${sumTermsLatexArr.join(' + ')}]` : '';
 
       steps.push({
-        title: `Hitung Elemen L[${i + 1}][${k + 1}]`,
+        title: `Hitung Elemen l${toSub(`${i + 1}${k + 1}`)}`,
         matrix: L.map(r => [...r]),
         b: [...b_input],
-        action: `L[${i + 1}][${k + 1}] = ${fmtFrac(L[i][k])}`,
-        explanation: `l_${i+1}${k+1} = a_${i+1}${k+1}${k > 0 ? ` - ∑(l_${i+1}m · u_m${k+1})` : ''} = ${fmtFrac(A_input[i][k])}${sumStr} = ${fmtFrac(L[i][k])}.`,
-        explanationLatex: `l_{${i+1},${k+1}} = a_{${i+1},${k+1}}${sumLatexStr} = ${fmtLatex(A_input[i][k])}${sumTermsLatexArr.length > 0 ? ` - ${fmtLatex(sum)}` : ''} = ${fmtLatex(L[i][k])}`
+        action: `l${toSub(`${i + 1}${k + 1}`)} = ${fmtFrac(L[i][k])}`,
+        explanation: `l${toSub(`${i + 1}${k + 1}`)} = a${toSub(`${i + 1}${k + 1}`)}${k > 0 ? ` - ∑(l${toSub(`${i + 1}m`)} · u${toSub(`m${k + 1}`)})` : ''} = ${fmtFrac(A_input[i][k])}${sumStr} = ${fmtFrac(L[i][k])}.`,
+        explanationLatex: `l_{${i + 1}${k + 1}} = a_{${i + 1}${k + 1}}${sumLatexStr} = ${fmtLatex(A_input[i][k])}${sumTermsLatexArr.length > 0 ? ` - ${fmtLatex(sum)}` : ''} = ${fmtLatex(L[i][k])}`
       });
     }
 
@@ -476,8 +486,8 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const sumTermsLatexArr: string[] = [];
       for (let m = 0; m < k; m++) {
         sum += L[k][m] * U[m][j];
-        sumTermsArr.push(`${fmtFrac(L[k][m])} · ${fmtFrac(U[m][j])}`);
-        sumTermsLatexArr.push(`(${fmtLatex(L[k][m])})(${fmtLatex(U[m][j])})`);
+        sumTermsArr.push(`${fmtFrac(L[k][m])} × ${fmtFrac(U[m][j])}`);
+        sumTermsLatexArr.push(`(${fmtLatex(L[k][m])}) \\cdot (${fmtLatex(U[m][j])})`);
       }
       const numDiff = A_input[k][j] - sum;
       U[k][j] = numDiff / L[k][k];
@@ -486,12 +496,12 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const sumLatexStr = sumTermsLatexArr.length > 0 ? ` - [${sumTermsLatexArr.join(' + ')}]` : '';
 
       steps.push({
-        title: `Hitung Elemen U[${k + 1}][${j + 1}]`,
+        title: `Hitung Elemen u${toSub(`${k + 1}${j + 1}`)}`,
         matrix: U.map(r => [...r]),
         b: [...b_input],
-        action: `U[${k + 1}][${j + 1}] = ${fmtFrac(U[k][j])}`,
-        explanation: `u_${k+1}${j+1} = (a_${k+1}${j+1}${sumStr}) / l_${k+1}${k+1} = (${fmtFrac(numDiff)}) / ${fmtFrac(L[k][k])} = ${fmtFrac(U[k][j])}.`,
-        explanationLatex: `u_{${k+1},${j+1}} = \\frac{a_{${k+1},${j+1}}${sumLatexStr}}{l_{${k+1},${k+1}}} = \\frac{${fmtLatex(numDiff)}}{${fmtLatex(L[k][k])}} = ${fmtLatex(U[k][j])}`
+        action: `u${toSub(`${k + 1}${j + 1}`)} = ${fmtFrac(U[k][j])}`,
+        explanation: `u${toSub(`${k + 1}${j + 1}`)} = (a${toSub(`${k + 1}${j + 1}`)}${sumStr}) / l${toSub(`${k + 1}${k + 1}`)} = (${fmtFrac(numDiff)}) / ${fmtFrac(L[k][k])} = ${fmtFrac(U[k][j])}.`,
+        explanationLatex: `u_{${k + 1}${j + 1}} = \\dfrac{a_{${k + 1}${j + 1}}${sumLatexStr}}{l_{${k + 1}${k + 1}}} = \\dfrac{${fmtLatex(numDiff)}}{${fmtLatex(L[k][k])}} = ${fmtLatex(U[k][j])}`
       });
     }
   }
@@ -507,7 +517,7 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const termVal = L[i][j] * y[j];
       sum += termVal;
       prevParts.push(`${fmtFrac(L[i][j])}(${fmtFrac(y[j])})`);
-      prevPartsLatex.push(`(${fmtLatex(L[i][j])})(${fmtLatex(y[j])})`);
+      prevPartsLatex.push(`(${fmtLatex(L[i][j])}) \\cdot (${fmtLatex(y[j])})`);
     }
     const rhsRem = b_input[i] - sum;
     y[i] = rhsRem / L[i][i];
@@ -517,20 +527,21 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
     let latexStr = '';
 
     if (i === 0) {
-      eqStr = `${fmtFrac(L[0][0])} y_1 = ${fmtFrac(b_input[0])}`;
-      calcStr = `y_1 = ${fmtFrac(b_input[0])} / ${fmtFrac(L[0][0])} = ${fmtFrac(y[0])}`;
-      latexStr = `l_{11} y_1 = b_1 \\implies ${fmtLatex(L[0][0])} y_1 = ${fmtLatex(b_input[0])} \\implies y_1 = ${fmtLatex(y[0])}`;
+      eqStr = `${fmtFrac(L[0][0])} y₁ = ${fmtFrac(b_input[0])}`;
+      calcStr = `y₁ = ${fmtFrac(b_input[0])} / ${fmtFrac(L[0][0])} = ${fmtFrac(y[0])}`;
+      latexStr = `l_{11} y_1 = b_1 \\implies ${fmtLatex(L[0][0])} y_1 = ${fmtLatex(b_input[0])} \\implies y_1 = \\dfrac{${fmtLatex(b_input[0])}}{${fmtLatex(L[0][0])}} = ${fmtLatex(y[0])}`;
     } else {
       const sumTerms = prevParts.join(' + ').replace(/\+ -/g, '- ');
       const sumTermsLatex = prevPartsLatex.join(' + ').replace(/\+ -/g, '- ');
-      eqStr = `${sumTerms} + ${fmtFrac(L[i][i])} y_${i + 1} = ${fmtFrac(b_input[i])}`;
-      calcStr = `${fmtFrac(L[i][i])} y_${i + 1} = ${fmtFrac(b_input[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => y_${i + 1} = ${fmtFrac(rhsRem)} / ${fmtFrac(L[i][i])} = ${fmtFrac(y[i])}`;
-      latexStr = `${fmtLatex(L[i][i])} y_{${i + 1}} = ${fmtLatex(b_input[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies y_{${i + 1}} = \\frac{${fmtLatex(rhsRem)}}{${fmtLatex(L[i][i])}} = ${fmtLatex(y[i])}`;
+      eqStr = `${sumTerms} + ${fmtFrac(L[i][i])} y${toSub(i + 1)} = ${fmtFrac(b_input[i])}`;
+      calcStr = `${fmtFrac(L[i][i])} y${toSub(i + 1)} = ${fmtFrac(b_input[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => y${toSub(i + 1)} = ${fmtFrac(rhsRem)} / ${fmtFrac(L[i][i])} = ${fmtFrac(y[i])}`;
+      latexStr = `${fmtLatex(L[i][i])} y_{${i + 1}} = ${fmtLatex(b_input[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies y_{${i + 1}} = \\dfrac{${fmtLatex(rhsRem)}}{${fmtLatex(L[i][i])}} = ${fmtLatex(y[i])}`;
     }
 
     forwardSteps.push({
       row: i + 1,
-      variable: `y_${i + 1}`,
+      variable: `y${toSub(i + 1)}`,
+      latexVar: `y_{${i + 1}}`,
       equation: eqStr,
       calculation: calcStr,
       latex: latexStr,
@@ -549,7 +560,7 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
       const termVal = U[i][j] * x[j];
       sum += termVal;
       nextParts.push(`${fmtFrac(U[i][j])}(${fmtFrac(x[j])})`);
-      nextPartsLatex.push(`(${fmtLatex(U[i][j])})(${fmtLatex(x[j])})`);
+      nextPartsLatex.push(`(${fmtLatex(U[i][j])}) \\cdot (${fmtLatex(x[j])})`);
     }
     const rhsRem = y[i] - sum;
     x[i] = rhsRem; // Karena U[i][i] === 1
@@ -559,20 +570,21 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
     let latexStr = '';
 
     if (i === n - 1) {
-      eqStr = `1 · x_${n} = ${fmtFrac(y[n - 1])}`;
-      calcStr = `x_${n} = ${fmtFrac(y[n - 1])}`;
+      eqStr = `1 · x${toSub(n)} = ${fmtFrac(y[n - 1])}`;
+      calcStr = `x${toSub(n)} = ${fmtFrac(y[n - 1])}`;
       latexStr = `u_{${n}${n}} x_{${n}} = y_{${n}} \\implies 1 \\cdot x_{${n}} = ${fmtLatex(y[n - 1])} \\implies x_{${n}} = ${fmtLatex(x[n - 1])}`;
     } else {
       const sumTerms = nextParts.join(' + ').replace(/\+ -/g, '- ');
       const sumTermsLatex = nextPartsLatex.join(' + ').replace(/\+ -/g, '- ');
-      eqStr = `x_${i + 1} + ${sumTerms} = ${fmtFrac(y[i])}`;
-      calcStr = `x_${i + 1} = ${fmtFrac(y[i])} - (${fmtFrac(sum)}) = ${fmtFrac(x[i])}`;
+      eqStr = `x${toSub(i + 1)} + ${sumTerms} = ${fmtFrac(y[i])}`;
+      calcStr = `x${toSub(i + 1)} = ${fmtFrac(y[i])} - (${fmtFrac(sum)}) = ${fmtFrac(x[i])}`;
       latexStr = `x_{${i + 1}} = ${fmtLatex(y[i])} - (${sumTermsLatex}) = ${fmtLatex(x[i])}`;
     }
 
     backwardSteps.push({
       row: i + 1,
-      variable: `x_${i + 1}`,
+      variable: `x${toSub(i + 1)}`,
+      latexVar: `x_{${i + 1}}`,
       equation: eqStr,
       calculation: calcStr,
       latex: latexStr,
@@ -589,13 +601,16 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
   const verificationRows: VerificationRow[] = A_input.map((row, i) => {
     let lhsSum = 0;
     const parts: string[] = [];
+    const partsLatex: string[] = [];
     row.forEach((val, j) => {
       lhsSum += val * x[j];
       parts.push(`${fmtFrac(val)}(${fmtFrac(x[j])})`);
+      partsLatex.push(`(${fmtLatex(val)}) \\cdot (${fmtLatex(x[j])})`);
     });
     return {
       row: i + 1,
       lhsExpression: parts.join(' + ').replace(/\+ -/g, '- '),
+      lhsLatex: partsLatex.join(' + ').replace(/\+ -/g, '- '),
       lhsValue: lhsSum,
       rhsTarget: b_input[i],
       residual: Math.abs(lhsSum - b_input[i])
@@ -698,12 +713,12 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
     const sumDiagLatexStr = sumDiagLatexParts.length > 0 ? ` - [${sumDiagLatexParts.join(' + ')}]` : '';
 
     steps.push({
-      title: `Hitung Diagonal L[${j + 1}][${j + 1}] = √(${fmtFrac(diff)})`,
+      title: `Hitung Diagonal l${toSub(`${j + 1}${j + 1}`)} = √(${fmtFrac(diff)})`,
       matrix: L.map(r => [...r]),
       b: [...b_input],
-      action: `L[${j + 1}][${j + 1}] = ${rad.str}`,
-      explanation: `l_${j+1}${j+1} = √(a_${j+1}${j+1}${sumDiagStr}) = √(${fmtFrac(A_input[j][j])}${sumDiagParts.length > 0 ? ` - ${fmtFrac(sumDiag)}` : ''}) = √(${fmtFrac(diff)}) = ${rad.str}.`,
-      explanationLatex: `l_{${j+1},${j+1}} = \\sqrt{a_{${j+1},${j+1}}${sumDiagLatexStr}} = \\sqrt{${fmtLatex(diff)}} = ${rad.latex}`
+      action: `l${toSub(`${j + 1}${j + 1}`)} = ${rad.str}`,
+      explanation: `l${toSub(`${j + 1}${j + 1}`)} = √(a${toSub(`${j + 1}${j + 1}`)}${sumDiagStr}) = √(${fmtFrac(A_input[j][j])}${sumDiagParts.length > 0 ? ` - ${fmtFrac(sumDiag)}` : ''}) = √(${fmtFrac(diff)}) = ${rad.str}.`,
+      explanationLatex: `l_{${j + 1}${j + 1}} = \\sqrt{a_{${j + 1}${j + 1}}${sumDiagLatexStr}} = \\sqrt{${fmtLatex(diff)}} = ${rad.latex}`
     });
 
     for (let i = j + 1; i < n; i++) {
@@ -712,8 +727,8 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
       const sumOffLatexParts: string[] = [];
       for (let k = 0; k < j; k++) {
         sumOff += L[i][k] * L[j][k];
-        sumOffParts.push(`${fmtFrac(L[i][k])} · ${fmtFrac(L[j][k])}`);
-        sumOffLatexParts.push(`(${fmtLatex(L[i][k])})(${fmtLatex(L[j][k])})`);
+        sumOffParts.push(`${fmtFrac(L[i][k])} × ${fmtFrac(L[j][k])}`);
+        sumOffLatexParts.push(`(${fmtLatex(L[i][k])}) \\cdot (${fmtLatex(L[j][k])})`);
       }
       const diffOff = A_input[i][j] - sumOff;
       L[i][j] = diffOff / L[j][j];
@@ -722,12 +737,12 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
       const sumOffLatexStr = sumOffLatexParts.length > 0 ? ` - [${sumOffLatexParts.join(' + ')}]` : '';
 
       steps.push({
-        title: `Hitung Elemen Segitiga Bawah L[${i + 1}][${j + 1}]`,
+        title: `Hitung Elemen Segitiga Bawah l${toSub(`${i + 1}${j + 1}`)}`,
         matrix: L.map(r => [...r]),
         b: [...b_input],
-        action: `L[${i + 1}][${j + 1}] = ${fmtFrac(L[i][j])}`,
-        explanation: `l_${i+1}${j+1} = (a_${i+1}${j+1}${sumOffStr}) / l_${j+1}${j+1} = (${fmtFrac(diffOff)}) / ${rad.str} = ${fmtFrac(L[i][j])}.`,
-        explanationLatex: `l_{${i+1},${j+1}} = \\frac{a_{${i+1},${j+1}}${sumOffLatexStr}}{l_{${j+1},${j+1}}} = \\frac{${fmtLatex(diffOff)}}{${rad.latex}} = ${fmtLatex(L[i][j])}`
+        action: `l${toSub(`${i + 1}${j + 1}`)} = ${fmtFrac(L[i][j])}`,
+        explanation: `l${toSub(`${i + 1}${j + 1}`)} = (a${toSub(`${i + 1}${j + 1}`)}${sumOffStr}) / l${toSub(`${j + 1}${j + 1}`)} = (${fmtFrac(diffOff)}) / ${rad.str} = ${fmtFrac(L[i][j])}.`,
+        explanationLatex: `l_{${i + 1}${j + 1}} = \\dfrac{a_{${i + 1}${j + 1}}${sumOffLatexStr}}{l_{${j + 1}${j + 1}}} = \\dfrac{${fmtLatex(diffOff)}}{${rad.latex}} = ${fmtLatex(L[i][j])}`
       });
     }
   }
@@ -748,7 +763,7 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
       const termVal = L[i][j] * y[j];
       sum += termVal;
       prevParts.push(`${fmtFrac(L[i][j])}(${fmtFrac(y[j])})`);
-      prevPartsLatex.push(`(${fmtLatex(L[i][j])})(${fmtLatex(y[j])})`);
+      prevPartsLatex.push(`(${fmtLatex(L[i][j])}) \\cdot (${fmtLatex(y[j])})`);
     }
     const rhsRem = b_input[i] - sum;
     y[i] = rhsRem / L[i][i];
@@ -758,20 +773,21 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
     let latexStr = '';
 
     if (i === 0) {
-      eqStr = `${fmtFrac(L[0][0])} y_1 = ${fmtFrac(b_input[0])}`;
-      calcStr = `y_1 = ${fmtFrac(b_input[0])} / ${fmtFrac(L[0][0])} = ${fmtFrac(y[0])}`;
-      latexStr = `l_{11} y_1 = b_1 \\implies ${fmtLatex(L[0][0])} y_1 = ${fmtLatex(b_input[0])} \\implies y_1 = ${fmtLatex(y[0])}`;
+      eqStr = `${fmtFrac(L[0][0])} y₁ = ${fmtFrac(b_input[0])}`;
+      calcStr = `y₁ = ${fmtFrac(b_input[0])} / ${fmtFrac(L[0][0])} = ${fmtFrac(y[0])}`;
+      latexStr = `l_{11} y_1 = b_1 \\implies ${fmtLatex(L[0][0])} y_1 = ${fmtLatex(b_input[0])} \\implies y_1 = \\dfrac{${fmtLatex(b_input[0])}}{${fmtLatex(L[0][0])}} = ${fmtLatex(y[0])}`;
     } else {
       const sumTerms = prevParts.join(' + ').replace(/\+ -/g, '- ');
       const sumTermsLatex = prevPartsLatex.join(' + ').replace(/\+ -/g, '- ');
-      eqStr = `${sumTerms} + ${fmtFrac(L[i][i])} y_${i + 1} = ${fmtFrac(b_input[i])}`;
-      calcStr = `${fmtFrac(L[i][i])} y_${i + 1} = ${fmtFrac(b_input[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => y_${i + 1} = ${fmtFrac(rhsRem)} / ${fmtFrac(L[i][i])} = ${fmtFrac(y[i])}`;
-      latexStr = `${fmtLatex(L[i][i])} y_{${i + 1}} = ${fmtLatex(b_input[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies y_{${i + 1}} = \\frac{${fmtLatex(rhsRem)}}{${fmtLatex(L[i][i])}} = ${fmtLatex(y[i])}`;
+      eqStr = `${sumTerms} + ${fmtFrac(L[i][i])} y${toSub(i + 1)} = ${fmtFrac(b_input[i])}`;
+      calcStr = `${fmtFrac(L[i][i])} y${toSub(i + 1)} = ${fmtFrac(b_input[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => y${toSub(i + 1)} = ${fmtFrac(rhsRem)} / ${fmtFrac(L[i][i])} = ${fmtFrac(y[i])}`;
+      latexStr = `${fmtLatex(L[i][i])} y_{${i + 1}} = ${fmtLatex(b_input[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies y_{${i + 1}} = \\dfrac{${fmtLatex(rhsRem)}}{${fmtLatex(L[i][i])}} = ${fmtLatex(y[i])}`;
     }
 
     forwardSteps.push({
       row: i + 1,
-      variable: `y_${i + 1}`,
+      variable: `y${toSub(i + 1)}`,
+      latexVar: `y_{${i + 1}}`,
       equation: eqStr,
       calculation: calcStr,
       latex: latexStr,
@@ -790,7 +806,7 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
       const termVal = LT[i][j] * x[j];
       sum += termVal;
       nextParts.push(`${fmtFrac(LT[i][j])}(${fmtFrac(x[j])})`);
-      nextPartsLatex.push(`(${fmtLatex(LT[i][j])})(${fmtLatex(x[j])})`);
+      nextPartsLatex.push(`(${fmtLatex(LT[i][j])}) \\cdot (${fmtLatex(x[j])})`);
     }
     const rhsRem = y[i] - sum;
     x[i] = rhsRem / LT[i][i];
@@ -800,20 +816,21 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
     let latexStr = '';
 
     if (i === n - 1) {
-      eqStr = `${fmtFrac(LT[n - 1][n - 1])} x_${n} = ${fmtFrac(y[n - 1])}`;
-      calcStr = `x_${n} = ${fmtFrac(y[n - 1])} / ${fmtFrac(LT[n - 1][n - 1])} = ${fmtFrac(x[n - 1])}`;
-      latexStr = `l_{${n}${n}} x_{${n}} = y_{${n}} \\implies ${fmtLatex(LT[n - 1][n - 1])} x_{${n}} = ${fmtLatex(y[n - 1])} \\implies x_{${n}} = \\frac{${fmtLatex(y[n - 1])}}{${fmtLatex(LT[n - 1][n - 1])}} = ${fmtLatex(x[n - 1])}`;
+      eqStr = `${fmtFrac(LT[n - 1][n - 1])} x${toSub(n)} = ${fmtFrac(y[n - 1])}`;
+      calcStr = `x${toSub(n)} = ${fmtFrac(y[n - 1])} / ${fmtFrac(LT[n - 1][n - 1])} = ${fmtFrac(x[n - 1])}`;
+      latexStr = `l_{${n}${n}} x_{${n}} = y_{${n}} \\implies ${fmtLatex(LT[n - 1][n - 1])} x_{${n}} = ${fmtLatex(y[n - 1])} \\implies x_{${n}} = \\dfrac{${fmtLatex(y[n - 1])}}{${fmtLatex(LT[n - 1][n - 1])}} = ${fmtLatex(x[n - 1])}`;
     } else {
       const sumTerms = nextParts.join(' + ').replace(/\+ -/g, '- ');
       const sumTermsLatex = nextPartsLatex.join(' + ').replace(/\+ -/g, '- ');
-      eqStr = `${fmtFrac(LT[i][i])} x_${i + 1} + ${sumTerms} = ${fmtFrac(y[i])}`;
-      calcStr = `${fmtFrac(LT[i][i])} x_${i + 1} = ${fmtFrac(y[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => x_${i + 1} = ${fmtFrac(rhsRem)} / ${fmtFrac(LT[i][i])} = ${fmtFrac(x[i])}`;
-      latexStr = `${fmtLatex(LT[i][i])} x_{${i + 1}} = ${fmtLatex(y[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies x_{${i + 1}} = \\frac{${fmtLatex(rhsRem)}}{${fmtLatex(LT[i][i])}} = ${fmtLatex(x[i])}`;
+      eqStr = `${fmtFrac(LT[i][i])} x${toSub(i + 1)} + ${sumTerms} = ${fmtFrac(y[i])}`;
+      calcStr = `${fmtFrac(LT[i][i])} x${toSub(i + 1)} = ${fmtFrac(y[i])} - (${fmtFrac(sum)}) = ${fmtFrac(rhsRem)} => x${toSub(i + 1)} = ${fmtFrac(rhsRem)} / ${fmtFrac(LT[i][i])} = ${fmtFrac(x[i])}`;
+      latexStr = `${fmtLatex(LT[i][i])} x_{${i + 1}} = ${fmtLatex(y[i])} - (${sumTermsLatex}) = ${fmtLatex(rhsRem)} \\implies x_{${i + 1}} = \\dfrac{${fmtLatex(rhsRem)}}{${fmtLatex(LT[i][i])}} = ${fmtLatex(x[i])}`;
     }
 
     backwardSteps.push({
       row: i + 1,
-      variable: `x_${i + 1}`,
+      variable: `x${toSub(i + 1)}`,
+      latexVar: `x_{${i + 1}}`,
       equation: eqStr,
       calculation: calcStr,
       latex: latexStr,
@@ -830,13 +847,16 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
   const verificationRows: VerificationRow[] = A_input.map((row, i) => {
     let lhsSum = 0;
     const parts: string[] = [];
+    const partsLatex: string[] = [];
     row.forEach((val, j) => {
       lhsSum += val * x[j];
       parts.push(`${fmtFrac(val)}(${fmtFrac(x[j])})`);
+      partsLatex.push(`(${fmtLatex(val)}) \\cdot (${fmtLatex(x[j])})`);
     });
     return {
       row: i + 1,
       lhsExpression: parts.join(' + ').replace(/\+ -/g, '- '),
+      lhsLatex: partsLatex.join(' + ').replace(/\+ -/g, '- '),
       lhsValue: lhsSum,
       rhsTarget: b_input[i],
       residual: Math.abs(lhsSum - b_input[i])
@@ -901,7 +921,7 @@ export function checkPositiveDefinite(A_input: number[][]): PositiveDefiniteResu
     if (k === 1) {
       det = submatrix[0][0];
       detFormula = `\\Delta_1 = a_{11} = ${fmtLatex(det)}`;
-      explanation = `Minor utama ke-1 adalah elemen sudut diagonal pertama: a_11 = ${fmtFrac(det)}.`;
+      explanation = `Minor utama ke-1 adalah elemen sudut diagonal pertama: a₁₁ = ${fmtFrac(det)}.`;
       explanationLatex = `\\Delta_1 = \\det([a_{11}]) = a_{11} = ${fmtLatex(det)}`;
     } else if (k === 2) {
       const a11 = submatrix[0][0];
@@ -909,9 +929,9 @@ export function checkPositiveDefinite(A_input: number[][]): PositiveDefiniteResu
       const a21 = submatrix[1][0];
       const a22 = submatrix[1][1];
       det = a11 * a22 - a12 * a21;
-      detFormula = `\\Delta_2 = (a_{11} \\cdot a_{22}) - (a_{12} \\cdot a_{21}) = (${fmtLatex(a11)} \\cdot ${fmtLatex(a22)}) - (${fmtLatex(a12)} \\cdot ${fmtLatex(a21)}) = ${fmtLatex(det)}`;
+      detFormula = `\\Delta_2 = (a_{11} \\cdot a_{22}) - (a_{12} \\cdot a_{21}) = (${fmtLatex(a11)}) \\cdot (${fmtLatex(a22)}) - (${fmtLatex(a12)}) \\cdot (${fmtLatex(a21)}) = ${fmtLatex(det)}`;
       explanation = `Minor utama ke-2 adalah determinan submatriks 2×2: (${fmtFrac(a11)} × ${fmtFrac(a22)}) - (${fmtFrac(a12)} × ${fmtFrac(a21)}) = ${fmtFrac(det)}.`;
-      explanationLatex = `\\Delta_2 = \\det\\begin{bmatrix} ${fmtLatex(a11)} & ${fmtLatex(a12)} \\\\ ${fmtLatex(a21)} & ${fmtLatex(a22)} \\end{bmatrix} = (${fmtLatex(a11)})(${fmtLatex(a22)}) - (${fmtLatex(a12)})(${fmtLatex(a21)}) = ${fmtLatex(det)}`;
+      explanationLatex = `\\Delta_2 = \\det\\begin{bmatrix} ${fmtLatex(a11)} & ${fmtLatex(a12)} \\\\ ${fmtLatex(a21)} & ${fmtLatex(a22)} \\end{bmatrix} = (${fmtLatex(a11)}) \\cdot (${fmtLatex(a22)}) - (${fmtLatex(a12)}) \\cdot (${fmtLatex(a21)}) = ${fmtLatex(det)}`;
     } else if (k === 3) {
       const a11 = submatrix[0][0], a12 = submatrix[0][1], a13 = submatrix[0][2];
       const a21 = submatrix[1][0], a22 = submatrix[1][1], a23 = submatrix[1][2];
@@ -922,9 +942,9 @@ export function checkPositiveDefinite(A_input: number[][]): PositiveDefiniteResu
       const c13 = a21 * a32 - a22 * a31;
 
       det = a11 * c11 - a12 * c12 + a13 * c13;
-      detFormula = `\\Delta_3 = a_{11}M_{11} - a_{12}M_{12} + a_{13}M_{13} = ${fmtLatex(a11)}(${fmtLatex(c11)}) - ${fmtLatex(a12)}(${fmtLatex(c12)}) + ${fmtLatex(a13)}(${fmtLatex(c13)}) = ${fmtLatex(det)}`;
-      explanation = `Minor utama ke-3 adalah determinan matriks 3×3 (ekspansi kofaktor baris 1): ${fmtFrac(a11)}·(${fmtFrac(c11)}) - ${fmtFrac(a12)}·(${fmtFrac(c12)}) + ${fmtFrac(a13)}·(${fmtFrac(c13)}) = ${fmtFrac(det)}.`;
-      explanationLatex = `\\Delta_3 = \\det(A) = ${fmtLatex(a11)}(${fmtLatex(c11)}) - ${fmtLatex(a12)}(${fmtLatex(c12)}) + ${fmtLatex(a13)}(${fmtLatex(c13)}) = ${fmtLatex(det)}`;
+      detFormula = `\\Delta_3 = a_{11}M_{11} - a_{12}M_{12} + a_{13}M_{13} = (${fmtLatex(a11)}) \\cdot (${fmtLatex(c11)}) - (${fmtLatex(a12)}) \\cdot (${fmtLatex(c12)}) + (${fmtLatex(a13)}) \\cdot (${fmtLatex(c13)}) = ${fmtLatex(det)}`;
+      explanation = `Minor utama ke-3 adalah determinan matriks 3×3 (ekspansi kofaktor baris 1): ${fmtFrac(a11)} × (${fmtFrac(c11)}) - ${fmtFrac(a12)} × (${fmtFrac(c12)}) + ${fmtFrac(a13)} × (${fmtFrac(c13)}) = ${fmtFrac(det)}.`;
+      explanationLatex = `\\Delta_3 = \\det(A) = (${fmtLatex(a11)}) \\cdot (${fmtLatex(c11)}) - (${fmtLatex(a12)}) \\cdot (${fmtLatex(c12)}) + (${fmtLatex(a13)}) \\cdot (${fmtLatex(c13)}) = ${fmtLatex(det)}`;
     }
 
     const isPositive = det > 1e-9;
@@ -948,14 +968,14 @@ export function checkPositiveDefinite(A_input: number[][]): PositiveDefiniteResu
 
   if (!isSymmetric) {
     status = 'not-symmetric';
-    message = `Matriks A tidak simetris (A ≠ Aᵀ). Terdapat ketidaksamaan pada elemen (${differences.map(d => `a_${d.i}${d.j}=${d.a_ij} ≠ a_${d.j}${d.i}=${d.a_ji}`).join(', ')}). Kriteria Sylvester hanya berlaku untuk matriks simetris riil.`;
+    message = `Matriks A tidak simetris (A ≠ Aᵀ). Terdapat ketidaksamaan pada elemen (${differences.map(d => `a${toSub(`${d.i}${d.j}`)}=${fmtFrac(d.a_ij)} ≠ a${toSub(`${d.j}${d.i}`)}=${fmtFrac(d.a_ji)}`).join(', ')}). Kriteria Sylvester hanya berlaku untuk matriks simetris riil.`;
   } else if (!isPositiveDefinite) {
     status = 'not-positive-definite';
-    const failedMinors = minors.filter(m => !m.isPositive).map(m => `Δ_${m.k} = ${fmt(m.detValue)} ≤ 0`);
+    const failedMinors = minors.filter(m => !m.isPositive).map(m => `Δ${toSub(m.k)} = ${fmtFrac(m.detValue)} ≤ 0`);
     message = `Matriks A simetris tetapi TIDAK definit positif karena ditemukan minor utama non-positif: ${failedMinors.join(', ')}. Dekomposisi Cholesky akan gagal karena memuat akar bilangan non-positif.`;
   } else {
     status = 'converged';
-    message = `Matriks A terbukti SIMETRIS dan DEFINIT POSITIF (seluruh minor utama terkemuka bernilai positif: ${minors.map(m => `Δ_${m.k}=${fmt(m.detValue)} > 0`).join(', ')}). Memenuhi syarat mutlak Dekomposisi Cholesky A = L · Lᵀ!`;
+    message = `Matriks A terbukti SIMETRIS dan DEFINIT POSITIF (seluruh minor utama terkemuka bernilai positif: ${minors.map(m => `Δ${toSub(m.k)}=${fmtFrac(m.detValue)} > 0`).join(', ')}). Memenuhi syarat mutlak Dekomposisi Cholesky A = L · Lᵀ!`;
   }
 
   return {

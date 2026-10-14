@@ -166,3 +166,22 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
   * **Pengujian dan Validasi**:
     - Pengujian `npm run test:engine` (Crout, Cholesky, Sylvester) lulus $100\%$ (exit code $0$).
     - Kompilasi `npm run build` sukses $100\%$ tanpa peringatan error.
+
+## Bab 23: Penyempurnaan Spasi Tipografi Pecahan, Pelebaran Tata Letak, dan Standarisasi Notasi Subskrip Matematika
+- **Tujuan**: Memperbaiki tata letak visual kalkulator agar tidak berdesakan/sempit, memperbesar ukuran dan spasi vertikal pecahan (`\dfrac`), memperlebar kolom input agar matriks $A$, $x$, dan $b$ tidak terpotong horizontal scrollbar, serta membersihkan seluruh kebocoran karakter underscore (`_`) menjadi notasi subskrip matematika baku ($x_1, x_2, x_3, a_{11}, l_{11}, u_{12}, y_1, \Delta_k$).
+- **Perubahan Komprehensif**:
+  * **Eliminasi Total Underscore Bocor ke Notasi Subskrip Baku**:
+    - Ditambahkan helper `toSub` di `src/engine.ts` untuk memetakan indeks angka dan huruf ke karakter subskrip Unicode murni ($₀, ₁, ₂, ₃, ᵢ, ⱼ, ₖ$) pada teks narasi.
+    - Mengganti seluruh label teks polos seperti `x_{i+1}` pada kotak vektor variabel dengan komponen KaTeX `<InlineMath math={`x_{${i+1}}`} />`.
+    - Pada kartu langkah faktorisasi dan substitusi, judul dan formula disajikan dalam KaTeX berindeks murni tanpa underscore ($l_{11}, u_{12}, y_1, x_1, \Delta_k$).
+  * **Pelebaran Grid dan Eliminasi Scrollbar Terpotong**:
+    - Kolom kontrol `.labgrid` di `src/App.css` diperlebar dari 310px menjadi `minmax(400px, 460px) 1fr` dengan gap 24px, sehingga input matriks $A$, tanda dot perkalian, vektor variabel $x$, tanda sama dengan, dan vektor $b$ termuat lega tanpa terpotong scrollbar horizontal.
+    - Ukuran kotak input matriks dan vektor diperbesar menjadi $64 \times 42\text{ px}$ dengan font tebal $1.05\text{ rem}$.
+  * **Tipografi Pecahan Lega dan Proporsional (`\dfrac`)**:
+    - Mengonversi format LaTeX pecahan pada `toFraction` menggunakan `\dfrac` (display fraction) sehingga pembilang dan penyebut memiliki ukuran proporsional penuh dan vinculum (garis pecahan) memiliki jarak vertikal lega dari subskrip.
+    - Sel tabel matriks $L, U, L^{\mathrm{T}}$ diperbesar dengan padding `10px 14px` dan tinggi sel minimum `46px` untuk kenyamanan visual.
+    - Vektor perantara $y$ disajikan dalam badge kartu mandiri berjarak lega per elemen ($y_1, y_2, y_3$), seragam dengan vektor solusi $x$.
+    - Evaluasi verifikasi $A\mathbf{x} = \mathbf{b}$ disajikan dalam notasi matematika KaTeX rapi dengan tanda perkalian `\cdot` yang berjarak.
+  * **Pengujian dan Validasi**:
+    - Uji solver mandiri `npm run test:engine` lulus sukses ($0$ error).
+    - Kompilasi produksi `npm run build` berhasil ($100\%$ valid).
