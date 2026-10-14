@@ -147,3 +147,22 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
   * **Pengujian dan Validasi**:
     - Engine unit test `npm run test:engine` lulus mencakup uji solver Crout, Cholesky, dan Kriteria Sylvester.
     - Web bundle build `npm run build` lulus $100\%$ ($0$ lint error).
+
+## Bab 22: Transformasi Penuh Desimal Menjadi Pecahan Rasional Eksak (Fractions Everywhere)
+- **Tujuan**: Menghilangkan seluruh representasi desimal floating-point pada kalkulator numerik dan menggantikannya secara konsisten dengan representasi pecahan rasional analitis eksak ($p/q$ atau $\frac{p}{q}$), sesuai instruksi langsung pengguna ("jangan menggunakan desimal, tapi pecahan aja").
+- **Perubahan Komprehensif**:
+  * **Helper Konversi Pecahan Rasional Eksak (`toFraction`, `fmtFrac`, `fmtLatex`, `formatSqrt` di `src/engine.ts`)**:
+    - Menerapkan algoritma ekspansi pecahan berlanjut (*continued fractions expansion*) untuk mendeteksi aproksimasi rasional terbaik $p/q$ dari nilai floating point secara eksak.
+    - Menghasilkan string teks biasa `$p/q$` (misal `5/2`, `-1/2`, `1/3`) dan format KaTeX/LaTeX `\frac{p}{q}` (misal `\frac{5}{2}`, `-\frac{1}{2}`, `\frac{1}{3}`).
+    - `formatSqrt`: Mengonversi nilai dalam bentuk akar pada diagonal Cholesky menjadi pecahan eksak jika radikan berupa bilangan kuadrat sempurna, atau bentuk radikal pecahan murni `\sqrt{p/q}` bila irasional.
+  * **Pembaruan Engine Langkah Demi Langkah (`src/engine.ts`)**:
+    - Seluruh string langkah kalkulasi elemen $L$, $U$, substitusi maju $L\mathbf{y}=\mathbf{b}$, substitusi mundur $U\mathbf{x}=\mathbf{y}$ / $L^{\mathrm{T}}\mathbf{x}=\mathbf{y}$, dan verifikasi $A\mathbf{x}=\mathbf{b}$ dikonversi ke pecahan eksak murni tanpa desimal berkoma.
+    - Minor determinan kriteria Sylvester disajikan dalam ekspresi pecahan rasional eksak.
+  * **Pembaruan Antarmuka Pengguna (`src/App.tsx`)**:
+    - Nilai vektor solusi akhir $\mathbf{x}$ ditampilkan dalam format KaTeX pecahan rasional bertumpuk (contoh: $x_1 = -1$, $x_2 = \frac{5}{2}$, $x_3 = -\frac{1}{2}$).
+    - Vektor perantara $\mathbf{y}$ ditampilkan dalam format matriks transpos pecahan murni.
+    - Sel-sel tabel matriks $L$, $U$, $L^{\mathrm{T}}$, dan submatriks minor Sylvester dirender menggunakan `<InlineMath math={fmtLatex(val)} />` sehingga menampilkan pecahan bertumpuk profesional.
+    - Baris evaluasi substitusi verifikasi perkalian matriks $A\mathbf{x} = \mathbf{b}$ menyajikan suku-suku pecahan eksak dan residu pecahan.
+  * **Pengujian dan Validasi**:
+    - Pengujian `npm run test:engine` (Crout, Cholesky, Sylvester) lulus $100\%$ (exit code $0$).
+    - Kompilasi `npm run build` sukses $100\%$ tanpa peringatan error.

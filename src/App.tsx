@@ -5,6 +5,8 @@ import {
   solveCrout,
   solveCholesky,
   checkPositiveDefinite,
+  fmtFrac,
+  fmtLatex,
   type LUResult,
   type CholeskyResult,
   type PositiveDefiniteResult
@@ -798,12 +800,12 @@ function Lab(){
               </div>
               <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
                 {croutOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-                  <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
+                  <InlineMath math={`x_{${idx+1}} = ${fmtLatex(val)}`} />
                 </div>)}
               </div>
               <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
                 <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-                <InlineMath math={`\mathbf{y} = [${croutOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
+                <InlineMath math={`\\mathbf{y} = [${croutOut.y.map(v=>fmtLatex(v)).join(', ')}]^\\mathrm{T}`} />
               </div>
             </div>
 
@@ -816,7 +818,7 @@ function Lab(){
                   <tbody>
                     {croutOut.L.map((row, ri)=><tr key={ri}>
                       {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
-                        {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                        <InlineMath math={fmtLatex(val)} />
                       </td>)}
                     </tr>)}
                   </tbody>
@@ -831,7 +833,7 @@ function Lab(){
                   <tbody>
                     {croutOut.U.map((row, ri)=><tr key={ri}>
                       {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci>=ri?'#eff6ff':'transparent'}}>
-                        {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                        <InlineMath math={fmtLatex(val)} />
                       </td>)}
                     </tr>)}
                   </tbody>
@@ -895,10 +897,10 @@ function Lab(){
                       {croutOut.verificationRows.map((vr, idx)=>(
                         <tr key={idx} style={{background:'white'}}>
                           <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {Number(vr.lhsValue.toFixed(4))}</td>
-                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{Number(vr.rhsTarget.toFixed(4))}</td>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {fmtFrac(vr.lhsValue)}</td>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{fmtFrac(vr.rhsTarget)}</td>
                           <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
-                            {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${vr.residual.toExponential(2)}`}
+                            {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${fmtFrac(vr.residual)}`}
                           </td>
                         </tr>
                       ))}
@@ -921,12 +923,12 @@ function Lab(){
                   </div>
                   <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
                     {choleskyOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-                      <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
+                      <InlineMath math={`x_{${idx+1}} = ${fmtLatex(val)}`} />
                     </div>)}
                   </div>
                   <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
                     <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-                    <InlineMath math={`\mathbf{y} = [${choleskyOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
+                    <InlineMath math={`\\mathbf{y} = [${choleskyOut.y.map(v=>fmtLatex(v)).join(', ')}]^\\mathrm{T}`} />
                   </div>
                 </div>
 
@@ -939,7 +941,7 @@ function Lab(){
                       <tbody>
                         {choleskyOut.L.map((row, ri)=><tr key={ri}>
                           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
-                            {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                            <InlineMath math={fmtLatex(val)} />
                           </td>)}
                         </tr>)}
                       </tbody>
@@ -954,7 +956,7 @@ function Lab(){
                       <tbody>
                         {choleskyOut.LT.map((row, ri)=><tr key={ri}>
                           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
-                            {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                            <InlineMath math={fmtLatex(val)} />
                           </td>)}
                         </tr>)}
                       </tbody>
@@ -1018,10 +1020,10 @@ function Lab(){
                           {choleskyOut.verificationRows.map((vr, idx)=>(
                             <tr key={idx} style={{background:'white'}}>
                               <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {Number(vr.lhsValue.toFixed(4))}</td>
-                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{Number(vr.rhsTarget.toFixed(4))}</td>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {fmtFrac(vr.lhsValue)}</td>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{fmtFrac(vr.rhsTarget)}</td>
                               <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
-                                {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${vr.residual.toExponential(2)}`}
+                                {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${fmtFrac(vr.residual)}`}
                               </td>
                             </tr>
                           ))}
@@ -1099,7 +1101,7 @@ function Lab(){
                   <ul style={{margin:'4px 0 0 16px',padding:0}}>
                     {definitOut.differences?.map((d, idx)=>(
                       <li key={idx}>
-                        <InlineMath math={`a_{${d.i}${d.j}} = ${d.a_ij} \\neq a_{${d.j}${d.i}} = ${d.a_ji}`} />
+                        <InlineMath math={`a_{${d.i}${d.j}} = ${fmtLatex(d.a_ij)} \\neq a_{${d.j}${d.i}} = ${fmtLatex(d.a_ji)}`} />
                       </li>
                     ))}
                   </ul>
@@ -1140,7 +1142,7 @@ function Lab(){
                           <tr key={ri}>
                             {row.map((val, ci)=>(
                               <td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 8px',textAlign:'center',fontWeight:600}}>
-                                {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                                <InlineMath math={fmtLatex(val)} />
                               </td>
                             ))}
                           </tr>
