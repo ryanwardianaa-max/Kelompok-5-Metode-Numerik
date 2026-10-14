@@ -370,3 +370,37 @@ th{background:var(--low);position:sticky;top:0}
   .variant-grid{grid-template-columns:1fr}
   .variant-header-box{flex-direction:column;align-items:flex-start}
 }
+
+/* Essay Questions Component (Slide 17) */
+.essay-container{display:flex;flex-direction:column;gap:16px;width:100%;max-width:1100px;margin:0 auto}
+.essay-nav-box{display:flex;justify-content:space-between;align-items:center;background:var(--dim);border:2px solid var(--ink);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow);flex-wrap:wrap;gap:10px}
+.essay-nav-title{font-size:.86rem;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.essay-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.essay-tabs button{padding:6px 12px;font-size:.78rem;font-weight:600;min-height:32px;box-shadow:2px 2px 0 var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:6px;cursor:pointer;transition:all .15s}
+.essay-tabs button:hover{background:#f1f5f9}
+.essay-tabs button.active{background:var(--ink);color:#fff;transform:translate(2px,2px);box-shadow:none}
+.essay-case-card{background:#fffbeb;border:2px solid #b45309;border-radius:10px;padding:14px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.essay-case-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.essay-case-title{color:#92400e;font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.essay-case-desc{font-size:.86rem;line-height:1.6;color:#1e293b;margin:0}
+.essay-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.essay-card{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:16px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.essay-card-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:1.5px dashed #cbd5e1;padding-bottom:10px}
+.essay-card-title{font-weight:800;font-size:1rem;color:var(--ink);display:flex;align-items:center;gap:8px}
+.essay-badge{font-size:.72rem;padding:3px 10px;border-radius:4px;font-weight:700;letter-spacing:.02em}
+.badge-hots{background:#fef3c7;color:#92400e;border:1px solid #d97706}
+.badge-spl{background:#e0e7ff;color:#3730a3;border:1px solid #6366f1}
+.badge-bonus{background:#dcfce7;color:#166534;border:1px solid #22c55e}
+.essay-prompt{font-size:.88rem;line-height:1.65;color:#1e293b}
+.essay-prompt p{margin:4px 0}
+.essay-prompt ul, .essay-prompt ol{margin:6px 0 6px 20px;padding:0}
+.essay-prompt li{margin-bottom:6px}
+.essay-callout{background:#f0fdf4;border:1.5px solid #22c55e;border-radius:8px;padding:10px 14px;font-size:.82rem;line-height:1.55;color:#14532d}
+.essay-hint-box{background:#f8fafc;border:1.5px solid #94a3b8;border-radius:8px;padding:10px 14px;font-size:.82rem;line-height:1.5;color:#334155}
+.essay-hint-box summary{font-weight:700;cursor:pointer;color:#0f172a;outline:none}
+.essay-pdf-container{display:flex;flex-direction:column;gap:16px}
+.essay-pdf-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#f1f5f9;border:1.5px solid var(--ink);border-radius:8px;padding:10px 16px}
+.essay-pdf-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px}
+.essay-pdf-card{background:#fff;border:2px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);text-align:center}
+.essay-pdf-card-header{padding:8px 12px;background:var(--dim);border-bottom:1.5px solid var(--ink);font-weight:700;font-size:.82rem;color:var(--ink)}
+.essay-pdf-card img{width:100%;height:auto;display:block;border-bottom:1px solid #e2e8f0}

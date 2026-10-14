@@ -101,8 +101,9 @@ const slides=[
   'Doolittle: Umum, lᵢᵢ = 1. Crout: Umum, uᵢᵢ = 1 (cocok bila substitusi balik dioptimalkan).',
   'Cholesky: Spesifik simetris definit positif, paling cepat dan paling stabil secara numerik.'
  ]],
- ['Latihan & Kuis Interaktif','\\text{Kuis Konseptual: } 3\\text{ Babak}',[
-  'Uji pemahaman konsep: Diagonal Crout, syarat Cholesky, dan analisis efisiensi komputasi numerik.'
+ ['Latihan & Kuis Interaktif','\\text{Tantangan Analitis: } 3\\text{ Soal Esai HOTS}',[
+  'Studi Kasus HOTS C6: Jembatan Rahasia Dekomposisi Crout & Cholesky (Soal 1 & 2 dari Naskah PDF).',
+  'Eksplorasi SPL Simetris Definit Positif & Uji Komputasi Mandiri via Numerical Lab (Soal 3).'
  ]],
  ['Kesimpulan & Pembagian Peran Kelompok 4','A = L \\cdot U \\quad \\longleftrightarrow \\quad A = L \\cdot L^T',[
   'Kelompok 4 siap mempresentasikan Dekomposisi Crout & Cholesky secara interaktif.',
@@ -346,58 +347,218 @@ function StepExample({data}:{data:any}){
  </div>
 }
 
-const questions=[
- {
-  prompt:'\\text{Pada Dekomposisi LU metode Reduksi Crout, komponen manakah yang diagonal utamanya bernilai 1?}',
-  options:['Matriks segitiga bawah L (lᵢᵢ = 1)', 'Matriks segitiga atas U (uᵢᵢ = 1)', 'Matriks koefisien asal A (aᵢᵢ = 1)', 'Vektor ruas kanan b (bᵢ = 1)'],
-  answer:1
- },
- {
-  prompt:'\\text{Apa dua syarat mutlak matriks A agar dapat difaktorkan dengan Dekomposisi Cholesky } A = L \\cdot L^T\\text{?}',
-  options:['Matriks diagonal dan determinannya 0', 'Matriks harus simetris (A = Aᵀ) dan definit positif (xᵀAx > 0)', 'Matriks harus ortogonal dan berordo ganjil', 'Matriks segitiga atas dan berdeterminan 1'],
-  answer:1
- },
- {
-  prompt:'\\text{Mengapa metode Cholesky kira-kira 2 kali lebih cepat dibanding metode LU biasa (Doolittle/Crout)?}',
-  options:['Karena tidak memerlukan proses substitusi maju', 'Karena hanya perlu menghitung matriks L; penutup atasnya cukup transpos Lᵀ tanpa hitung ulang', 'Karena semua nilai koefisiennya langsung bernilai nol', 'Karena determinannya selalu bernilai konstan'],
-  answer:1
- }
-] as const
+function EssayExercisesSlide() {
+  const [tab, setTab] = useState<'all' | 'soal1' | 'soal2' | 'soal3' | 'pdf'>('all');
 
-function QuizExplanation({question}:{question:number}){
- return <p>{
-  question===0?<>Metode Crout mengunci diagonal matriks segitiga atas <InlineMath math="U"/> bernilai 1 (<InlineMath math="u_{ii} = 1"/>), sehingga matriks segitiga bawah <InlineMath math="L"/> menampung seluruh beban pembagian elemen.</>:
-  question===1?<>Cholesky mensyaratkan matriks <InlineMath math="A"/> harus simetris (<InlineMath math="A = A^T"/>) dan definit positif (<InlineMath math="\\mathbf{x}^T A \\mathbf{x} > 0"/>). Jika tidak definit positif, nilai di dalam akar kuadrat akan bernilai negatif sehingga komputasi gagal.</>:
-  <>Karena matriks atas <InlineMath math="U = L^T"/> identik dengan transpos dari <InlineMath math="L"/>, algoritma tidak perlu menghitung atau menyimpan matriks kedua secara terpisah. Ini menghemat memori 50% dan memangkas operasi perkalian/pembagian menjadi <InlineMath math="n^3 / 6"/>.</>
- }</p>
-}
+  return (
+    <div className="essay-container">
+      {/* Navigasi Tab */}
+      <div className="essay-nav-box">
+        <div className="essay-nav-title">
+          <BookOpen size={18} />
+          <span>Latihan Soal &amp; Tantangan HOTS: Dekomposisi Crout &amp; Cholesky</span>
+        </div>
+        <div className="essay-tabs">
+          <button className={tab === 'all' ? 'active' : ''} onClick={() => setTab('all')}>Semua Soal (1, 2, &amp; 3)</button>
+          <button className={tab === 'soal1' ? 'active' : ''} onClick={() => setTab('soal1')}>Soal 1 (C6 HOTS: Rekonstruksi)</button>
+          <button className={tab === 'soal2' ? 'active' : ''} onClick={() => setTab('soal2')}>Soal 2 (C6 HOTS: Substitusi Maju)</button>
+          <button className={tab === 'soal3' ? 'active' : ''} onClick={() => setTab('soal3')}>Soal 3 (SPL &amp; Numerical Lab)</button>
+          <button className={tab === 'pdf' ? 'active' : ''} onClick={() => setTab('pdf')}>📄 Naskah Asli PDF</button>
+        </div>
+      </div>
 
-function Quiz({answers,onChange}:{answers:(number|undefined)[];onChange:(answers:(number|undefined)[])=>void}){
- return <div className="quiz">
-  {questions.map((q,n)=>{
-   const picked=answers[n];
-   return <article key={q.prompt}>
-    <small>PERTANYAAN {n+1} DARI {questions.length}</small>
-    <BlockMath math={q.prompt}/>
-    <div className="options">
-     {q.options.map((opt,idx)=>{
-      const isPicked=picked===idx,isCorrect=idx===q.answer;
-      return <button
-       key={opt}
-       className={picked!==undefined?isCorrect?'correct':isPicked?'wrong':'':''}
-       onClick={()=>picked===undefined&&onChange(answers.map((x,i)=>i===n?idx:x))}
-      >
-       <span>{String.fromCharCode(65+idx)}.</span> {opt}
-      </button>
-     })}
+      {/* Tampilan Tab Dokumen Asli PDF */}
+      {tab === 'pdf' && (
+        <div className="essay-pdf-container">
+          <div className="essay-pdf-actions">
+            <div>
+              <strong>Dokumen Asli Soal Tantangan HOTS (C6)</strong>
+              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Kelompok 4 — Mata Kuliah Metode Numerik (Kelas C)</div>
+            </div>
+            <a
+              href="/SOAL_KELOMPOK_4.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="SOAL_KELOMPOK_4.pdf"
+              className="btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 16px',
+                background: 'var(--ink)',
+                color: '#fff',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                fontWeight: 600,
+                fontSize: '0.82rem'
+              }}
+            >
+              Unduh Berkas Asli (PDF)
+            </a>
+          </div>
+          <div className="essay-pdf-grid">
+            <div className="essay-pdf-card">
+              <div className="essay-pdf-card-header">Halaman 1 — Deskripsi Kasus &amp; Pertanyaan 1</div>
+              <img src="/soal_hots_p1.png" alt="Soal HOTS Halaman 1" />
+            </div>
+            <div className="essay-pdf-card">
+              <div className="essay-pdf-card-header">Halaman 2 — Pertanyaan 2 (Transformasi Substitusi Maju)</div>
+              <img src="/soal_hots_p2.png" alt="Soal HOTS Halaman 2" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tampilan Soal Esai (Tab all, soal1, soal2, soal3) */}
+      {tab !== 'pdf' && (
+        <div className="essay-grid">
+          {/* Deskripsi Kasus Bersama untuk Soal 1 & Soal 2 */}
+          {(tab === 'all' || tab === 'soal1' || tab === 'soal2') && (
+            <div className="essay-case-card">
+              <div className="essay-case-header">
+                <div className="essay-case-title">
+                  <span>🏛️</span>
+                  <span>Deskripsi Kasus HOTS (Level C6): "Jembatan Rahasia Crout &amp; Cholesky"</span>
+                </div>
+                <span className="essay-badge badge-hots">SUMBER: SOAL KELOMPOK 4 (PDF)</span>
+              </div>
+              <p className="essay-case-desc">
+                Diberikan sebuah matriks koefisien <InlineMath math="A" /> berukuran <InlineMath math="3 \times 3" /> yang diketahui bersifat <strong>simetris dan definit positif</strong> (<InlineMath math="A = A^{\mathrm{T}}, A \succ 0" />). Dua orang mahasiswa melakukan dekomposisi pada matriks <InlineMath math="A" /> yang sama tersebut menggunakan dua metode berbeda:
+              </p>
+              <ul style={{ margin: '4px 0 6px 20px', padding: 0, fontSize: '0.84rem', lineHeight: '1.6' }}>
+                <li><strong>Mahasiswa Pertama</strong> menggunakan <strong>Metode Reduksi Crout</strong> (<InlineMath math="A = L_C \cdot U_C" />, dengan diagonal utama <InlineMath math="u_{ii} = 1" />).</li>
+                <li><strong>Mahasiswa Kedua</strong> menggunakan <strong>Metode Dekomposisi Cholesky</strong> (<InlineMath math="A = L_{Ch} \cdot L_{Ch}^{\mathrm{T}}" />).</li>
+              </ul>
+              <p className="essay-case-desc">
+                Akibat kelalaian saat menyimpan file, seluruh elemen matriks asli <InlineMath math="A" /> dan sebagian besar hasil faktorisasi keduanya hilang. Data yang tersisa hanyalah matriks segitiga atas <InlineMath math="U_C" /> (milik Crout) dan vektor diagonal utama dari matriks <InlineMath math="L_{Ch}" /> (milik Cholesky) yang mengandung parameter <InlineMath math="\alpha > 0" />:
+              </p>
+              <div style={{ margin: '8px 0', textAlign: 'center' }}>
+                <BlockMath math="U_C = \begin{bmatrix} 1 & 2 & -1 \\ 0 & 1 & 3 \\ 0 & 0 & 1 \end{bmatrix} \quad \text{dan Diagonal utama } L_{Ch} = \begin{bmatrix} \alpha & 2\alpha & \alpha\sqrt{5} \end{bmatrix}" />
+              </div>
+              <p className="essay-case-desc">
+                Jika diketahui determinan matriks asli adalah <strong><InlineMath math="\det(A) = 1280" /></strong>, selesaikan dua tantangan analitis berikut:
+              </p>
+            </div>
+          )}
+
+          {/* SOAL 1 */}
+          {(tab === 'all' || tab === 'soal1') && (
+            <article className="essay-card">
+              <div className="essay-card-header">
+                <div className="essay-card-title">
+                  <span>Pertanyaan 1 — Rekonstruksi Tanpa Matriks Asli</span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <span className="essay-badge badge-hots">BOBOT 50%</span>
+                  <span className="essay-badge badge-hots">LEVEL C6 HOTS</span>
+                </div>
+              </div>
+              <div className="essay-prompt">
+                <p>
+                  Tentukan nilai parameter <strong><InlineMath math="\alpha" /></strong> serta seluruh elemen matriks segitiga bawah <strong><InlineMath math="L_C" /></strong> (milik metode Crout) <strong>tanpa menghitung atau mencari elemen matriks <InlineMath math="A" /> terlebih dahulu!</strong>
+                </p>
+              </div>
+              <details className="essay-hint-box">
+                <summary>💡 Petunjuk Analitis &amp; Kaitan Konseptual</summary>
+                <div style={{ marginTop: '6px' }}>
+                  <p>1. <strong>Determinan Cholesky:</strong> Karena <InlineMath math="A = L_{Ch} L_{Ch}^{\mathrm{T}}" />, maka <InlineMath math="\det(A) = (\det(L_{Ch}))^2 = (\alpha \cdot 2\alpha \cdot \alpha\sqrt{5})^2 = 20\alpha^6" />. Samakan dengan 1280 untuk memperoleh <InlineMath math="\alpha^6 = 64 \implies \alpha = 2" />.</p>
+                  <p>2. <strong>Faktorisasi Unik <InlineMath math="LDL^{\mathrm{T}}" />:</strong> Karena <InlineMath math="A" /> simetris, berlaku hubungan <InlineMath math="L_C = U_C^{\mathrm{T}} D" /> dengan <InlineMath math="D = \operatorname{diag}(d_1^2, d_2^2, d_3^2)" /> di mana <InlineMath math="d_i" /> adalah diagonal utama <InlineMath math="L_{Ch}" />.</p>
+                </div>
+              </details>
+            </article>
+          )}
+
+          {/* SOAL 2 */}
+          {(tab === 'all' || tab === 'soal2') && (
+            <article className="essay-card">
+              <div className="essay-card-header">
+                <div className="essay-card-title">
+                  <span>Pertanyaan 2 — Transformasi Vektor Substitusi Maju</span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <span className="essay-badge badge-hots">BOBOT 50%</span>
+                  <span className="essay-badge badge-hots">LEVEL C6 HOTS</span>
+                </div>
+              </div>
+              <div className="essay-prompt">
+                <p>
+                  Apabila matriks <InlineMath math="A" /> tersebut digunakan untuk menyelesaikan sistem persamaan linear <InlineMath math="A\mathbf{x} = \mathbf{b}" /> dan diketahui hasil langkah substitusi maju (<em>forward substitution</em>) pada metode Cholesky (<InlineMath math="L_{Ch}\mathbf{y}_{Ch} = \mathbf{b}" />) adalah:
+                </p>
+                <div style={{ margin: '6px 0', textAlign: 'center' }}>
+                  <BlockMath math="\mathbf{y}_{Ch} = \begin{bmatrix} 2 \\ 4 \\ \sqrt{5} \end{bmatrix}" />
+                </div>
+                <p>
+                  Berapakah vektor antara <strong><InlineMath math="\mathbf{y}_C" /></strong> (hasil langkah substitusi maju <InlineMath math="L_C \mathbf{y}_C = \mathbf{b}" />) jika sistem persamaan linear yang sama diselesaikan menggunakan metode Crout?
+                </p>
+              </div>
+              <details className="essay-hint-box">
+                <summary>💡 Petunjuk Analitis &amp; Kaitan Konseptual</summary>
+                <div style={{ marginTop: '6px' }}>
+                  <p>Karena <InlineMath math="L_C = L_{Ch} D^{1/2}" />, maka <InlineMath math="L_C \mathbf{y}_C = \mathbf{b} \iff L_{Ch} (D^{1/2} \mathbf{y}_C) = \mathbf{b} = L_{Ch} \mathbf{y}_{Ch}" />. Dengan ketunggalan solusi sistem segitiga bawah, berlaku <InlineMath math="\mathbf{y}_C = D^{-1/2} \mathbf{y}_{Ch}" /> atau elemen per baris <InlineMath math="y_{C,i} = \dfrac{y_{Ch,i}}{l_{Ch,ii}}" />.</p>
+                </div>
+              </details>
+            </article>
+          )}
+
+          {/* SOAL 3 */}
+          {(tab === 'all' || tab === 'soal3') && (
+            <article className="essay-card" style={{ borderLeft: '6px solid var(--blue)' }}>
+              <div className="essay-card-header">
+                <div className="essay-card-title">
+                  <span>Pertanyaan 3 — Eksplorasi SPL Simetris Definit Positif &amp; Verifikasi Numerical Lab</span>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <span className="essay-badge badge-spl">STUDI KASUS SPL</span>
+                  <span className="essay-badge badge-bonus">KOMPATIBEL DUA METODE</span>
+                </div>
+              </div>
+              <div className="essay-prompt">
+                <p>
+                  Diberikan sebuah Sistem Persamaan Linear (SPL) <InlineMath math="A\mathbf{x} = \mathbf{b}" /> berukuran <InlineMath math="3 \times 3" /> sebagai berikut:
+                </p>
+                <div style={{ margin: '8px 0', textAlign: 'center' }}>
+                  <BlockMath math="\begin{bmatrix} 9 & 6 & 3 \\ 6 & 20 & -2 \\ 3 & -2 & 6 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 33 \\ 26 \\ 22 \end{bmatrix}" />
+                </div>
+                <p><strong>Instruksi Pengerjaan (Esai):</strong></p>
+                <ol>
+                  <li>
+                    <strong>Uji Karakteristik Matriks (Kriteria Sylvester):</strong><br />
+                    Tunjukkan secara analitis bahwa matriks koefisien <InlineMath math="A" /> bersifat simetris (<InlineMath math="A = A^{\mathrm{T}}" />) dan definit positif dengan menghitung nilai determinan dari seluruh minor utama terkemukanya (<InlineMath math="\Delta_1, \Delta_2, \Delta_3 > 0" />).
+                  </li>
+                  <li>
+                    <strong>Penyelesaian dengan Dekomposisi Cholesky (<InlineMath math="A = L \cdot L^{\mathrm{T}}" />):</strong><br />
+                    Tentukan matriks segitiga bawah <InlineMath math="L" />, lalu hitung vektor perantara <InlineMath math="\mathbf{y}" /> melalui substitusi maju <InlineMath math="L\mathbf{y} = \mathbf{b}" /> dan solusi akhir <InlineMath math="\mathbf{x}" /> melalui substitusi mundur <InlineMath math="L^{\mathrm{T}}\mathbf{x} = \mathbf{y}" />.
+                  </li>
+                  <li>
+                    <strong>Penyelesaian dengan Metode Reduksi Crout (<InlineMath math="A = L \cdot U, u_{ii} = 1" />):</strong><br />
+                    Tentukan matriks <InlineMath math="L" /> dan <InlineMath math="U" />, lalu selesaikan sistem melalui substitusi maju <InlineMath math="L\mathbf{y} = \mathbf{b}" /> dan substitusi mundur <InlineMath math="U\mathbf{x} = \mathbf{y}" />.
+                  </li>
+                </ol>
+              </div>
+
+              {/* Callout Uji Audiens via Numerical Lab */}
+              <div className="essay-callout">
+                <strong>🎯 Tantangan Audiens &amp; Verifikasi Langsung di Numerical Lab:</strong>
+                <p style={{ margin: '4px 0 0' }}>
+                  Audiens dipersilakan menguji matriks <InlineMath math="A" /> dan vektor <InlineMath math="\mathbf{b}" /> di atas pada fitur <strong>Numerical Lab</strong> (pilih tab menu di atas, set ordo <InlineMath math="3 \times 3" />). Uji tombol <strong>Metode Crout</strong>, <strong>Metode Cholesky</strong>, dan <strong>Uji Definit Positif</strong> untuk memverifikasi langkah perhitungan analitis serta solusi akhir <InlineMath math="\mathbf{x} = [2, 1, 3]^{\mathrm{T}}" /> secara langsung!
+                </p>
+              </div>
+
+              <details className="essay-hint-box">
+                <summary>💡 Petunjuk Analitis &amp; Kunci Jawaban Singkat</summary>
+                <div style={{ marginTop: '6px' }}>
+                  <p>• <strong>Minor Sylvester:</strong> <InlineMath math="\Delta_1 = 9 > 0" />, <InlineMath math="\Delta_2 = 180 - 36 = 144 > 0" />, <InlineMath math="\Delta_3 = \det(A) = 576 > 0" />.</p>
+                  <p>• <strong>Faktor Cholesky:</strong> <InlineMath math="L = \begin{bmatrix} 3 & 0 & 0 \\ 2 & 4 & 0 \\ 1 & -1 & 2 \end{bmatrix}" />, <InlineMath math="\mathbf{y} = \begin{bmatrix} 11 \\ 1 \\ 6 \end{bmatrix}" />, <InlineMath math="\mathbf{x} = \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix}" />.</p>
+                  <p>• <strong>Faktor Crout:</strong> <InlineMath math="L = \begin{bmatrix} 9 & 0 & 0 \\ 6 & 16 & 0 \\ 3 & -4 & 4 \end{bmatrix}" />, <InlineMath math="U = \begin{bmatrix} 1 & 2/3 & 1/3 \\ 0 & 1 & -1/4 \\ 0 & 0 & 1 \end{bmatrix}" />, <InlineMath math="\mathbf{y} = \begin{bmatrix} 11/3 \\ 1/4 \\ 3 \end{bmatrix}" />, <InlineMath math="\mathbf{x} = \begin{bmatrix} 2 \\ 1 \\ 3 \end{bmatrix}" />.</p>
+                </div>
+              </details>
+            </article>
+          )}
+        </div>
+      )}
     </div>
-    {picked!==undefined&&<div className={`feedback ${picked===q.answer?'correct':'wrong'}`}>
-     <strong>{picked===q.answer?'Jawaban Anda Benar!':'Jawaban Belum Tepat'}</strong>
-     <QuizExplanation question={n}/>
-    </div>}
-   </article>
-  })}
- </div>
+  );
 }
 
 function VariantComparisonSlide(){
@@ -505,7 +666,7 @@ function VariantComparisonSlide(){
 }
 
 function SlideDeck(){
- const [i,setI]=useState(0),last=slides.length-1,[open,setOpen]=useState(false),[answers,setAnswers]=useState<(number|undefined)[]>(Array(questions.length).fill(undefined));
+ const [i,setI]=useState(0),last=slides.length-1,[open,setOpen]=useState(false);
  const [zoom,setZoom]=useState<number>(100);
  const [isFullscreen,setIsFullscreen]=useState<boolean>(false);
  const move=useCallback((to:number)=>setI(Math.max(0,Math.min(last,to))),[last]);
@@ -520,8 +681,6 @@ function SlideDeck(){
    document.exitFullscreen().catch(()=>{});
   }
  },[]);
-
- const score=answers.filter((ans,idx)=>ans===questions[idx].answer).length;
 
  useEffect(()=>{
   const onFs=()=>setIsFullscreen(Boolean(document.fullscreenElement));
@@ -548,7 +707,7 @@ function SlideDeck(){
    example=examples[slide[0] as keyof typeof examples],
    quiz=slide[0]==='Latihan & Kuis Interaktif',
    isVariantSlide=slide[0]==='Tiga Varian Dekomposisi LU',
-   fullWidth=i===0||Boolean(example)||isVariantSlide,
+   fullWidth=i===0||Boolean(example)||isVariantSlide||quiz,
    special=Boolean(example)||quiz||isVariantSlide;
 
   return <section className="deck" style={{'--deck-zoom':zoom/100} as CSSProperties}>
@@ -557,10 +716,10 @@ function SlideDeck(){
     <div>
      <small>METODE NUMERIK · SLIDE {i+1} DARI {slides.length}</small>
      <h1>{slide[0]}</h1>
-     {i===0?<Cover/>:isVariantSlide?<VariantComparisonSlide/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<Quiz answers={answers} onChange={setAnswers}/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
+     {i===0?<Cover/>:isVariantSlide?<VariantComparisonSlide/>:example?<StepExample key={slide[0]} data={example}/>:quiz?<EssayExercisesSlide/>:<><BlockMath math={slide[1]}/><ul>{slide[2].map(x=><li key={x}>{x}</li>)}</ul></>}
     </div>
    {!fullWidth&&<aside className={special?'compact-visual':''}>
-    <SlideVisual index={i} score={score}/>
+    <SlideVisual index={i}/>
     {!special&&<div className="slide-takeaway">
      <div className="takeaway-header"><span className="sticker">INTI KONSEP</span><small className="nav-hint">Gunakan ← → / Space</small></div>
      <strong>{slide[2][0]}</strong>
@@ -1213,7 +1372,7 @@ function Lab(){
   </>
 }
 
-function SlideVisual({index,score}:{index:number;score:number}){
+function SlideVisual({index}:{index:number}){
  return <div className="slide-visual">
   <svg viewBox="0 0 280 150" role="img" aria-label="Ilustrasi Visual Slide">
    {/* Slide 0: Cover Crout & Cholesky */}
@@ -1512,13 +1671,12 @@ function SlideVisual({index,score}:{index:number;score:number}){
     <text x="227" y="95" textAnchor="middle" fontSize="8.5" fill="#15803d">Simetris Definit</text>
    </g>}
 
-   {/* Slide 16: Skor Kuis Interaktif */}
+   {/* Slide 16: Tantangan Esai HOTS */}
    {index===16&&<g>
-    <circle cx="140" cy="58" r="48" fill="#fef3c7" stroke="#222" strokeWidth="2.5"/>
-    <circle cx="140" cy="58" r="38" fill="#faae2b" stroke="#222" strokeWidth="1.5"/>
-    <text x="140" y="50" textAnchor="middle" fontSize="13" fill="#78350f">SKOR KUIS</text>
-    <text x="140" y="76" textAnchor="middle" fontSize="24" fill="#222">{score} / 3</text>
-    <text x="140" y="128" textAnchor="middle" fontSize="12" fill="#ea580c">Evaluasi Materi Crout &amp; Cholesky</text>
+    <rect x="35" y="22" width="210" height="96" rx="8" fill="#fef3c7" stroke="#222" strokeWidth="2.5"/>
+    <text x="140" y="52" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#78350f">TANTANGAN ESAI HOTS</text>
+    <text x="140" y="78" textAnchor="middle" fontSize="11" fill="#222">3 Soal Analitis C6 &amp; SPL Lab</text>
+    <text x="140" y="100" textAnchor="middle" fontSize="10" fill="#ea580c">Crout · Cholesky · Sylvester</text>
    </g>}
 
    {/* Slide 17: Penutup Kelompok 4 */}

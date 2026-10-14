@@ -185,3 +185,33 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
   * **Pengujian dan Validasi**:
     - Uji solver mandiri `npm run test:engine` lulus sukses ($0$ error).
     - Kompilasi produksi `npm run build` berhasil ($100\%$ valid).
+
+### 24. Perombakan Total Bagian Latihan & Kuis Menjadi Soal Esai HOTS (2026-10-14)
+* **Latar Belakang**:
+  - Pengguna meminta kuis pilihan ganda interaktif dirombak total menjadi penampilan soal esai analitis mendalam tanpa interaktivitas tombol/skor pilihan ganda.
+  - Soal 1 dan 2 bersumber langsung dari berkas naskah PDF kelompok `SOAL_KELOMPOK 4.pdf` (Studi Kasus HOTS C6 "Jembatan Rahasia Crout & Cholesky").
+  - Soal 3 dibuat baru: sebuah sistem persamaan linear (SPL) simetris dan definit positif berukuran $3 \times 3$ yang dapat diselesaikan baik dengan metode Crout maupun Cholesky, berbeda dari contoh slide, dan dirancang khusus agar dapat diuji langsung oleh audiens menggunakan Numerical Lab pada aplikasi. Isi kalkulator tidak diubah sama sekali.
+* **Tindakan yang Dilakukan**:
+  * **Ekstraksi dan Digitalisasi Soal dari PDF**:
+    - Membaca dokumen `Downloads/SOAL_KELOMPOK 4.pdf` dan mengekstrak teks studi kasus HOTS C6.
+    - Mengonversi halaman 1 dan 2 PDF menjadi citra resolusi tinggi di `public/soal_hots_p1.png` dan `public/soal_hots_p2.png` serta menyalin berkas asli ke `public/SOAL_KELOMPOK_4.pdf`.
+  * **Penyusunan 3 Soal Esai Analitis**:
+    1. **Soal 1 (C6 HOTS: Rekonstruksi Tanpa Matriks Asli, Bobot 50%)**:
+       - Diketahui matriks $A$ simetris definit positif ($3 \times 3$), matriks atas Crout $U_C = \begin{bmatrix} 1 & 2 & -1 \\ 0 & 1 & 3 \\ 0 & 0 & 1 \end{bmatrix}$, diagonal Cholesky $L_{Ch} = [\alpha, 2\alpha, \alpha\sqrt{5}]$, dan $\det(A) = 1280$.
+       - Menentukan nilai parameter $\alpha = 2$ serta seluruh elemen matriks segitiga bawah Crout $L_C$ tanpa mencari matriks $A$ terlebih dahulu melalui hubungan $L_C = U_C^{\mathrm{T}} D$.
+    2. **Soal 2 (C6 HOTS: Transformasi Vektor Substitusi Maju, Bobot 50%)**:
+       - Diketahui vektor perantara substitusi maju Cholesky $\mathbf{y}_{Ch} = [2, 4, \sqrt{5}]^{\mathrm{T}}$.
+       - Menentukan vektor perantara Crout $\mathbf{y}_C = [1, 1, 1/2]^{\mathrm{T}}$ melalui transformasi $\mathbf{y}_C = D^{-1/2}\mathbf{y}_{Ch}$.
+    3. **Soal 3 (Studi Kasus SPL Baru untuk Uji Audiens & Numerical Lab)**:
+       - Diberikan SPL:
+         $$\begin{bmatrix} 9 & 6 & 3 \\ 6 & 20 & -2 \\ 3 & -2 & 6 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 33 \\ 26 \\ 22 \end{bmatrix}$$
+       - Uji Kriteria Sylvester: $\Delta_1 = 9 > 0, \Delta_2 = 144 > 0, \Delta_3 = 576 > 0$ (terbukti simetris dan definit positif).
+       - Faktorisasi Cholesky: $L = \begin{bmatrix} 3 & 0 & 0 \\ 2 & 4 & 0 \\ 1 & -1 & 2 \end{bmatrix}$, $\mathbf{y} = [11, 1, 6]^{\mathrm{T}}$, $\mathbf{x} = [2, 1, 3]^{\mathrm{T}}$.
+       - Faktorisasi Crout: $L = \begin{bmatrix} 9 & 0 & 0 \\ 6 & 16 & 0 \\ 3 & -4 & 4 \end{bmatrix}$, $U = \begin{bmatrix} 1 & 2/3 & 1/3 \\ 0 & 1 & -1/4 \\ 0 & 0 & 1 \end{bmatrix}$, $\mathbf{y} = [11/3, 1/4, 3]^{\mathrm{T}}$, $\mathbf{x} = [2, 1, 3]^{\mathrm{T}}$.
+       - Callout khusus mengajak audiens menguji matriks dan vektor ini secara mandiri pada Numerical Lab.
+  * **Penyajian Antarmuka & Navigasi Tab**:
+    - Mengganti komponen kuis lama dengan `EssayExercisesSlide` yang dilengkapi tab navigasi: `Semua Soal (1, 2, & 3)`, `Soal 1`, `Soal 2`, `Soal 3`, dan `Naskah Asli PDF` (beserta tombol unduh berkas PDF).
+    - Membuka tata letak slide esai secara penuh (`fullWidth`) tanpa panel samping sempit untuk keterbacaan optimal.
+  * **Pengujian dan Validasi**:
+    - Uji komputasi matematika solver dan pengujian unit `npm run test:engine` lulus $100\%$ ($0$ error).
+    - Kompilasi produksi `npm run build` sukses tanpa kendala.
