@@ -6,6 +6,7 @@ from manim import *
 BG = "#141414"
 BLUE_C = "#38BDF8"       # Cyan terang
 GREEN_C = "#4ADE80"      # Hijau cerah
+LIGHT_GREEN = "#86EFAC"  # Hijau muda cerah
 YELLOW_C = "#FACC15"     # Kuning emas
 ORANGE_C = "#FB923C"     # Oranye hangat
 RED_C = "#F87171"        # Merah peringatan
@@ -819,56 +820,94 @@ class CholeskyUnifiedExplainer(Scene):
         # ========================================================
         # 4. KESIMPULAN AKHIR & VERIFIKASI RESIDU (ELEGANT CONCLUSION)
         # ========================================================
-        header_final = Text("Verifikasi Solusi Akhir Metode Cholesky", font_size=25, color=YELLOW_C, weight=BOLD).to_edge(UP, buff=0.45)
-        self.play(Write(header_final), run_time=0.7)
+        header_final = Tex(
+            r"\textbf{Verifikasi Solusi Akhir Metode Cholesky}",
+            font_size=32,
+            color=YELLOW_C,
+        ).to_edge(UP, buff=0.36)
+        self.play(FadeIn(header_final), run_time=0.7)
+
+        t_res_final = Tex(
+            r"\textbf{Solusi Eksak Sistem Persamaan Linier:}",
+            font_size=24,
+            color=WHITE_C,
+        )
+
+        math_sol_box = MathTex(
+            r"\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} -1 \\[4pt] \frac{5}{2} \\[4pt] -\frac{1}{2} \end{bmatrix}",
+            font_size=28,
+            color=YELLOW_C,
+        )
+
+        line_div = Line(LEFT * 5.6, RIGHT * 5.6, color=BORDER_C, stroke_width=2.0)
+
+        t_check_intro = Tex(
+            r"\textbf{Substitusi Balik ke Matriks Awal } ($A \cdot \mathbf{x} = \mathbf{b}$):",
+            font_size=22,
+            color=GREEN_C,
+        )
+
+        check_eq = MathTex(
+            r"\begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix}"
+            r"\begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix}"
+            r"= \begin{bmatrix} -4 + 5 + 1 \\ -2 + 25 - 1 \\ 2 + 5 - 3 \end{bmatrix}"
+            r"= \begin{bmatrix} 2 \\ 22 \\ 4 \end{bmatrix} = \mathbf{b}",
+            font_size=23,
+            color=WHITE_C,
+        )
+
+        badge_concl_txt = Tex(
+            r"\textbf{\checkmark\ Solusi 100\% Eksak} \quad $\cdot$ \quad \textbf{Residu } $\|A\mathbf{x} - \mathbf{b}\| = 0$",
+            font_size=22,
+            color=LIGHT_GREEN,
+        )
+        badge_concl_bg = RoundedRectangle(
+            corner_radius=0.12,
+            width=badge_concl_txt.width + 0.55,
+            height=badge_concl_txt.height + 0.28,
+            fill_color="#064E3B",
+            fill_opacity=0.85,
+            stroke_color=GREEN_C,
+            stroke_width=2.0,
+        )
+        badge_concl_grp = VGroup(badge_concl_bg, badge_concl_txt)
+        badge_concl_txt.move_to(badge_concl_bg.get_center())
+
+        card_content = VGroup(
+            t_res_final,
+            math_sol_box,
+            line_div,
+            t_check_intro,
+            check_eq,
+            badge_concl_grp,
+        ).arrange(DOWN, buff=0.22)
 
         card_final = RoundedRectangle(
-            corner_radius=0.15,
-            width=11.2,
-            height=4.6,
+            corner_radius=0.18,
+            width=11.6,
+            height=card_content.height + 0.55,
             fill_color=CARD_BG,
             fill_opacity=0.98,
             stroke_color=GREEN_C,
-            stroke_width=2.5
-        ).move_to(DOWN * 0.25)
+            stroke_width=2.5,
+        ).move_to(DOWN * 0.15)
+        card_content.move_to(card_final.get_center())
+
         self.play(Create(card_final), run_time=0.6)
-
-        t_res_final = Text("Solusi Eksak Sistem Persamaan Linier:", font_size=18, color=WHITE_C, weight=BOLD).move_to(card_final.get_top() + DOWN * 0.4)
-        math_sol_box = MathTex(
-            r"\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix}",
-            font_size=24,
-            color=YELLOW_C
-        ).next_to(t_res_final, DOWN, buff=0.3)
-
-        line_div = Line(LEFT * 4.8, RIGHT * 4.8, color=BORDER_C, stroke_width=1.5).next_to(math_sol_box, DOWN, buff=0.25)
-
-        t_check_intro = Text("Substitusi Balik ke Matriks Awal (A · x = b):", font_size=15, color=GREEN_C, weight=BOLD).next_to(line_div, DOWN, buff=0.2)
-        check_eq = MathTex(
-            r"\begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix} \begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix} = \begin{bmatrix} 4(-1) + 2(\frac{5}{2}) - 2(-\frac{1}{2}) \\ 2(-1) + 10(\frac{5}{2}) + 2(-\frac{1}{2}) \\ -2(-1) + 2(\frac{5}{2}) + 6(-\frac{1}{2}) \end{bmatrix} = \begin{bmatrix} 2 \\ 22 \\ 4 \end{bmatrix} = \mathbf{b}",
-            font_size=16,
-            color=WHITE_C
-        ).next_to(t_check_intro, DOWN, buff=0.2)
-
-        badge_concl = Text("✔ Solusi 100% Eksak · Residu ||Ax - b|| = 0", font_size=15, color=GREEN_C, weight=BOLD).next_to(check_eq, DOWN, buff=0.25)
-
-        self.play(Write(t_res_final), FadeIn(math_sol_box), run_time=0.7)
-        self.play(Create(line_div), FadeIn(t_check_intro), Write(check_eq), run_time=1.2)
-        self.play(FadeIn(badge_concl), run_time=0.5)
+        self.play(Write(t_res_final), FadeIn(math_sol_box), run_time=0.8)
+        self.play(Create(line_div), FadeIn(t_check_intro), run_time=0.5)
+        self.play(Write(check_eq), run_time=1.2)
+        self.play(FadeIn(badge_concl_grp, scale=0.95), run_time=0.6)
         self.wait(4.0)
 
         # Penutup Selesai
         self.play(
             FadeOut(header_final),
             FadeOut(card_final),
-            FadeOut(t_res_final),
-            FadeOut(math_sol_box),
-            FadeOut(line_div),
-            FadeOut(t_check_intro),
-            FadeOut(check_eq),
-            FadeOut(badge_concl),
+            FadeOut(card_content),
             run_time=0.7
         )
 
-        final_thanks = Text("Presentasi Dekomposisi Cholesky Selesai", font_size=28, color=GREEN_C, weight=BOLD).move_to(ORIGIN)
+        final_thanks = Text("Presentasi Dekomposisi Cholesky Selesai", font_size=32, color=GREEN_C, weight=BOLD).move_to(ORIGIN)
         self.play(FadeIn(final_thanks), run_time=0.9)
         self.wait(2.5)

@@ -84,11 +84,8 @@ ightarrow$ entri $y_3$ bertransformasi menjadi angka `-1` hijau.
   * **Penyajian Pecahan Murni (Zero Decimal)**:
     - Seluruh nilai aljabar di card kanan ditulis dalam pecahan formal vertikal:
       - Baris 3: $2x_3 = -1 \implies x_3 = -\frac{1}{2}$
-      - Baris 2: $3x_2 + 1\left(-\frac{1}{2}
-ight) = 7 \implies 3x_2 = \frac{15}{2} \implies x_2 = \frac{5}{2}$
-      - Baris 1: $2x_1 + 1\left(\frac{5}{2}
-ight) - 1\left(-\frac{1}{2}
-ight) = 1 \implies 2x_1 + 3 = 1 \implies x_1 = -1$
+      - Baris 2: $3x_2 + 1(-\frac{1}{2}) = 7 \implies 3x_2 = \frac{15}{2} \implies x_2 = \frac{5}{2}$
+      - Baris 1: $2x_1 + 1(\frac{5}{2}) - 1(-\frac{1}{2}) = 1 \implies 2x_1 + 3 = 1 \implies x_1 = -1$
     - Format solusi akhir SPL: $\mathbf{x} = \begin{bmatrix} -1 & \frac{5}{2} & -\frac{1}{2} \end{bmatrix}^{\mathrm{T}}$ (pecahan murni, notasi superskrip formal $^{\mathrm{T}}$, tanpa caret `^`).
     - Penyamaan format pada Babak 4 Verifikasi Residu $A \cdot \mathbf{x} = \mathbf{b}$ dengan pecahan murni: $4(-1) + 2(\frac{5}{2}) - 2(-\frac{1}{2}) = 2$, dst.
   * **Animasi Tektokan Sinkron Bawah ke Atas**:
@@ -109,3 +106,22 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
     - Kompilasi Manim 1080p60 tuntas 136 animasi ke `public/videos/contoh_soal_metode_cholesky.mp4`.
     - Verifikasi visual frame aktual t=94s (Babak 3.b) dan t=100s (Babak 4) via `vision_analyze` mengonfirmasi: pecahan vertikal bersih, nol desimal, superskrip formal, aljabar lengkap, dan margin bawah aman.
     - Pengujian engine `npm run test:engine` & build `npm run build` lolos $100\%$ tanpa kesalahan.
+
+## Bab 20: Revisi Babak 4 (Kesimpulan: Pembesaran Tipografi Card Kesimpulan & Evaluasi Langkah Tengah Pecahan Eksak)
+- **Tujuan**: Membesarkan ukuran seluruh elemen teks, rumus matematika, matriks substitusi, dan badge di dalam card Kesimpulan (Babak 4: Verifikasi Solusi Akhir Metode Cholesky) agar terbaca jelas, padat, dan nyaman dilihat, menghilangkan ruang kosong berlebih di dalam card, serta menyajikan evaluasi langkah tengah perkalian matriks dengan pecahan secara gamblang.
+- **Perubahan**:
+  * **Peningkatan Signifikan Tipografi Seluruh Komponen Card**:
+    - Header scene: ditingkatkan dari `font_size=25` Text biasa menjadi `font_size=32` Tex tebal warna kuning emas (`YELLOW_C`).
+    - Subjudul solusi: ditingkatkan dari `font_size=18` menjadi `font_size=24` Tex tebal putih (`WHITE_C`).
+    - Vektor solusi SPL $\mathbf{x}$: ditingkatkan dari `font_size=24` menjadi `font_size=28` MathTex emas dengan spasi vertikal antar-baris `4pt` ($[-1, \frac{5}{2}, -\frac{1}{2}]^\mathrm{T}$).
+    - Subjudul substitusi balik $A \cdot \mathbf{x} = \mathbf{b}$: ditingkatkan dari `font_size=15` menjadi `font_size=22` Tex hijau cerah (`GREEN_C`).
+    - Persamaan evaluasi perkalian matriks: ditingkatkan dari `font_size=16` menjadi `font_size=23` MathTex putih, dilengkapi langkah tengah aritmetika elemen pecahan:
+      $$\begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix} \begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix} = \begin{bmatrix} -4 + 5 + 1 \\ -2 + 25 - 1 \\ 2 + 5 - 3 \end{bmatrix} = \begin{bmatrix} 2 \\ 22 \\ 4 \end{bmatrix} = \mathbf{b}$$
+    - Badge konklusi: ditingkatkan dari `font_size=15` menjadi `font_size=22` Tex hijau muda terang (`LIGHT_GREEN`), dibungkus pill rounded rectangle hijau gelap bergaris tepi emerald tebal.
+  * **Dimensi Card Adaptif & Safe-Zone**:
+    - Lebar card disesuaikan menjadi `width=11.6` dengan padding simetris dan tinggi dinamis mengikuti konten (`height=card_content.height + 0.55`).
+    - Margin bawah menyisakan ruang $>15\%$ tinggi layar kanvas sehingga bebas dari gangguan overlay bilah kontrol fullscreen.
+  * **Render & Verifikasi Visual**:
+    - Kompilasi Manim 1080p60 tuntas 137 animasi ke `public/videos/contoh_soal_metode_cholesky.mp4`.
+    - Ekstraksi frame aktual t=102s via ffmpeg diverifikasi dengan `vision_analyze`: tipografi besar, tebal, kontras tinggi, pecahan murni tanpa desimal, dan tata letak membungkus rapi.
+    - Pengujian engine `npm run test:engine` dan build `npm run build` lolos $100\%$ tanpa kesalahan ($0$ warning error).
