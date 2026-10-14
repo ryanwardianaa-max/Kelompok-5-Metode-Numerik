@@ -77,3 +77,35 @@ ightarrow$ entri $y_3$ bertransformasi menjadi angka `-1` hijau.
   * **Badge Hasil Vektor Antara**: Kotak hijau melingkupi seluruh vektor $\mathbf{y}$ di ruas kiri, diiringi kemunculan sub-badge berlatar slate gelap bergaris tepi emas: $\mathbf{y} = \begin{bmatrix} 1 & 7 & -1 \end{bmatrix}^{\mathrm{T}}$ dengan notasi superskrip formal (bebas caret `^`).
   * **Optimalisasi Card & Font**: Ukuran font dinaikkan drastis (`font_size=22-24`), container card membungkus konten rapat tanpa ruang kosong berlebih, dan posisi dinaikkan sehingga sisa jarak bawah layar $\approx 310\text{ px}$ (sangat aman dari control bar video player fullscreen).
   * **Render & Verifikasi**: Video 1080p60 Manim dirender ulang ke `public/videos/contoh_soal_metode_cholesky.mp4`, diverifikasi visual frame aktual via `vision_analyze` (keterbacaan sempurna, aljabar lengkap, notasi formal, aman kontrol bar), dan seluruh test engine/build Vite lulus 100%.
+
+## Bab 19: Revisi Babak 3.b (Tahap 2 SPL: Substitusi Mundur L^T · x = y, Tektokan Bawah-ke-Atas, Pecahan Murni Tanpa Desimal, & Verifikasi Eksak)
+- **Tujuan**: Menerapkan pola animasi tektokan berirama serupa Babak 3.a pada Babak 3.b (Substitusi Mundur $L^\mathrm{T} \cdot \mathbf{x} = \mathbf{y}$ dari bawah ke atas), menyajikan seluruh angka dan aljabar dalam notasi pecahan murni (mutlak tanpa desimal seperti $-0{,}5$ atau $2{,}5$), memastikan pecahan vertikal pada vektor $\mathbf{x}$ tidak saling tumpang tindih (*no collision*), serta menyelaraskan Babak 4 (Verifikasi Residu) dengan format pecahan murni.
+- **Perubahan**:
+  * **Penyajian Pecahan Murni (Zero Decimal)**:
+    - Seluruh nilai aljabar di card kanan ditulis dalam pecahan formal vertikal:
+      - Baris 3: $2x_3 = -1 \implies x_3 = -\frac{1}{2}$
+      - Baris 2: $3x_2 + 1\left(-\frac{1}{2}
+ight) = 7 \implies 3x_2 = \frac{15}{2} \implies x_2 = \frac{5}{2}$
+      - Baris 1: $2x_1 + 1\left(\frac{5}{2}
+ight) - 1\left(-\frac{1}{2}
+ight) = 1 \implies 2x_1 + 3 = 1 \implies x_1 = -1$
+    - Format solusi akhir SPL: $\mathbf{x} = \begin{bmatrix} -1 & \frac{5}{2} & -\frac{1}{2} \end{bmatrix}^{\mathrm{T}}$ (pecahan murni, notasi superskrip formal $^{\mathrm{T}}$, tanpa caret `^`).
+    - Penyamaan format pada Babak 4 Verifikasi Residu $A \cdot \mathbf{x} = \mathbf{b}$ dengan pecahan murni: $4(-1) + 2(\frac{5}{2}) - 2(-\frac{1}{2}) = 2$, dst.
+  * **Animasi Tektokan Sinkron Bawah ke Atas**:
+    - Baris 3: Kotak kuning menyorot baris 3 $L^\mathrm{T}$ `[0, 0, 2]` dan baris 3 $\mathbf{y}$ `[-1]` $
+ightarrow$ card kanan memunculkan aljabar Baris 3 $
+ightarrow$ entri $x_3$ pada vektor $\mathbf{x}$ di ruas kiri bertransformasi menjadi $-\frac{1}{2}$ biru.
+    - Baris 2: Kotak kuning menyorot baris 2 $L^\mathrm{T}$ `[0, 3, 1]` dan baris 2 $\mathbf{y}$ `[7]` $
+ightarrow$ card kanan memunculkan aljabar Baris 2 $
+ightarrow$ entri $x_2$ bertransformasi menjadi $\frac{5}{2}$ biru.
+    - Baris 1: Kotak kuning menyorot baris 1 $L^\mathrm{T}$ `[2, 1, -1]` dan baris 1 $\mathbf{y}$ `[1]` $
+ightarrow$ card kanan memunculkan aljabar Baris 1 $
+ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
+  * **Perbaikan Jarak Vertikal Vektor x (No Collision)**:
+    - Mengatur `v_buff=0.88` pada matriks $L^\mathrm{T}$, $\mathbf{x}$, dan $\mathbf{y}$, serta penskalaan entri pecahan bertingkat pada vektor $\mathbf{x}$, menjamin pemisahan vertikal yang sangat bersih antara $\frac{5}{2}$ dan $-\frac{1}{2}$ tanpa benturan glif atau tanda minus.
+  * **Tipografi, Dimensi Card, & Safe-Zone Fullscreen**:
+    - Ukuran font dinaikkan (`font_size=21-24`), card membungkus konten secara presisi dengan garis batas biru cerah (`BLUE_C`), dan margin bawah frame menyisakan ruang $\approx 25\%$ tinggi kanvas (bebas aman dari control bar fullscreen).
+  * **Render & Verifikasi**:
+    - Kompilasi Manim 1080p60 tuntas 136 animasi ke `public/videos/contoh_soal_metode_cholesky.mp4`.
+    - Verifikasi visual frame aktual t=94s (Babak 3.b) dan t=100s (Babak 4) via `vision_analyze` mengonfirmasi: pecahan vertikal bersih, nol desimal, superskrip formal, aljabar lengkap, dan margin bawah aman.
+    - Pengujian engine `npm run test:engine` & build `npm run build` lolos $100\%$ tanpa kesalahan.

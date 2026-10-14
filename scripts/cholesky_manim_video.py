@@ -664,57 +664,155 @@ class CholeskyUnifiedExplainer(Scene):
         )
 
         # 3.B SUBSTITUSI MUNDUR L^T x = y
-        header_spl2 = Tex(r"\textbf{Tahap 2 SPL: Substitusi Mundur } $L^{\mathrm{T}} \cdot \mathbf{x} = \mathbf{y}$", font_size=25, color=BLUE_C).to_edge(UP, buff=0.45)
+        header_spl2 = Tex(
+            r"\textbf{Tahap 2 SPL: Substitusi Mundur } $L^{\mathrm{T}} \cdot \mathbf{x} = \mathbf{y}$",
+            font_size=30,
+            color=BLUE_C,
+        ).to_edge(UP, buff=0.38)
         self.play(FadeIn(header_spl2), run_time=0.7)
 
-        mat_LT_bwd = Matrix([["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]], h_buff=0.75, v_buff=0.65).scale(0.7)
-        vec_x_bwd = Matrix([["x_1"], ["x_2"], ["x_3"]], h_buff=0.55, v_buff=0.65).scale(0.7)
-        eq_bwd = MathTex(r"=", font_size=28, color=WHITE_C)
-        vec_y_bwd = Matrix([["1"], ["7"], ["-1"]], h_buff=0.55, v_buff=0.65).scale(0.7)
+        mat_LT_bwd = Matrix(
+            [["2", "1", "-1"], ["0", "3", "1"], ["0", "0", "2"]],
+            bracket_h_buff=0.1,
+            bracket_v_buff=0.12,
+            h_buff=0.85,
+            v_buff=0.88,
+        ).scale(0.84)
+        for i, val in enumerate(["2", "1", "-1", "0", "3", "1", "0", "0", "2"]):
+            c = MUTED_C if val == "0" else BLUE_C
+            mat_LT_bwd.get_entries()[i].set_color(c)
 
-        row_bwd = VGroup(mat_LT_bwd, vec_x_bwd, eq_bwd, vec_y_bwd).arrange(RIGHT, buff=0.35).move_to(LEFT * 3.8 + DOWN * 0.25)
+        vec_x_bwd = Matrix(
+            [["x_1"], ["x_2"], ["x_3"]],
+            bracket_h_buff=0.12,
+            bracket_v_buff=0.12,
+            h_buff=0.6,
+            v_buff=0.88,
+        ).scale(0.84)
+        for entry in vec_x_bwd.get_entries():
+            entry.set_color(YELLOW_C)
+
+        eq_bwd = MathTex(r"=", font_size=34, color=WHITE_C)
+
+        vec_y_bwd = Matrix(
+            [["1"], ["7"], ["-1"]],
+            bracket_h_buff=0.08,
+            bracket_v_buff=0.12,
+            h_buff=0.6,
+            v_buff=0.88,
+        ).scale(0.84)
+        for entry in vec_y_bwd.get_entries():
+            entry.set_color(GREEN_C)
+
+        lbl_sys_bwd = Tex(r"$L^{\mathrm{T}} \cdot \mathbf{x} = \mathbf{y}$", font_size=22, color=MUTED_C)
+
+        row_bwd = VGroup(mat_LT_bwd, vec_x_bwd, eq_bwd, vec_y_bwd).arrange(RIGHT, buff=0.22)
         eq_bwd.set_y(mat_LT_bwd.get_rows()[1].get_center()[1])
-        self.play(FadeIn(row_bwd), run_time=0.7)
+        lbl_sys_bwd.next_to(row_bwd, UP, buff=0.22)
+
+        grp_left_bwd = VGroup(lbl_sys_bwd, row_bwd).move_to(LEFT * 3.8 + DOWN * 0.10)
+        self.play(FadeIn(grp_left_bwd), run_time=0.7)
+
+        # Konten Card Kanan (Pecahan murni, tanpa desimal)
+        t_sub2_head = Tex(r"\textbf{Perhitungan Mundur (Bawah ke Atas):}", font_size=24, color=BLUE_C)
+
+        line_b3 = MathTex(
+            r"\textbf{Baris 3: } 2x_3 = -1 \implies \mathbf{x_3 = -\frac{1}{2}}",
+            font_size=22,
+            color=WHITE_C,
+        )
+
+        line_b2 = MathTex(
+            r"\begin{aligned}"
+            r"\textbf{Baris 2: } & 3x_2 + 1(-\frac{1}{2}) = 7 \\"
+            r"& \implies 3x_2 = \frac{15}{2} \implies \mathbf{x_2 = \frac{5}{2}}"
+            r"\end{aligned}",
+            font_size=21,
+            color=WHITE_C,
+        )
+
+        line_b1 = MathTex(
+            r"\begin{aligned}"
+            r"\textbf{Baris 1: } & 2x_1 + 1(\frac{5}{2}) - 1(-\frac{1}{2}) = 1 \\"
+            r"& \implies 2x_1 + 3 = 1 \implies \mathbf{x_1 = -1}"
+            r"\end{aligned}",
+            font_size=21,
+            color=WHITE_C,
+        )
+
+        badge_x_txt = MathTex(
+            r"\textbf{Solusi SPL: } \mathbf{x} = \begin{bmatrix} -1 & \frac{5}{2} & -\frac{1}{2} \end{bmatrix}^{\mathrm{T}}",
+            font_size=22,
+            color=YELLOW_C,
+        )
+        badge_x_bg = RoundedRectangle(
+            corner_radius=0.10,
+            width=badge_x_txt.width + 0.40,
+            height=badge_x_txt.height + 0.22,
+            fill_color="#0F172A",
+            fill_opacity=0.9,
+            stroke_color=YELLOW_C,
+            stroke_width=1.8,
+        )
+        badge_x_grp = VGroup(badge_x_bg, badge_x_txt)
+        badge_x_txt.move_to(badge_x_bg.get_center())
+
+        card_content_bwd = VGroup(t_sub2_head, line_b3, line_b2, line_b1, badge_x_grp).arrange(DOWN, buff=0.20, aligned_edge=LEFT)
 
         card_sub2 = RoundedRectangle(
-            corner_radius=0.15,
-            width=6.6,
-            height=4.4,
+            corner_radius=0.16,
+            width=card_content_bwd.width + 0.65,
+            height=card_content_bwd.height + 0.45,
             fill_color=CARD_BG,
-            fill_opacity=0.95,
+            fill_opacity=0.98,
             stroke_color=BLUE_C,
-            stroke_width=2.0
-        ).move_to(RIGHT * 3.1 + DOWN * 0.25)
-        t_sub2_head = Text("Perhitungan Mundur (Bawah ke Atas):", font_size=15, color=BLUE_C, weight=BOLD).move_to(card_sub2.get_top() + DOWN * 0.35)
-        self.play(Create(card_sub2), Write(t_sub2_head), run_time=0.5)
+            stroke_width=2.5,
+        ).move_to(RIGHT * 3.05 + DOWN * 0.10)
+        card_content_bwd.move_to(card_sub2.get_center())
 
-        calc_bwd = MathTex(
-            r"\begin{aligned}"
-            r"2x_3 &= -1 \implies \mathbf{x_3 = -0{,}5} \\[6pt]"
-            r"3x_2 + 1(-0{,}5) &= 7 \implies 3x_2 = 7{,}5 \implies \mathbf{x_2 = 2{,}5} \\[6pt]"
-            r"2x_1 + 1(2{,}5) - 1(-0{,}5) &= 1 \implies 2x_1 + 3 = 1 \implies \mathbf{x_1 = -1}"
-            r"\end{aligned}",
-            font_size=16,
-            color=WHITE_C
-        ).next_to(t_sub2_head, DOWN, buff=0.3).align_to(card_sub2, LEFT).shift(RIGHT * 0.4)
+        self.play(Create(card_sub2), FadeIn(t_sub2_head), run_time=0.6)
 
-        badge_x = MathTex(
-            r"\text{Solusi SPL: } \mathbf{x} = \begin{bmatrix} -1 & 2{,}5 & -0{,}5 \end{bmatrix}^T",
-            font_size=16,
-            color=YELLOW_C
-        ).next_to(calc_bwd, DOWN, buff=0.35).align_to(calc_bwd, LEFT)
+        # Baris 3: Tektokan kotak baris 3
+        box_LT3 = SurroundingRectangle(mat_LT_bwd.get_rows()[2], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_y3 = SurroundingRectangle(vec_y_bwd.get_rows()[2], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_LT3), Create(box_y3), run_time=0.4)
+        self.play(Write(line_b3), run_time=0.7)
+        x3_solved = MathTex(r"-\frac{1}{2}", font_size=24, color=BLUE_C).move_to(vec_x_bwd.get_entries()[2].get_center())
+        self.play(Transform(vec_x_bwd.get_entries()[2], x3_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_LT3), FadeOut(box_y3), run_time=0.3)
 
-        self.play(Write(calc_bwd), run_time=1.5)
-        self.play(FadeIn(badge_x), run_time=0.5)
-        self.wait(2.5)
+        # Baris 2: Tektokan kotak baris 2
+        box_LT2 = SurroundingRectangle(mat_LT_bwd.get_rows()[1], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_y2 = SurroundingRectangle(vec_y_bwd.get_rows()[1], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_LT2), Create(box_y2), run_time=0.4)
+        self.play(Write(line_b2), run_time=0.8)
+        x2_solved = MathTex(r"\frac{5}{2}", font_size=24, color=BLUE_C).move_to(vec_x_bwd.get_entries()[1].get_center())
+        self.play(Transform(vec_x_bwd.get_entries()[1], x2_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_LT2), FadeOut(box_y2), run_time=0.3)
+
+        # Baris 1: Tektokan kotak baris 1
+        box_LT1 = SurroundingRectangle(mat_LT_bwd.get_rows()[0], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_y1 = SurroundingRectangle(vec_y_bwd.get_rows()[0], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_LT1), Create(box_y1), run_time=0.4)
+        self.play(Write(line_b1), run_time=0.8)
+        x1_solved = MathTex("-1", font_size=24, color=BLUE_C).move_to(vec_x_bwd.get_entries()[0].get_center())
+        self.play(Transform(vec_x_bwd.get_entries()[0], x1_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_LT1), FadeOut(box_y1), run_time=0.3)
+
+        # Solusi SPL Akhir
+        box_x_all = SurroundingRectangle(vec_x_bwd, color=BLUE_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_x_all), FadeIn(badge_x_grp, scale=0.95), run_time=0.6)
+        self.wait(2.2)
+        self.play(FadeOut(box_x_all), run_time=0.3)
 
         self.play(
             FadeOut(header_spl2),
-            FadeOut(row_bwd),
+            FadeOut(grp_left_bwd),
             FadeOut(card_sub2),
-            FadeOut(t_sub2_head),
-            FadeOut(calc_bwd),
-            FadeOut(badge_x),
+            FadeOut(card_content_bwd),
             run_time=0.5
         )
 
@@ -737,7 +835,7 @@ class CholeskyUnifiedExplainer(Scene):
 
         t_res_final = Text("Solusi Eksak Sistem Persamaan Linier:", font_size=18, color=WHITE_C, weight=BOLD).move_to(card_final.get_top() + DOWN * 0.4)
         math_sol_box = MathTex(
-            r"\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} -1 \\ 2{,}5 \\ -0{,}5 \end{bmatrix}",
+            r"\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix}",
             font_size=24,
             color=YELLOW_C
         ).next_to(t_res_final, DOWN, buff=0.3)
@@ -746,7 +844,7 @@ class CholeskyUnifiedExplainer(Scene):
 
         t_check_intro = Text("Substitusi Balik ke Matriks Awal (A · x = b):", font_size=15, color=GREEN_C, weight=BOLD).next_to(line_div, DOWN, buff=0.2)
         check_eq = MathTex(
-            r"\begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix} \begin{bmatrix} -1 \\ 2{,}5 \\ -0{,}5 \end{bmatrix} = \begin{bmatrix} 4(-1) + 2(2{,}5) - 2(-0{,}5) \\ 2(-1) + 10(2{,}5) + 2(-0{,}5) \\ -2(-1) + 2(2{,}5) + 6(-0{,}5) \end{bmatrix} = \begin{bmatrix} 2 \\ 22 \\ 4 \end{bmatrix} = \mathbf{b}",
+            r"\begin{bmatrix} 4 & 2 & -2 \\ 2 & 10 & 2 \\ -2 & 2 & 6 \end{bmatrix} \begin{bmatrix} -1 \\ \frac{5}{2} \\ -\frac{1}{2} \end{bmatrix} = \begin{bmatrix} 4(-1) + 2(\frac{5}{2}) - 2(-\frac{1}{2}) \\ 2(-1) + 10(\frac{5}{2}) + 2(-\frac{1}{2}) \\ -2(-1) + 2(\frac{5}{2}) + 6(-\frac{1}{2}) \end{bmatrix} = \begin{bmatrix} 2 \\ 22 \\ 4 \end{bmatrix} = \mathbf{b}",
             font_size=16,
             color=WHITE_C
         ).next_to(t_check_intro, DOWN, buff=0.2)
