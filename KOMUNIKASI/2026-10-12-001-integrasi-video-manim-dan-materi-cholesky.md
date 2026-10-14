@@ -125,3 +125,25 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
     - Kompilasi Manim 1080p60 tuntas 137 animasi ke `public/videos/contoh_soal_metode_cholesky.mp4`.
     - Ekstraksi frame aktual t=102s via ffmpeg diverifikasi dengan `vision_analyze`: tipografi besar, tebal, kontras tinggi, pecahan murni tanpa desimal, dan tata letak membungkus rapi.
     - Pengujian engine `npm run test:engine` dan build `npm run build` lolos $100\%$ tanpa kesalahan ($0$ warning error).
+
+## Bab 21: Overhaul Kalkulator SPL: Fokus 3 Fitur Utama (Crout, Cholesky, & Uji Definit Positif Sylvester) dengan Langkah Terperinci
+- **Tujuan**: Merestrukturisasi antarmuka dan komputasi pada kalkulator numerik agar fokus eksklusif pada 3 fitur inti yang diminta:
+  1. Dekomposisi LU Crout ($u_{ii}=1$),
+  2. Dekomposisi LU Cholesky ($A = L \cdot L^T$),
+  3. Uji Definit Positif (Kriteria Sylvester),
+  menghapus fitur preset agar antarmuka bersih dan profesional, serta menyajikan perincian langkah demi langkah (step-by-step) komprehensif saat tombol hitung diklik.
+- **Perubahan Komprehensif**:
+  * **Penyederhanaan Mode Kalkulator**:
+    - Menghilangkan metode Eliminasi Gauss dan LU Doolittle dari antarmuka kalkulator; hanya menyediakan 3 tab metode pilihan yang relevan.
+    - Menghapus komponen tombol preset statis (`presets`) agar kalkulator berorientasi mandiri pada input fleksibel pengguna ($2 \times 2$ dan $3 \times 3$).
+  * **Penyempurnaan Engine Numerik (`src/engine.ts`)**:
+    - `solveCrout`: Menghasilkan rincian langkah faktorisasi elemen $L$ dan $U$ per kolom/baris, langkah substitusi maju $L\mathbf{y}=\mathbf{b}$ dengan formula dan nilai per baris, langkah substitusi mundur $U\mathbf{x}=\mathbf{y}$, serta tabel evaluasi residu perkalian matriks $A\mathbf{x}=\mathbf{b}$.
+    - `solveCholesky`: Menghasilkan verifikasi simetri dan definit positif, rincian faktorisasi elemen diagonal $l_{jj} = \sqrt{a_{jj} - \sum l_{jk}^2}$ dan non-diagonal $l_{ij}$, langkah substitusi maju $L\mathbf{y}=\mathbf{b}$, langkah substitusi mundur $L^T\mathbf{x}=\mathbf{y}$, serta tabel evaluasi residu perkalian matriks $A\mathbf{x}=\mathbf{b}$.
+    - `checkPositiveDefinite`: Memeriksa simetri matriks ($A = A^T$) dan kriteria Sylvester dengan menghitung seluruh minor utama terkemuka $\Delta_1, \Delta_2, \dots, \Delta_n$ (determinan submatriks pojok kiri atas), formula eksplisit determinan, serta analisis kelayakan faktorisasi Cholesky.
+  * **Penyempurnaan Antarmuka Pengguna (`src/App.tsx`)**:
+    - Kontrol Matriks A dan Vektor b yang dinamis dan proporsional untuk ukuran 2x2 dan 3x3.
+    - Untuk mode Uji Definit Positif, input vektor b otomatis disembunyikan secara elegan dengan penjelasan bahwa Kriteria Sylvester beroperasi pada matriks persegi A.
+    - Visualisasi hasil step-by-step: card solusi akhir, matriks segitiga berformat tabel dengan penyorotan warna diagonal, accordion langkah faktorisasi, rincian substitusi maju dan mundur, serta tabel verifikasi residu eksak.
+  * **Pengujian dan Validasi**:
+    - Engine unit test `npm run test:engine` lulus mencakup uji solver Crout, Cholesky, dan Kriteria Sylvester.
+    - Web bundle build `npm run build` lulus $100\%$ ($0$ lint error).

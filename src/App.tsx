@@ -1,14 +1,13 @@
 import {useCallback,useEffect,useRef,useState,type CSSProperties} from 'react'
 import {BlockMath,InlineMath} from 'react-katex'
-import {BookOpen,ChevronLeft,ChevronRight,FastForward,FlaskConical,Maximize,Minimize,Pause,Play,Presentation,Rewind,RotateCcw,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
+import {BookOpen,CheckCircle2,AlertCircle,ChevronLeft,ChevronRight,FastForward,FlaskConical,Maximize,Minimize,Pause,Play,Presentation,Rewind,RotateCcw,User,Users,ZoomIn,ZoomOut} from 'lucide-react'
 import {
-  solveGauss,
-  solveLUGauss,
   solveCrout,
   solveCholesky,
-  type GaussResult,
+  checkPositiveDefinite,
   type LUResult,
-  type CholeskyResult
+  type CholeskyResult,
+  type PositiveDefiniteResult
 } from './engine'
 import 'katex/dist/katex.min.css'
 import './App.css'
@@ -613,439 +612,579 @@ function Cover(){
  </div>
 }
 
-// Numerical Lab: Dedicated SPL Solver for Crout, Cholesky, LU Doolittle, and Gauss
+// Numerical Lab: Dedicated Solver for Crout, Cholesky, & Sylvester Positive Definite
 function Lab(){
- const [matrixMode, setMatrixMode] = useState<'crout' | 'cholesky' | 'lu' | 'gauss'>('crout');
- const [pivoting, setPivoting] = useState<boolean>(true);
- const [dim, setDim] = useState<number>(3);
- 
- const [matrixA, setMatrixA] = useState<number[][]>([
-  [1, 1, 1],
-  [2, 3, 1],
-  [1, -1, -1]
- ]);
- const [vectorB, setVectorB] = useState<number[]>([6, 11, -4]);
+  const [matrixMode, setMatrixMode] = useState<'crout' | 'cholesky' | 'definit'>('crout');
+  const [dim, setDim] = useState<number>(3);
 
- const [croutOut, setCroutOut] = useState<LUResult | null>(null);
- const [choleskyOut, setCholeskyOut] = useState<CholeskyResult | null>(null);
- const [gaussOut, setGaussOut] = useState<GaussResult | null>(null);
- const [luOut, setLuOut] = useState<LUResult | null>(null);
- const [errText, setErrText] = useState<string>('');
+  const [matrixA, setMatrixA] = useState<number[][]>([
+    [4, 2, -2],
+    [2, 10, 2],
+    [-2, 2, 6]
+  ]);
+  const [vectorB, setVectorB] = useState<number[]>([2, 22, 4]);
 
- const setPreset = (presetA: number[][], presetB: number[], mode: 'crout' | 'cholesky' | 'lu' | 'gauss' = 'crout') => {
-  setDim(presetA.length);
-  setMatrixA(presetA);
-  setVectorB(presetB);
-  setMatrixMode(mode);
-  setCroutOut(null);
-  setCholeskyOut(null);
-  setGaussOut(null);
-  setLuOut(null);
-  setErrText('');
- };
+  const [croutOut, setCroutOut] = useState<LUResult | null>(null);
+  const [choleskyOut, setCholeskyOut] = useState<CholeskyResult | null>(null);
+  const [definitOut, setDefinitOut] = useState<PositiveDefiniteResult | null>(null);
+  const [errText, setErrText] = useState<string>('');
 
- const runSolve = () => {
-  setErrText('');
-  try {
-   if (matrixMode === 'crout') {
-    const res = solveCrout(matrixA, vectorB);
-    setCroutOut(res);
-    setCholeskyOut(null);
-    setGaussOut(null);
-    setLuOut(null);
-    if (res.status === 'singular') setErrText(res.message);
-   } else if (matrixMode === 'cholesky') {
-    const res = solveCholesky(matrixA, vectorB);
-    setCholeskyOut(res);
-    setCroutOut(null);
-    setGaussOut(null);
-    setLuOut(null);
-    if (res.status !== 'converged') setErrText(res.message);
-   } else if (matrixMode === 'lu') {
-    const res = solveLUGauss(matrixA, vectorB);
-    setLuOut(res);
+  const handleDimChange = (newDim: number) => {
+    setDim(newDim);
+    if (newDim === 2) {
+      setMatrixA([
+        [4, 2],
+        [2, 5]
+      ]);
+      setVectorB([8, 13]);
+    } else {
+      setMatrixA([
+        [4, 2, -2],
+        [2, 10, 2],
+        [-2, 2, 6]
+      ]);
+      setVectorB([2, 22, 4]);
+    }
     setCroutOut(null);
     setCholeskyOut(null);
-    setGaussOut(null);
-    if (res.status === 'singular') setErrText(res.message);
-   } else {
-    const res = solveGauss(matrixA, vectorB, pivoting);
-    setGaussOut(res);
+    setDefinitOut(null);
+    setErrText('');
+  };
+
+  const handleModeChange = (mode: 'crout' | 'cholesky' | 'definit') => {
+    setMatrixMode(mode);
     setCroutOut(null);
     setCholeskyOut(null);
-    setLuOut(null);
-    if (res.status === 'singular') setErrText(res.message);
-   }
-  } catch (e) {
-   setErrText(e instanceof Error ? e.message : 'Terjadi kesalahan komputasi matriks.');
-  }
- };
+    setDefinitOut(null);
+    setErrText('');
+  };
 
- return <>
-  <div className="pagehead">
-   <div>
-    <small>LABORATORIUM NUMERIK SPL · KELOMPOK 4</small>
-    <h1>Kalkulator Dekomposisi Crout &amp; Cholesky</h1>
-   </div>
-   <span className={`status ${(croutOut?.status==='converged'||choleskyOut?.status==='converged'||gaussOut?.status==='converged'||luOut?.status==='converged')?'ok':''}`}>
-    {croutOut?.status==='converged' ? 'Crout Selesai' : choleskyOut?.status==='converged' ? 'Cholesky Selesai' : luOut ? 'LU Selesai' : gaussOut ? 'Gauss Selesai' : 'Siap Komputasi'}
-   </span>
-  </div>
+  const runSolve = () => {
+    setErrText('');
+    try {
+      if (matrixMode === 'crout') {
+        const res = solveCrout(matrixA, vectorB);
+        setCroutOut(res);
+        setCholeskyOut(null);
+        setDefinitOut(null);
+        if (res.status === 'singular') setErrText(res.message);
+      } else if (matrixMode === 'cholesky') {
+        const res = solveCholesky(matrixA, vectorB);
+        setCholeskyOut(res);
+        setCroutOut(null);
+        setDefinitOut(null);
+        if (res.status !== 'converged') setErrText(res.message);
+      } else {
+        const res = checkPositiveDefinite(matrixA);
+        setDefinitOut(res);
+        setCroutOut(null);
+        setCholeskyOut(null);
+      }
+    } catch (e) {
+      setErrText(e instanceof Error ? e.message : 'Terjadi kesalahan komputasi matriks.');
+    }
+  };
 
-  <div className="presets" style={{marginBottom:'14px'}}>
-   <button onClick={()=>setPreset([[1,1,1],[2,3,1],[1,-1,-1]], [6,11,-4], 'crout')}>
-    <b>Preset 1: Crout 3×3 (Solusi Bulat)</b><small>Solusi (1, 2, 3), U diagonal 1</small>
-   </button>
-   <button onClick={()=>setPreset([[4,2,-2],[2,10,2],[-2,2,6]], [2,22,4], 'cholesky')}>
-    <b>Preset 2: Cholesky 3×3 (Simetris &amp; Definit Positif)</b><small>A = L · Lᵀ, solusi (-1, 2.5, -0.5)</small>
-   </button>
-   <button onClick={()=>setPreset([[1,2,3],[2,1,4],[3,4,1]], [6,7,8], 'cholesky')}>
-    <b>Preset 3: Uji Gagal Cholesky (Tak Definit)</b><small>Simetris tapi det &lt; 0 (akar negatif)</small>
-   </button>
-   <button onClick={()=>setPreset([[4,2],[2,5]], [8,13], 'cholesky')}>
-    <b>Preset 4: Sistem 2×2 Simetris</b><small>Solusi (0.875, 2.25)</small>
-   </button>
-  </div>
-
-  <div className="methods">
-   <button className={`newton ${matrixMode==='crout'?'chosen':''}`} onClick={()=>setMatrixMode('crout')}>
-    <span>Dekomposisi Crout (</span><InlineMath math="u_{ii}=1" /><span>)</span>
-   </button>
-   <button className={`secant ${matrixMode==='cholesky'?'chosen':''}`} onClick={()=>setMatrixMode('cholesky')}>
-    <span>Dekomposisi Cholesky (</span><InlineMath math="A = L \cdot L^T" /><span>)</span>
-   </button>
-   <button className={`fixed ${matrixMode==='lu'?'chosen':''}`} onClick={()=>setMatrixMode('lu')}>
-    <span>LU Doolittle (</span><InlineMath math="l_{ii}=1" /><span>)</span>
-   </button>
-   <button className={`fixed ${matrixMode==='gauss'?'chosen':''}`} onClick={()=>setMatrixMode('gauss')}>
-    Eliminasi Gauss
-   </button>
-  </div>
-
-  <div className="labgrid">
-   <section className="panel controls">
-    <h2>Matriks Koefisien A dan Vektor b</h2>
-    <div style={{display:'flex',gap:'10px',alignItems:'center',marginBottom:'12px'}}>
-     <label style={{fontSize:'0.82rem',fontWeight:700}}>Ukuran Matriks:</label>
-     <button type="button" className={`pill ${dim===2?'active':''}`} onClick={()=>{setDim(2);setMatrixA([[4,2],[2,5]]);setVectorB([8,13])}}>2 × 2</button>
-     <button type="button" className={`pill ${dim===3?'active':''}`} onClick={()=>{setDim(3);setMatrixA([[1,1,1],[2,3,1],[1,-1,-1]]);setVectorB([6,11,-4])}}>3 × 3</button>
-     {matrixMode==='gauss'&&<label style={{marginLeft:'auto',fontSize:'0.8rem',display:'flex',alignItems:'center',gap:'4px'}}>
-      <input type="checkbox" checked={pivoting} onChange={e=>setPivoting(e.target.checked)}/>
-      Pivoting Sebagian
-     </label>}
+  return <>
+    <div className="pagehead">
+      <div>
+        <small>LABORATORIUM NUMERIK SPL · KELOMPOK 4</small>
+        <h1>Kalkulator Dekomposisi Crout, Cholesky &amp; Definit Positif</h1>
+      </div>
+      <span className={`status ${(croutOut?.status==='converged'||choleskyOut?.status==='converged'||definitOut?.status==='converged')?'ok':''}`}>
+        {croutOut?.status==='converged' ? 'Crout Selesai' : choleskyOut?.status==='converged' ? 'Cholesky Selesai' : definitOut?.status==='converged' ? 'Definit Positif OK' : definitOut ? 'Uji Selesai' : 'Siap Komputasi'}
+      </span>
     </div>
 
-    <div style={{display:'flex',gap:'14px',alignItems:'center',overflowX:'auto',paddingBottom:'8px'}}>
-     <div>
-      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#1e3a8a'}}>Matriks A:</div>
-      <div style={{display:'grid',gridTemplateColumns:`repeat(${dim}, 62px)`,gap:'6px'}}>
-       {matrixA.map((row, r)=>row.map((val, c)=><input
-        key={`${r}-${c}`}
-        type="number"
-        value={val}
-        onChange={e=>{
-         const next=matrixA.map(row=>[...row]);
-         next[r][c]=Number(e.target.value);
-         setMatrixA(next);
-        }}
-        style={{padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
-       />))}
-      </div>
-     </div>
-
-     <div style={{fontSize:'1.4rem',color:'#64748b'}}>·</div>
-
-     <div>
-      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#047857'}}>Vektor x:</div>
-      <div style={{display:'grid',gap:'6px'}}>
-       {Array.from({length:dim}).map((_, i)=><div
-        key={i}
-        style={{width:'52px',padding:'7px 0',textAlign:'center',background:'#f1f5f9',borderRadius:'6px',border:'1px dashed #94a3b8',fontSize:'0.82rem',fontWeight:800,color:'#475569'}}
-       >
-        x_{i+1}
-       </div>)}
-      </div>
-     </div>
-
-     <div style={{fontSize:'1.4rem',color:'#64748b'}}>=</div>
-
-     <div>
-      <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#b45309'}}>Vektor b:</div>
-      <div style={{display:'grid',gap:'6px'}}>
-       {vectorB.map((val, i)=><input
-        key={i}
-        type="number"
-        value={val}
-        onChange={e=>{
-         const next=[...vectorB];
-         next[i]=Number(e.target.value);
-         setVectorB(next);
-        }}
-        style={{width:'62px',padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
-       />)}
-      </div>
-     </div>
+    <div className="methods">
+      <button className={`newton ${matrixMode==='crout'?'chosen':''}`} onClick={()=>handleModeChange('crout')}>
+        <span>1. Dekomposisi LU Crout (</span><InlineMath math="u_{ii}=1" /><span>)</span>
+      </button>
+      <button className={`secant ${matrixMode==='cholesky'?'chosen':''}`} onClick={()=>handleModeChange('cholesky')}>
+        <span>2. Dekomposisi LU Cholesky (</span><InlineMath math="A = L \cdot L^T" /><span>)</span>
+      </button>
+      <button className={`fixed ${matrixMode==='definit'?'chosen':''}`} onClick={()=>handleModeChange('definit')}>
+        <span>3. Uji Definit Positif (Sylvester)</span>
+      </button>
     </div>
 
-    {errText&&<div className="error" style={{color:'#dc2626',marginTop:'10px',fontWeight:700,background:'#fef2f2',padding:'10px',borderRadius:'8px',border:'1px solid #fca5a5'}}>{errText}</div>}
-
-    <button className="primary" style={{marginTop:'14px',width:'100%'}} onClick={runSolve}>
-     <Play/> Hitung Solusi Sistem Persamaan
-    </button>
-   </section>
-
-   <section className="panel display">
-    <h2>Hasil &amp; Langkah Transformasi</h2>
-
-    {/* CROUT RESULT */}
-    {croutOut&&croutOut.status==='converged'&&(
-     <div>
-      <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-       <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-        <span>Solusi Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Crout):</span>
-       </div>
-       <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
-        {croutOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-         <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
-        </div>)}
-       </div>
-       <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
-        <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-        <InlineMath math={`\mathbf{y} = [${croutOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
-       </div>
-      </div>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
-       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-         <span>Matriks Segitiga Bawah</span> <InlineMath math="L" /> (Diagonal Bebas):
-        </div>
-        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-         <tbody>
-          {croutOut.L.map((row, ri)=><tr key={ri}>
-           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
-            {Number.isInteger(val) ? val : val.toFixed(2)}
-           </td>)}
-          </tr>)}
-         </tbody>
-        </table>
-       </div>
-
-       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-         <span>Matriks Segitiga Atas</span> <InlineMath math="U" /> <b>(Diagonal 1):</b>
-        </div>
-        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-         <tbody>
-          {croutOut.U.map((row, ri)=><tr key={ri}>
-           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci>=ri?'#eff6ff':'transparent'}}>
-            {Number.isInteger(val) ? val : val.toFixed(2)}
-           </td>)}
-          </tr>)}
-         </tbody>
-        </table>
-       </div>
-      </div>
-
-      <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Langkah Faktorisasi Crout:</div>
-      <div style={{display:'grid',gap:'8px',maxHeight:'320px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
-       {croutOut.steps.map((st, idx)=>(
-        <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-         <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
-         <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
-         {st.explanationLatex&&<div style={{marginTop:'4px',color:'#2563eb'}}><InlineMath math={st.explanationLatex}/></div>}
-        </div>
-       ))}
-      </div>
-     </div>
-    )}
-
-    {/* CHOLESKY RESULT */}
-    {choleskyOut&&(
-     <div>
-      {choleskyOut.status==='converged' ? (
-       <div>
-        <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-         <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-          <span>Solusi Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Cholesky</span> <InlineMath math="A = L \cdot L^T" /><span>):</span>
-         </div>
-         <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
-          {choleskyOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-           <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
-          </div>)}
-         </div>
-         <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
-          <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
-          <InlineMath math={`\mathbf{y} = [${choleskyOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
-         </div>
+    <div className="labgrid">
+      <section className="panel controls">
+        <h2>{matrixMode === 'definit' ? 'Matriks Bujursangkar A' : 'Matriks Koefisien A dan Vektor b'}</h2>
+        <div style={{display:'flex',gap:'10px',alignItems:'center',marginBottom:'12px'}}>
+          <label style={{fontSize:'0.82rem',fontWeight:700}}>Ukuran Matriks:</label>
+          <button type="button" className={`pill ${dim===2?'active':''}`} onClick={()=>handleDimChange(2)}>2 × 2</button>
+          <button type="button" className={`pill ${dim===3?'active':''}`} onClick={()=>handleDimChange(3)}>3 × 3</button>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
-         <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-          <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-           <span>Matriks Segitiga Bawah</span> <InlineMath math="L" />:
+        <div style={{display:'flex',gap:'14px',alignItems:'center',overflowX:'auto',paddingBottom:'8px'}}>
+          <div>
+            <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#1e3a8a'}}>Matriks A:</div>
+            <div style={{display:'grid',gridTemplateColumns:`repeat(${dim}, 62px)`,gap:'6px'}}>
+              {matrixA.map((row, r)=>row.map((val, c)=><input
+                key={`${r}-${c}`}
+                type="number"
+                value={val}
+                onChange={e=>{
+                  const next=matrixA.map(row=>[...row]);
+                  next[r][c]=Number(e.target.value);
+                  setMatrixA(next);
+                }}
+                style={{padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+              />))}
+            </div>
           </div>
-          <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-           <tbody>
-            {choleskyOut.L.map((row, ri)=><tr key={ri}>
-             {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
-              {Number.isInteger(val) ? val : val.toFixed(2)}
-             </td>)}
-            </tr>)}
-           </tbody>
-          </table>
-         </div>
 
-         <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-          <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-           <span>Matriks Segitiga Atas</span> <InlineMath math="L^T" /> <b>(Transpos L):</b>
-          </div>
-          <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-           <tbody>
-            {choleskyOut.LT.map((row, ri)=><tr key={ri}>
-             {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
-              {Number.isInteger(val) ? val : val.toFixed(2)}
-             </td>)}
-            </tr>)}
-           </tbody>
-          </table>
-         </div>
-        </div>
+          {matrixMode !== 'definit' && (
+            <>
+              <div style={{fontSize:'1.4rem',color:'#64748b'}}>·</div>
 
-        <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Langkah Faktorisasi Cholesky (Akar Diagonal):</div>
-        <div style={{display:'grid',gap:'8px',maxHeight:'320px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
-         {choleskyOut.steps.map((st, idx)=>(
-          <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
-           <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
-           <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
-           {st.explanationLatex&&<div style={{marginTop:'4px',color:'#10b981'}}><InlineMath math={st.explanationLatex}/></div>}
-          </div>
-         ))}
-        </div>
-       </div>
-      ) : (
-       <div style={{background:'#fef2f2',border:'1.5px solid #ef4444',borderRadius:'10px',padding:'16px'}}>
-        <div style={{fontWeight:800,color:'#991b1b',fontSize:'1rem',marginBottom:'8px'}}>
-         {choleskyOut.status === 'not-symmetric' ? 'Matriks Tidak Simetris!' : 'Matriks Tidak Definit Positif!'}
-        </div>
-        <p style={{fontSize:'0.85rem',color:'#7f1d1d',lineHeight:1.5}}>{choleskyOut.message}</p>
-        <div style={{marginTop:'12px',padding:'10px',background:'white',borderRadius:'6px',border:'1px solid #fca5a5',fontSize:'0.82rem',color:'#334155'}}>
-         <strong>Catatan Edukatif:</strong> Dekomposisi Cholesky <InlineMath math="A = L \cdot L^T" /> mensyaratkan dua hal mutlak:
-         <ul style={{margin:'6px 0 0 16px',padding:0}}>
-          <li><b>Simetris:</b> <InlineMath math="a_{ij} = a_{ji}" /> untuk seluruh elemen.</li>
-          <li><b>Definit Positif:</b> Semua minor utama berdeterminan positif, sehingga nilai di dalam akar <InlineMath math="\sqrt{a_{jj} - \sum l_{jk}^2}" /> selalu bernilai riil positif.</li>
-         </ul>
-        </div>
-       </div>
-      )}
-     </div>
-    )}
+              <div>
+                <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#047857'}}>Vektor x:</div>
+                <div style={{display:'grid',gap:'6px'}}>
+                  {Array.from({length:dim}).map((_, i)=><div
+                    key={i}
+                    style={{width:'52px',padding:'7px 0',textAlign:'center',background:'#f1f5f9',borderRadius:'6px',border:'1px dashed #94a3b8',fontSize:'0.82rem',fontWeight:800,color:'#475569'}}
+                  >
+                    x_{i+1}
+                  </div>)}
+                </div>
+              </div>
 
-    {/* GAUSS RESULT */}
-    {gaussOut&&gaussOut.status==='converged'&&(
-     <div>
-      <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-       <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-        <span>Solusi Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Eliminasi Gauss):</span>
-       </div>
-       <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
-        {gaussOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-         <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
-        </div>)}
-       </div>
-      </div>
+              <div style={{fontSize:'1.4rem',color:'#64748b'}}>=</div>
 
-      <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>Langkah-Langkah Eliminasi:</div>
-      <div style={{display:'grid',gap:'10px',maxHeight:'320px',overflowY:'auto'}}>
-       {gaussOut.steps.map((st, sidx)=>(
-        <div key={sidx} style={{background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'10px 14px'}}>
-         <div style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem',display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap',marginBottom:'4px'}}>
-          <span>{sidx+1}.</span>
-          {st.formulaLatex ? (
-           <span style={{background:'#e0f2fe',color:'#0369a1',padding:'2px 8px',borderRadius:'4px',border:'1px solid #bae6fd'}}>
-            <InlineMath math={st.formulaLatex} />
-           </span>
-          ) : (
-           <span>{st.title}</span>
+              <div>
+                <div style={{fontSize:'0.8rem',fontWeight:800,marginBottom:'4px',color:'#b45309'}}>Vektor b:</div>
+                <div style={{display:'grid',gap:'6px'}}>
+                  {vectorB.map((val, i)=><input
+                    key={i}
+                    type="number"
+                    value={val}
+                    onChange={e=>{
+                      const next=[...vectorB];
+                      next[i]=Number(e.target.value);
+                      setVectorB(next);
+                    }}
+                    style={{width:'62px',padding:'7px 4px',textAlign:'center',border:'1.5px solid #cbd5e1',borderRadius:'6px',fontWeight:700}}
+                  />)}
+                </div>
+              </div>
+            </>
           )}
-         </div>
-         {st.explanationLatex&&<div style={{color:'#475569',fontSize:'0.82rem',marginBottom:'8px'}}><InlineMath math={st.explanationLatex}/></div>}
-         <div style={{display:'flex',gap:'4px',alignItems:'center',overflowX:'auto'}}>
-          <table style={{borderCollapse:'collapse',fontSize:'0.82rem'}}>
-           <tbody>
-            {st.matrix.map((row, ri)=>(
-             <tr key={ri}>
-              {row.map((cv, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#fef3c7':'transparent'}}>
-               {Number.isInteger(cv) ? cv : cv.toFixed(2)}
-              </td>)}
-              <td style={{borderLeft:'2px solid #222',borderRight:'1px solid #cbd5e1',borderTop:'1px solid #cbd5e1',borderBottom:'1px solid #cbd5e1',padding:'3px 7px',textAlign:'center',background:'#f0fdf4',fontWeight:700}}>
-               {Number.isInteger(st.b[ri]) ? st.b[ri] : st.b[ri].toFixed(2)}
-              </td>
-             </tr>
-            ))}
-           </tbody>
-          </table>
-         </div>
         </div>
-       ))}
-      </div>
-     </div>
-    )}
 
-    {/* LU DOOLITTLE RESULT */}
-    {luOut&&luOut.status==='converged'&&(
-     <div>
-      <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
-       <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
-        <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(LU Doolittle):</span>
-       </div>
-       <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
-        {luOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
-         <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
-        </div>)}
-       </div>
-       <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
-        <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" />:
-        <InlineMath math={`\mathbf{y} = [${luOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
-       </div>
-      </div>
+        {matrixMode === 'definit' && (
+          <div style={{marginTop:'10px',fontSize:'0.78rem',color:'#475569',background:'#f8fafc',padding:'8px 10px',borderRadius:'6px',border:'1px solid #e2e8f0',lineHeight:1.4}}>
+            <b>Uji Definit Positif:</b> Menggunakan Kriteria Sylvester untuk memeriksa minor utama terkemuka (determinan submatriks pojok kiri atas). Vektor b tidak diperlukan.
+          </div>
+        )}
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
-       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks L (Diagonal 1):</div>
-        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-         <tbody>
-          {luOut.L.map((row, ri)=><tr key={ri}>
-           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci<=ri?'#ecfdf5':'transparent'}}>
-            {Number.isInteger(val) ? val : val.toFixed(2)}
-           </td>)}
-          </tr>)}
-         </tbody>
-        </table>
-       </div>
+        {errText&&<div className="error" style={{color:'#dc2626',marginTop:'10px',fontWeight:700,background:'#fef2f2',padding:'10px',borderRadius:'8px',border:'1px solid #fca5a5'}}>{errText}</div>}
 
-       <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
-        <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px'}}>Matriks U (Diagonal Bebas):</div>
-        <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
-         <tbody>
-          {luOut.U.map((row, ri)=><tr key={ri}>
-           {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
-            {Number.isInteger(val) ? val : val.toFixed(2)}
-           </td>)}
-          </tr>)}
-         </tbody>
-        </table>
-       </div>
-      </div>
-     </div>
-    )}
+        <button className="primary" style={{marginTop:'14px',width:'100%'}} onClick={runSolve}>
+          <Play/> {matrixMode === 'definit' ? 'Uji Definit Positif & Simetri' : 'Hitung Solusi Lengkap'}
+        </button>
+      </section>
 
-    {!croutOut&&!choleskyOut&&!gaussOut&&!luOut&&<div style={{textAlign:'center',color:'#64748b',padding:'40px 10px'}}>
-     Pilih metode Crout atau Cholesky di atas, gunakan preset yang tersedia, lalu klik <b>Hitung Solusi</b>.
-    </div>}
-   </section>
-  </div>
- </>
+      <section className="panel display">
+        <h2>Hasil &amp; Langkah Terperinci (Step-by-Step)</h2>
+
+        {/* 1. CROUT RESULT */}
+        {croutOut&&croutOut.status==='converged'&&(
+          <div>
+            <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
+              <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Crout):</span>
+              </div>
+              <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
+                {croutOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+                  <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
+                </div>)}
+              </div>
+              <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+                <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
+                <InlineMath math={`\mathbf{y} = [${croutOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
+              </div>
+            </div>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
+              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+                <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                  <span>Matriks Segitiga Bawah</span> <InlineMath math="L" /> (Diagonal Bebas):
+                </div>
+                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                  <tbody>
+                    {croutOut.L.map((row, ri)=><tr key={ri}>
+                      {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
+                        {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                      </td>)}
+                    </tr>)}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+                <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                  <span>Matriks Segitiga Atas</span> <InlineMath math="U" /> <b>(Diagonal 1):</b>
+                </div>
+                <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                  <tbody>
+                    {croutOut.U.map((row, ri)=><tr key={ri}>
+                      {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci===ri?'#dbeafe':ci>=ri?'#eff6ff':'transparent'}}>
+                        {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                      </td>)}
+                    </tr>)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>1. Langkah Faktorisasi Elemen Matriks L &amp; U:</div>
+            <div style={{display:'grid',gap:'8px',marginBottom:'14px',maxHeight:'260px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+              {croutOut.steps.map((st, idx)=>(
+                <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                  <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
+                  <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
+                  {st.explanationLatex&&<div style={{marginTop:'4px',color:'#2563eb'}}><InlineMath math={st.explanationLatex}/></div>}
+                </div>
+              ))}
+            </div>
+
+            {croutOut.forwardSteps && croutOut.forwardSteps.length > 0 && (
+              <>
+                <div style={{fontWeight:800,color:'#047857',marginBottom:'8px'}}>2. Langkah Substitusi Maju (<InlineMath math="L\mathbf{y} = \mathbf{b}" />):</div>
+                <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                  {croutOut.forwardSteps.map((st, idx)=>(
+                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
+                      {st.latex ? <div style={{margin:'4px 0',color:'#047857'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {croutOut.backwardSteps && croutOut.backwardSteps.length > 0 && (
+              <>
+                <div style={{fontWeight:800,color:'#b45309',marginBottom:'8px'}}>3. Langkah Substitusi Mundur (<InlineMath math="U\mathbf{x} = \mathbf{y}" />):</div>
+                <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                  {croutOut.backwardSteps.map((st, idx)=>(
+                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
+                      {st.latex ? <div style={{margin:'4px 0',color:'#b45309'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {croutOut.verificationRows && croutOut.verificationRows.length > 0 && (
+              <>
+                <div style={{fontWeight:800,color:'#1e293b',marginBottom:'8px'}}>4. Verifikasi Solusi (<InlineMath math="A\mathbf{x} = \mathbf{b}" />):</div>
+                <div style={{background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.8rem'}}>
+                    <thead>
+                      <tr style={{background:'#e2e8f0',textAlign:'left'}}>
+                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Baris</th>
+                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
+                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
+                        <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {croutOut.verificationRows.map((vr, idx)=>(
+                        <tr key={idx} style={{background:'white'}}>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {Number(vr.lhsValue.toFixed(4))}</td>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{Number(vr.rhsTarget.toFixed(4))}</td>
+                          <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
+                            {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${vr.residual.toExponential(2)}`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* 2. CHOLESKY RESULT */}
+        {choleskyOut&&(
+          <div>
+            {choleskyOut.status==='converged' ? (
+              <div>
+                <div style={{background:'#ecfdf5',border:'1.5px solid #10b981',borderRadius:'10px',padding:'12px 16px',marginBottom:'14px'}}>
+                  <div style={{fontWeight:800,color:'#065f46',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                    <span>Solusi Akhir Vektor</span> <InlineMath math="\mathbf{x}" /> <span>(Metode Cholesky</span> <InlineMath math="A = L \cdot L^T" /><span>):</span>
+                  </div>
+                  <div style={{display:'flex',gap:'10px',flexWrap:'wrap',marginBottom:'10px'}}>
+                    {choleskyOut.x.map((val, idx)=><div key={idx} style={{background:'white',padding:'6px 14px',borderRadius:'8px',border:'1.5px solid #10b981',boxShadow:'0 1px 3px rgba(0,0,0,0.05)',display:'inline-flex',alignItems:'center'}}>
+                      <InlineMath math={`x_{${idx+1}} = ${Number.isInteger(val)?val:Number(val.toFixed(4))}`} />
+                    </div>)}
+                  </div>
+                  <div style={{fontWeight:700,fontSize:'0.85rem',color:'#047857',display:'flex',alignItems:'center',gap:'6px',flexWrap:'wrap'}}>
+                    <span>Vektor perantara</span> <InlineMath math="\mathbf{y}" /> <span>(dari</span> <InlineMath math="L\mathbf{y} = \mathbf{b}" /><span>):</span>
+                    <InlineMath math={`\mathbf{y} = [${choleskyOut.y.map(v=>Number.isInteger(v)?v:Number(v.toFixed(4))).join(', ')}]^T`} />
+                  </div>
+                </div>
+
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'14px'}}>
+                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+                    <div style={{fontWeight:800,color:'#1e3a8a',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                      <span>Matriks Segitiga Bawah</span> <InlineMath math="L" />:
+                    </div>
+                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                      <tbody>
+                        {choleskyOut.L.map((row, ri)=><tr key={ri}>
+                          {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci<=ri?'#ecfdf5':'transparent'}}>
+                            {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                          </td>)}
+                        </tr>)}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style={{background:'#f8fafc',border:'1.5px solid #cbd5e1',borderRadius:'8px',padding:'10px'}}>
+                    <div style={{fontWeight:800,color:'#047857',fontSize:'0.82rem',marginBottom:'6px',display:'flex',alignItems:'center',gap:'6px'}}>
+                      <span>Matriks Segitiga Atas</span> <InlineMath math="L^T" /> <b>(Transpos L):</b>
+                    </div>
+                    <table style={{borderCollapse:'collapse',width:'100%',fontSize:'0.8rem'}}>
+                      <tbody>
+                        {choleskyOut.LT.map((row, ri)=><tr key={ri}>
+                          {row.map((val, ci)=><td key={ci} style={{border:'1px solid #cbd5e1',padding:'4px',textAlign:'center',fontWeight:ci===ri?800:400,background:ci>=ri?'#eff6ff':'transparent'}}>
+                            {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                          </td>)}
+                        </tr>)}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>1. Langkah Faktorisasi Cholesky (<InlineMath math="A = L \cdot L^T" />):</div>
+                <div style={{display:'grid',gap:'8px',marginBottom:'14px',maxHeight:'260px',overflowY:'auto',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                  {choleskyOut.steps.map((st, idx)=>(
+                    <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                      <div style={{fontWeight:700,color:'#0f172a'}}>{st.title}</div>
+                      <div style={{color:'#475569',marginTop:'2px'}}>{st.explanation}</div>
+                      {st.explanationLatex&&<div style={{marginTop:'4px',color:'#10b981'}}><InlineMath math={st.explanationLatex}/></div>}
+                    </div>
+                  ))}
+                </div>
+
+                {choleskyOut.forwardSteps && choleskyOut.forwardSteps.length > 0 && (
+                  <>
+                    <div style={{fontWeight:800,color:'#047857',marginBottom:'8px'}}>2. Langkah Substitusi Maju (<InlineMath math="L\mathbf{y} = \mathbf{b}" />):</div>
+                    <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                      {choleskyOut.forwardSteps.map((st, idx)=>(
+                        <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                          <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
+                          {st.latex ? <div style={{margin:'4px 0',color:'#047857'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {choleskyOut.backwardSteps && choleskyOut.backwardSteps.length > 0 && (
+                  <>
+                    <div style={{fontWeight:800,color:'#b45309',marginBottom:'8px'}}>3. Langkah Substitusi Mundur (<InlineMath math="L^T\mathbf{x} = \mathbf{y}" />):</div>
+                    <div style={{display:'grid',gap:'8px',marginBottom:'14px',background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                      {choleskyOut.backwardSteps.map((st, idx)=>(
+                        <div key={idx} style={{fontSize:'0.82rem',background:'white',padding:'8px 12px',borderRadius:'6px',border:'1px solid #cbd5e1'}}>
+                          <div style={{fontWeight:700,color:'#0f172a'}}>Baris {st.row}: Menghitung {st.variable}</div>
+                          {st.latex ? <div style={{margin:'4px 0',color:'#b45309'}}><InlineMath math={st.latex}/></div> : <div>{st.calculation}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {choleskyOut.verificationRows && choleskyOut.verificationRows.length > 0 && (
+                  <>
+                    <div style={{fontWeight:800,color:'#1e293b',marginBottom:'8px'}}>4. Verifikasi Solusi (<InlineMath math="A\mathbf{x} = \mathbf{b}" />):</div>
+                    <div style={{background:'#f8fafc',padding:'10px',borderRadius:'8px',border:'1px solid #e2e8f0'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.8rem'}}>
+                        <thead>
+                          <tr style={{background:'#e2e8f0',textAlign:'left'}}>
+                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Baris</th>
+                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Evaluasi <InlineMath math="A_i \cdot \mathbf{x}" /></th>
+                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Target <InlineMath math="b_i" /></th>
+                            <th style={{padding:'6px',border:'1px solid #cbd5e1'}}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {choleskyOut.verificationRows.map((vr, idx)=>(
+                            <tr key={idx} style={{background:'white'}}>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>Baris {vr.row}</td>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',fontFamily:'monospace'}}>{vr.lhsExpression} = {Number(vr.lhsValue.toFixed(4))}</td>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center'}}>{Number(vr.rhsTarget.toFixed(4))}</td>
+                              <td style={{padding:'6px',border:'1px solid #cbd5e1',textAlign:'center',color:'#10b981',fontWeight:700}}>
+                                {Math.abs(vr.residual) < 1e-4 ? '✓ Cocok' : `Residu: ${vr.residual.toExponential(2)}`}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div style={{background:'#fef2f2',border:'1.5px solid #ef4444',borderRadius:'10px',padding:'16px'}}>
+                <div style={{fontWeight:800,color:'#991b1b',fontSize:'1rem',marginBottom:'8px',display:'flex',alignItems:'center',gap:'8px'}}>
+                  <AlertCircle size={20} color="#dc2626" />
+                  <span>{choleskyOut.status === 'not-symmetric' ? 'Matriks Tidak Simetris!' : 'Matriks Tidak Definit Positif!'}</span>
+                </div>
+                <p style={{fontSize:'0.85rem',color:'#7f1d1d',lineHeight:1.5}}>{choleskyOut.message}</p>
+                <div style={{marginTop:'12px',padding:'10px',background:'white',borderRadius:'6px',border:'1px solid #fca5a5',fontSize:'0.82rem',color:'#334155'}}>
+                  <strong>Catatan Edukatif:</strong> Dekomposisi Cholesky <InlineMath math="A = L \cdot L^T" /> mensyaratkan dua hal mutlak:
+                  <ul style={{margin:'6px 0 0 16px',padding:0}}>
+                    <li><b>Simetris:</b> <InlineMath math="a_{ij} = a_{ji}" /> untuk seluruh elemen.</li>
+                    <li><b>Definit Positif:</b> Semua minor utama berdeterminan positif, sehingga nilai di dalam akar <InlineMath math="\sqrt{a_{jj} - \sum l_{jk}^2}" /> selalu bernilai riil positif.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 3. DEFINIT POSITIF RESULT */}
+        {definitOut && (
+          <div>
+            <div style={{
+              background: definitOut.status === 'converged' ? '#ecfdf5' : '#fef2f2',
+              border: `1.5px solid ${definitOut.status === 'converged' ? '#10b981' : '#ef4444'}`,
+              borderRadius: '10px',
+              padding: '14px 16px',
+              marginBottom: '14px'
+            }}>
+              <div style={{
+                fontWeight: 800,
+                color: definitOut.status === 'converged' ? '#065f46' : '#991b1b',
+                fontSize: '1rem',
+                marginBottom: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                {definitOut.status === 'converged' ? <CheckCircle2 size={20} color="#059669" /> : <AlertCircle size={20} color="#dc2626" />}
+                <span>
+                  {definitOut.status === 'converged'
+                    ? 'Matriks Terbukti Definit Positif'
+                    : definitOut.status === 'not-symmetric'
+                    ? 'Matriks Tidak Simetris'
+                    : 'Matriks Tidak Definit Positif'}
+                </span>
+              </div>
+              <p style={{fontSize:'0.85rem',color: definitOut.status==='converged' ? '#047857' : '#7f1d1d',lineHeight:1.5,margin:0}}>
+                {definitOut.message}
+              </p>
+            </div>
+
+            <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>1. Uji Simetri Matriks (<InlineMath math="A = A^T" />):</div>
+            <div style={{background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'12px',marginBottom:'14px'}}>
+              {definitOut.isSymmetric ? (
+                <div style={{color:'#047857',fontSize:'0.85rem',display:'flex',alignItems:'center',gap:'6px'}}>
+                  <CheckCircle2 size={16} color="#059669"/>
+                  <span><b>Matriks Simetris:</b> Seluruh elemen memenuhi <InlineMath math="a_{ij} = a_{ji}" /> untuk setiap <InlineMath math="i \neq j" />.</span>
+                </div>
+              ) : (
+                <div style={{color:'#dc2626',fontSize:'0.85rem'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'6px',fontWeight:700,marginBottom:'4px'}}>
+                    <AlertCircle size={16} color="#dc2626"/> Matriks Tidak Simetris:
+                  </div>
+                  <div>Ditemukan ketidaksamaan pada elemen:</div>
+                  <ul style={{margin:'4px 0 0 16px',padding:0}}>
+                    {definitOut.differences?.map((d, idx)=>(
+                      <li key={idx}>
+                        <InlineMath math={`a_{${d.i}${d.j}} = ${d.a_ij} \\neq a_{${d.j}${d.i}} = ${d.a_ji}`} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div style={{fontWeight:800,color:'#1e3a8a',marginBottom:'8px'}}>2. Kriteria Sylvester (Minor Utama Terkemuka <InlineMath math="\Delta_k" />):</div>
+            <div style={{display:'grid',gap:'10px',marginBottom:'14px'}}>
+              {definitOut.minors.map((m, idx)=>(
+                <div key={idx} style={{
+                  background: m.isPositive ? '#ffffff' : '#fff1f2',
+                  border: `1.5px solid ${m.isPositive ? '#cbd5e1' : '#fca5a5'}`,
+                  borderRadius:'8px',
+                  padding:'12px 14px'
+                }}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+                    <span style={{fontWeight:800,color:'#0f172a',fontSize:'0.88rem'}}>
+                      Minor Utama ke-{m.k} (<InlineMath math={`\\Delta_{${m.k}}`} /> - Submatriks {m.k}×{m.k}):
+                    </span>
+                    <span style={{
+                      fontSize:'0.75rem',
+                      fontWeight:800,
+                      padding:'2px 8px',
+                      borderRadius:'4px',
+                      background: m.isPositive ? '#dcfce7' : '#fee2e2',
+                      color: m.isPositive ? '#166534' : '#991b1b',
+                      border: `1px solid ${m.isPositive ? '#86efac' : '#fca5a5'}`
+                    }}>
+                      {m.isPositive ? `Δ_${m.k} > 0 (Positif)` : `Δ_${m.k} ≤ 0 (Non-Positif)`}
+                    </span>
+                  </div>
+
+                  <div style={{display:'flex',gap:'14px',alignItems:'center',flexWrap:'wrap',margin:'8px 0'}}>
+                    <table style={{borderCollapse:'collapse',fontSize:'0.8rem',background:'#f8fafc',border:'1px solid #cbd5e1'}}>
+                      <tbody>
+                        {m.matrix.map((row, ri)=>(
+                          <tr key={ri}>
+                            {row.map((val, ci)=>(
+                              <td key={ci} style={{border:'1px solid #cbd5e1',padding:'3px 8px',textAlign:'center',fontWeight:600}}>
+                                {Number.isInteger(val) ? val : Number(val.toFixed(4))}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div style={{flex:1,fontSize:'0.85rem'}}>
+                      {m.explanationLatex ? (
+                        <div style={{color:'#1e3a8a'}}><InlineMath math={m.explanationLatex}/></div>
+                      ) : (
+                        <div style={{fontFamily:'monospace'}}>{m.detFormula}</div>
+                      )}
+                      <div style={{fontSize:'0.78rem',color:'#64748b',marginTop:'3px'}}>{m.explanation}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{
+              background: definitOut.choleskyFeasible ? '#f0fdf4' : '#fffbeb',
+              border: `1.5px solid ${definitOut.choleskyFeasible ? '#86efac' : '#fde68a'}`,
+              borderRadius: '8px',
+              padding: '12px 14px'
+            }}>
+              <div style={{fontWeight:800,color: definitOut.choleskyFeasible ? '#166534' : '#92400e',fontSize:'0.85rem',marginBottom:'4px'}}>
+                3. Kesimpulan Kelayakan Dekomposisi Cholesky:
+              </div>
+              <p style={{fontSize:'0.82rem',color: definitOut.choleskyFeasible ? '#15803d' : '#78350f',margin:0,lineHeight:1.5}}>
+                {definitOut.choleskyFeasible
+                  ? 'Matriks ini memenuhi seluruh syarat mutlak Dekomposisi Cholesky A = L · Lᵀ karena simetris dan seluruh minor utama bernilai positif riil.'
+                  : 'Matriks ini TIDAK DAPAT didekomposisi dengan metode Cholesky A = L · Lᵀ karena melanggar syarat simetri atau menghasilkan nilai minor negatif (akar kuadrat dari bilangan non-positif).'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!croutOut&&!choleskyOut&&!definitOut&&<div style={{textAlign:'center',color:'#64748b',padding:'40px 10px'}}>
+          Pilih metode di atas (Crout, Cholesky, atau Uji Definit Positif), tentukan nilai matriks, lalu klik <b>{matrixMode === 'definit' ? 'Uji Definit Positif & Simetri' : 'Hitung Solusi Lengkap'}</b>.
+        </div>}
+      </section>
+    </div>
+  </>
 }
 
 function SlideVisual({index,score}:{index:number;score:number}){

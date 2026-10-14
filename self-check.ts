@@ -1,4 +1,4 @@
-import { solve, solveGauss, solveLUGauss } from './src/engine.ts'
+import { solve, solveGauss, solveLUGauss, solveCrout, solveCholesky, checkPositiveDefinite } from './src/engine.ts'
 
 // 1. Test 1D root presets
 const presets = [
@@ -38,4 +38,53 @@ if (Math.abs(luRes.x[0] - 1) > 1e-5 || Math.abs(luRes.x[1] - 1) > 1e-5 || Math.a
   throw new Error(`LU solution mismatch: ${JSON.stringify(luRes.x)}`)
 }
 
-console.log('engine preset & SPL Gauss/LU self-check: passed!')
+// 4. Test Dekomposisi Crout
+const croutRes = solveCrout([
+  [1, 1, 1],
+  [2, 3, 1],
+  [1, -1, -1]
+], [6, 11, -4])
+if (croutRes.status !== 'converged') throw new Error('Crout solver failed')
+if (Math.abs(croutRes.x[0] - 1) > 1e-5 || Math.abs(croutRes.x[1] - 2) > 1e-5 || Math.abs(croutRes.x[2] - 3) > 1e-5) {
+  throw new Error(`Crout solution mismatch: ${JSON.stringify(croutRes.x)}`)
+}
+if (!croutRes.forwardSteps || croutRes.forwardSteps.length !== 3) throw new Error('Crout forwardSteps missing')
+if (!croutRes.backwardSteps || croutRes.backwardSteps.length !== 3) throw new Error('Crout backwardSteps missing')
+if (!croutRes.verificationRows || croutRes.verificationRows.length !== 3) throw new Error('Crout verificationRows missing')
+
+// 5. Test Dekomposisi Cholesky
+const cholA = [
+  [4, 2, -2],
+  [2, 10, 2],
+  [-2, 2, 6]
+]
+const cholB = [2, 22, 4]
+const cholRes = solveCholesky(cholA, cholB)
+if (cholRes.status !== 'converged') throw new Error('Cholesky solver failed')
+if (Math.abs(cholRes.x[0] - (-1)) > 1e-5 || Math.abs(cholRes.x[1] - 2.5) > 1e-5 || Math.abs(cholRes.x[2] - (-0.5)) > 1e-5) {
+  throw new Error(`Cholesky solution mismatch: ${JSON.stringify(cholRes.x)}`)
+}
+if (!cholRes.forwardSteps || cholRes.forwardSteps.length !== 3) throw new Error('Cholesky forwardSteps missing')
+if (!cholRes.backwardSteps || cholRes.backwardSteps.length !== 3) throw new Error('Cholesky backwardSteps missing')
+if (!cholRes.verificationRows || cholRes.verificationRows.length !== 3) throw new Error('Cholesky verificationRows missing')
+
+// 6. Test Uji Definit Positif & Kriteria Sylvester
+const pdPass = checkPositiveDefinite(cholA)
+if (!pdPass.isPositiveDefinite || !pdPass.isSymmetric || pdPass.status !== 'converged') {
+  throw new Error('Sylvester check failed on valid positive definite matrix')
+}
+if (pdPass.minors.length !== 3 || pdPass.minors[0].detValue !== 4 || pdPass.minors[1].detValue !== 36) {
+  throw new Error('Sylvester minor values mismatch')
+}
+
+const nonSym = checkPositiveDefinite([[1, 2], [3, 4]])
+if (nonSym.isSymmetric || nonSym.status !== 'not-symmetric') {
+  throw new Error('Sylvester failed to detect asymmetric matrix')
+}
+
+const nonPd = checkPositiveDefinite([[1, 2], [2, 1]])
+if (nonPd.isPositiveDefinite || nonPd.status !== 'not-positive-definite') {
+  throw new Error('Sylvester failed to detect non-positive-definite matrix')
+}
+
+console.log('engine preset, Crout, Cholesky, & Sylvester positive-definite self-check: passed!')

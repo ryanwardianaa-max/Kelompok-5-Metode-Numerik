@@ -20,6 +20,44 @@ export type MatrixStep = {
   explanationLatex?: string;
 }
 
+export type SubstitutionStep = {
+  row: number;
+  variable: string;
+  equation: string;
+  calculation: string;
+  latex?: string;
+  value: number;
+}
+
+export type VerificationRow = {
+  row: number;
+  lhsExpression: string;
+  lhsValue: number;
+  rhsTarget: number;
+  residual: number;
+}
+
+export type MinorStep = {
+  k: number;
+  matrix: number[][];
+  detFormula: string;
+  detValue: number;
+  isPositive: boolean;
+  explanation: string;
+  explanationLatex?: string;
+}
+
+export type PositiveDefiniteResult = {
+  status: 'converged' | 'not-symmetric' | 'not-positive-definite';
+  message: string;
+  A_initial: number[][];
+  isSymmetric: boolean;
+  differences?: { i: number; j: number; a_ij: number; a_ji: number }[];
+  minors: MinorStep[];
+  isPositiveDefinite: boolean;
+  choleskyFeasible: boolean;
+}
+
 export type GaussResult = {
   status: Status;
   message: string;
@@ -43,6 +81,9 @@ export type LUResult = {
   y: number[]; // From L * y = b (forward substitution)
   x: number[]; // From U * x = y (backward substitution)
   residual: number[];
+  forwardSteps?: SubstitutionStep[];
+  backwardSteps?: SubstitutionStep[];
+  verificationRows?: VerificationRow[];
 }
 
 export type CholeskyResult = {
@@ -58,6 +99,10 @@ export type CholeskyResult = {
   residual: number[];
   isSymmetric: boolean;
   isPositiveDefinite: boolean;
+  forwardSteps?: SubstitutionStep[];
+  backwardSteps?: SubstitutionStep[];
+  verificationRows?: VerificationRow[];
+  minors?: MinorStep[];
 }
 
 const validate = (source:string) => {
@@ -297,6 +342,12 @@ export function solveLUGauss(A_input: number[][], b_input: number[]): LUResult {
   };
 }
 
+function fmt(val: number): string {
+  if (Math.abs(val) < 1e-12) return '0';
+  if (Number.isInteger(val)) return val.toString();
+  return Number(val.toFixed(4)).toString();
+}
+
 // 4. SPL Solver: Crout LU Decomposition (U has 1s on diagonal)
 export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
   const n = A_input.length;
@@ -369,28 +420,102 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
 
   // Forward substitution: L * y = b
   const y = new Array(n).fill(0);
+  const forwardSteps: SubstitutionStep[] = [];
   for (let i = 0; i < n; i++) {
-    let sum = b_input[i];
+    let sum = 0;
+    const prevParts: string[] = [];
     for (let j = 0; j < i; j++) {
-      sum -= L[i][j] * y[j];
+      const termVal = L[i][j] * y[j];
+      sum += termVal;
+      prevParts.push(`${fmt(L[i][j])}(${fmt(y[j])})`);
     }
-    y[i] = sum / L[i][i];
+    const rhsRem = b_input[i] - sum;
+    y[i] = rhsRem / L[i][i];
+
+    let eqStr = '';
+    let calcStr = '';
+    let latexStr = '';
+
+    if (i === 0) {
+      eqStr = `${fmt(L[0][0])} y_1 = ${fmt(b_input[0])}`;
+      calcStr = `y_1 = ${fmt(b_input[0])} / ${fmt(L[0][0])} = ${fmt(y[0])}`;
+      latexStr = `l_{11} y_1 = b_1 \\implies ${fmt(L[0][0])} y_1 = ${fmt(b_input[0])} \\implies y_1 = ${fmt(y[0])}`;
+    } else {
+      const sumTerms = prevParts.join(' + ').replace(/\+ -/g, '- ');
+      eqStr = `${sumTerms} + ${fmt(L[i][i])} y_${i + 1} = ${fmt(b_input[i])}`;
+      calcStr = `${fmt(L[i][i])} y_${i + 1} = ${fmt(b_input[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} => y_${i + 1} = ${fmt(rhsRem)} / ${fmt(L[i][i])} = ${fmt(y[i])}`;
+      latexStr = `${fmt(L[i][i])} y_{${i + 1}} = ${fmt(b_input[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} \\implies y_{${i + 1}} = \\frac{${fmt(rhsRem)}}{${fmt(L[i][i])}} = ${fmt(y[i])}`;
+    }
+
+    forwardSteps.push({
+      row: i + 1,
+      variable: `y_${i + 1}`,
+      equation: eqStr,
+      calculation: calcStr,
+      latex: latexStr,
+      value: Number(y[i].toFixed(6))
+    });
   }
 
   // Backward substitution: U * x = y (diagonal U adalah 1)
   const x = new Array(n).fill(0);
+  const backwardSteps: SubstitutionStep[] = [];
   for (let i = n - 1; i >= 0; i--) {
-    let sum = y[i];
+    let sum = 0;
+    const nextParts: string[] = [];
     for (let j = i + 1; j < n; j++) {
-      sum -= U[i][j] * x[j];
+      const termVal = U[i][j] * x[j];
+      sum += termVal;
+      nextParts.push(`${fmt(U[i][j])}(${fmt(x[j])})`);
     }
-    x[i] = sum; // Karena U[i][i] === 1
+    const rhsRem = y[i] - sum;
+    x[i] = rhsRem; // Karena U[i][i] === 1
+
+    let eqStr = '';
+    let calcStr = '';
+    let latexStr = '';
+
+    if (i === n - 1) {
+      eqStr = `1 · x_${n} = ${fmt(y[n - 1])}`;
+      calcStr = `x_${n} = ${fmt(y[n - 1])}`;
+      latexStr = `u_{${n}${n}} x_{${n}} = y_{${n}} \\implies 1 \\cdot x_{${n}} = ${fmt(y[n - 1])} \\implies x_{${n}} = ${fmt(x[n - 1])}`;
+    } else {
+      const sumTerms = nextParts.join(' + ').replace(/\+ -/g, '- ');
+      eqStr = `x_${i + 1} + ${sumTerms} = ${fmt(y[i])}`;
+      calcStr = `x_${i + 1} = ${fmt(y[i])} - (${fmt(sum)}) = ${fmt(x[i])}`;
+      latexStr = `x_{${i + 1}} = ${fmt(y[i])} - (${fmt(sum)}) \\implies x_{${i + 1}} = ${fmt(x[i])}`;
+    }
+
+    backwardSteps.push({
+      row: i + 1,
+      variable: `x_${i + 1}`,
+      equation: eqStr,
+      calculation: calcStr,
+      latex: latexStr,
+      value: Number(x[i].toFixed(6))
+    });
   }
 
   // Residual r = A * x - b
   const residual = A_input.map((row, i) => {
     const ax = row.reduce((s, val, j) => s + val * x[j], 0);
     return Math.abs(ax - b_input[i]);
+  });
+
+  const verificationRows: VerificationRow[] = A_input.map((row, i) => {
+    let lhsSum = 0;
+    const parts: string[] = [];
+    row.forEach((val, j) => {
+      lhsSum += val * x[j];
+      parts.push(`${fmt(val)}(${fmt(x[j])})`);
+    });
+    return {
+      row: i + 1,
+      lhsExpression: parts.join(' + ').replace(/\+ -/g, '- '),
+      lhsValue: Number(lhsSum.toFixed(6)),
+      rhsTarget: b_input[i],
+      residual: Math.abs(lhsSum - b_input[i])
+    };
   });
 
   return {
@@ -403,7 +528,10 @@ export function solveCrout(A_input: number[][], b_input: number[]): LUResult {
     steps,
     y,
     x,
-    residual
+    residual,
+    forwardSteps,
+    backwardSteps,
+    verificationRows
   };
 }
 
@@ -511,22 +639,80 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
 
   // 3. Forward substitution: L * y = b
   const y = new Array(n).fill(0);
+  const forwardSteps: SubstitutionStep[] = [];
   for (let i = 0; i < n; i++) {
-    let sum = b_input[i];
+    let sum = 0;
+    const prevParts: string[] = [];
     for (let j = 0; j < i; j++) {
-      sum -= L[i][j] * y[j];
+      const termVal = L[i][j] * y[j];
+      sum += termVal;
+      prevParts.push(`${fmt(L[i][j])}(${fmt(y[j])})`);
     }
-    y[i] = sum / L[i][i];
+    const rhsRem = b_input[i] - sum;
+    y[i] = rhsRem / L[i][i];
+
+    let eqStr = '';
+    let calcStr = '';
+    let latexStr = '';
+
+    if (i === 0) {
+      eqStr = `${fmt(L[0][0])} y_1 = ${fmt(b_input[0])}`;
+      calcStr = `y_1 = ${fmt(b_input[0])} / ${fmt(L[0][0])} = ${fmt(y[0])}`;
+      latexStr = `l_{11} y_1 = b_1 \\implies ${fmt(L[0][0])} y_1 = ${fmt(b_input[0])} \\implies y_1 = ${fmt(y[0])}`;
+    } else {
+      const sumTerms = prevParts.join(' + ').replace(/\+ -/g, '- ');
+      eqStr = `${sumTerms} + ${fmt(L[i][i])} y_${i + 1} = ${fmt(b_input[i])}`;
+      calcStr = `${fmt(L[i][i])} y_${i + 1} = ${fmt(b_input[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} => y_${i + 1} = ${fmt(rhsRem)} / ${fmt(L[i][i])} = ${fmt(y[i])}`;
+      latexStr = `${fmt(L[i][i])} y_{${i + 1}} = ${fmt(b_input[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} \\implies y_{${i + 1}} = \\frac{${fmt(rhsRem)}}{${fmt(L[i][i])}} = ${fmt(y[i])}`;
+    }
+
+    forwardSteps.push({
+      row: i + 1,
+      variable: `y_${i + 1}`,
+      equation: eqStr,
+      calculation: calcStr,
+      latex: latexStr,
+      value: Number(y[i].toFixed(6))
+    });
   }
 
   // 4. Backward substitution: L^T * x = y
   const x = new Array(n).fill(0);
+  const backwardSteps: SubstitutionStep[] = [];
   for (let i = n - 1; i >= 0; i--) {
-    let sum = y[i];
+    let sum = 0;
+    const nextParts: string[] = [];
     for (let j = i + 1; j < n; j++) {
-      sum -= LT[i][j] * x[j];
+      const termVal = LT[i][j] * x[j];
+      sum += termVal;
+      nextParts.push(`${fmt(LT[i][j])}(${fmt(x[j])})`);
     }
-    x[i] = sum / LT[i][i];
+    const rhsRem = y[i] - sum;
+    x[i] = rhsRem / LT[i][i];
+
+    let eqStr = '';
+    let calcStr = '';
+    let latexStr = '';
+
+    if (i === n - 1) {
+      eqStr = `${fmt(LT[n - 1][n - 1])} x_${n} = ${fmt(y[n - 1])}`;
+      calcStr = `x_${n} = ${fmt(y[n - 1])} / ${fmt(LT[n - 1][n - 1])} = ${fmt(x[n - 1])}`;
+      latexStr = `l_{${n}${n}} x_{${n}} = y_{${n}} \\implies ${fmt(LT[n - 1][n - 1])} x_{${n}} = ${fmt(y[n - 1])} \\implies x_{${n}} = ${fmt(x[n - 1])}`;
+    } else {
+      const sumTerms = nextParts.join(' + ').replace(/\+ -/g, '- ');
+      eqStr = `${fmt(LT[i][i])} x_${i + 1} + ${sumTerms} = ${fmt(y[i])}`;
+      calcStr = `${fmt(LT[i][i])} x_${i + 1} = ${fmt(y[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} => x_${i + 1} = ${fmt(rhsRem)} / ${fmt(LT[i][i])} = ${fmt(x[i])}`;
+      latexStr = `${fmt(LT[i][i])} x_{${i + 1}} = ${fmt(y[i])} - (${fmt(sum)}) = ${fmt(rhsRem)} \\implies x_{${i + 1}} = \\frac{${fmt(rhsRem)}}{${fmt(LT[i][i])}} = ${fmt(x[i])}`;
+    }
+
+    backwardSteps.push({
+      row: i + 1,
+      variable: `x_${i + 1}`,
+      equation: eqStr,
+      calculation: calcStr,
+      latex: latexStr,
+      value: Number(x[i].toFixed(6))
+    });
   }
 
   // Residual r = A * x - b
@@ -534,6 +720,24 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
     const ax = row.reduce((s, val, j) => s + val * x[j], 0);
     return Math.abs(ax - b_input[i]);
   });
+
+  const verificationRows: VerificationRow[] = A_input.map((row, i) => {
+    let lhsSum = 0;
+    const parts: string[] = [];
+    row.forEach((val, j) => {
+      lhsSum += val * x[j];
+      parts.push(`${fmt(val)}(${fmt(x[j])})`);
+    });
+    return {
+      row: i + 1,
+      lhsExpression: parts.join(' + ').replace(/\+ -/g, '- '),
+      lhsValue: Number(lhsSum.toFixed(6)),
+      rhsTarget: b_input[i],
+      residual: Math.abs(lhsSum - b_input[i])
+    };
+  });
+
+  const pdResult = checkPositiveDefinite(A_input);
 
   return {
     status: 'converged',
@@ -547,6 +751,115 @@ export function solveCholesky(A_input: number[][], b_input: number[]): CholeskyR
     x,
     residual,
     isSymmetric: true,
-    isPositiveDefinite: true
+    isPositiveDefinite: true,
+    forwardSteps,
+    backwardSteps,
+    verificationRows,
+    minors: pdResult.minors
+  };
+}
+
+// 6. Uji Definit Positif & Kriteria Sylvester
+export function checkPositiveDefinite(A_input: number[][]): PositiveDefiniteResult {
+  const n = A_input.length;
+  let isSymmetric = true;
+  const differences: { i: number; j: number; a_ij: number; a_ji: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      if (Math.abs(A_input[i][j] - A_input[j][i]) > 1e-8) {
+        isSymmetric = false;
+        differences.push({
+          i: i + 1,
+          j: j + 1,
+          a_ij: A_input[i][j],
+          a_ji: A_input[j][i]
+        });
+      }
+    }
+  }
+
+  const minors: MinorStep[] = [];
+  let isPositiveDefinite = isSymmetric;
+
+  for (let k = 1; k <= n; k++) {
+    const submatrix: number[][] = [];
+    for (let r = 0; r < k; r++) {
+      submatrix.push(A_input[r].slice(0, k));
+    }
+
+    let det = 0;
+    let detFormula = '';
+    let explanation = '';
+    let explanationLatex = '';
+
+    if (k === 1) {
+      det = submatrix[0][0];
+      detFormula = `\\Delta_1 = a_{11} = ${fmt(det)}`;
+      explanation = `Minor utama ke-1 adalah elemen sudut diagonal pertama: a_11 = ${fmt(det)}.`;
+      explanationLatex = `\\Delta_1 = \\det([a_{11}]) = a_{11} = ${fmt(det)}`;
+    } else if (k === 2) {
+      const a11 = submatrix[0][0];
+      const a12 = submatrix[0][1];
+      const a21 = submatrix[1][0];
+      const a22 = submatrix[1][1];
+      det = a11 * a22 - a12 * a21;
+      detFormula = `\\Delta_2 = (a_{11} \\cdot a_{22}) - (a_{12} \\cdot a_{21}) = (${fmt(a11)} \\cdot ${fmt(a22)}) - (${fmt(a12)} \\cdot ${fmt(a21)}) = ${fmt(det)}`;
+      explanation = `Minor utama ke-2 adalah determinan submatriks 2×2: (${fmt(a11)} × ${fmt(a22)}) - (${fmt(a12)} × ${fmt(a21)}) = ${fmt(det)}.`;
+      explanationLatex = `\\Delta_2 = \\det\\begin{bmatrix} ${fmt(a11)} & ${fmt(a12)} \\\\ ${fmt(a21)} & ${fmt(a22)} \\end{bmatrix} = (${fmt(a11)})(${fmt(a22)}) - (${fmt(a12)})(${fmt(a21)}) = ${fmt(det)}`;
+    } else if (k === 3) {
+      const a11 = submatrix[0][0], a12 = submatrix[0][1], a13 = submatrix[0][2];
+      const a21 = submatrix[1][0], a22 = submatrix[1][1], a23 = submatrix[1][2];
+      const a31 = submatrix[2][0], a32 = submatrix[2][1], a33 = submatrix[2][2];
+
+      const c11 = a22 * a33 - a23 * a32;
+      const c12 = a21 * a33 - a23 * a31;
+      const c13 = a21 * a32 - a22 * a31;
+
+      det = a11 * c11 - a12 * c12 + a13 * c13;
+      detFormula = `\\Delta_3 = a_{11}M_{11} - a_{12}M_{12} + a_{13}M_{13} = ${fmt(a11)}(${fmt(c11)}) - ${fmt(a12)}(${fmt(c12)}) + ${fmt(a13)}(${fmt(c13)}) = ${fmt(det)}`;
+      explanation = `Minor utama ke-3 adalah determinan matriks 3×3 (ekspansi kofaktor baris 1): ${fmt(a11)}·(${fmt(c11)}) - ${fmt(a12)}·(${fmt(c12)}) + ${fmt(a13)}·(${fmt(c13)}) = ${fmt(det)}.`;
+      explanationLatex = `\\Delta_3 = \\det(A) = ${fmt(a11)}(${fmt(c11)}) - ${fmt(a12)}(${fmt(c12)}) + ${fmt(a13)}(${fmt(c13)}) = ${fmt(det)}`;
+    }
+
+    const isPositive = det > 1e-9;
+    if (!isPositive) {
+      isPositiveDefinite = false;
+    }
+
+    minors.push({
+      k,
+      matrix: submatrix,
+      detFormula,
+      detValue: Number(det.toFixed(6)),
+      isPositive,
+      explanation,
+      explanationLatex
+    });
+  }
+
+  let status: 'converged' | 'not-symmetric' | 'not-positive-definite' = 'converged';
+  let message = '';
+
+  if (!isSymmetric) {
+    status = 'not-symmetric';
+    message = `Matriks A tidak simetris (A ≠ Aᵀ). Terdapat ketidaksamaan pada elemen (${differences.map(d => `a_${d.i}${d.j}=${d.a_ij} ≠ a_${d.j}${d.i}=${d.a_ji}`).join(', ')}). Kriteria Sylvester hanya berlaku untuk matriks simetris riil.`;
+  } else if (!isPositiveDefinite) {
+    status = 'not-positive-definite';
+    const failedMinors = minors.filter(m => !m.isPositive).map(m => `Δ_${m.k} = ${fmt(m.detValue)} ≤ 0`);
+    message = `Matriks A simetris tetapi TIDAK definit positif karena ditemukan minor utama non-positif: ${failedMinors.join(', ')}. Dekomposisi Cholesky akan gagal karena memuat akar bilangan non-positif.`;
+  } else {
+    status = 'converged';
+    message = `Matriks A terbukti SIMETRIS dan DEFINIT POSITIF (seluruh minor utama terkemuka bernilai positif: ${minors.map(m => `Δ_${m.k}=${fmt(m.detValue)} > 0`).join(', ')}). Memenuhi syarat mutlak Dekomposisi Cholesky A = L · Lᵀ!`;
+  }
+
+  return {
+    status,
+    message,
+    A_initial: A_input,
+    isSymmetric,
+    differences,
+    minors,
+    isPositiveDefinite: isSymmetric && isPositiveDefinite,
+    choleskyFeasible: isSymmetric && isPositiveDefinite
   };
 }
