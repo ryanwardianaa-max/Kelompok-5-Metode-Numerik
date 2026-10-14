@@ -215,3 +215,26 @@ ightarrow$ entri $x_1$ bertransformasi menjadi $-1$ biru.
   * **Pengujian dan Validasi**:
     - Uji komputasi matematika solver dan pengujian unit `npm run test:engine` lulus $100\%$ ($0$ error).
     - Kompilasi produksi `npm run build` sukses tanpa kendala.
+
+### 25. Perapian dan Peningkatan Visual Glosarium & Basis Pengetahuan (Knowledge Base)
+
+* **Latar Belakang**:
+  - Halaman Knowledge/Glosarium sebelumnya menampilkan teks rumus matematika dengan escape backslash literal yang tidak terurai di KaTeX (seperti `Lcdot`, `\mathbf` menjadi backspace/gagal parse), tidak memiliki aturan CSS khusus, kartu unstyled mengambang di grid, serta rujukan buku kurang terstruktur.
+  - Pengguna meminta halaman knowledge dirapikan agar bersih, rapi, terstruktur, formula KaTeX tajam tanpa desimal liar maupun underscore literal.
+* **Tindakan yang Dilakukan**:
+  * **Perbaikan Total Sintaks KaTeX**:
+    - Mengoreksi seluruh escaping string LaTeX pada `terms` di `src/App.tsx` (`\\cdot`, `\\mathbf`, `\\forall`, `\\det`, `\\dots`, `\\quad`, `\\mathrm{T}`, `\\dfrac`, dll.) sehingga KaTeX merender rumus dengan sempurna $0$ error.
+    - Menghilangkan karakter underscore literal `_` pada deskripsi konsep bahasa Indonesia.
+  * **Penyusunan 10 Konsep Matematis Terstruktur**:
+    - **Varian LU**: Dekomposisi Reduksi Crout, Dekomposisi Cholesky, Dekomposisi Doolittle, Faktorisasi Simetris $LDL^{\mathrm{T}}$.
+    - **Karakteristik Matriks**: Matriks Simetris, Definit Positif (Positive Definite), Kriteria Sylvester (Minor Utama).
+    - **Solusi SPL**: Substitusi Maju (Forward), Substitusi Mundur (Backward), Efisiensi Komputasi & Kompleksitas FLOPs.
+  * **Fitur Interaktif & Filter**:
+    - Menambahkan live search bar pencarian konsep atau formula matematika real-time.
+    - Menambahkan tab filter kategori (`Semua Konsep`, `Varian LU`, `Karakteristik Matriks`, `Solusi SPL`).
+  * **Kartu Neobrutalisme & Tipografi Modern**:
+    - Menambahkan styling responsif pada `src/App.css` (`.knowledge`, `.knowledge-head`, `.knowledge-search-bar`, `.knowledge-category-tabs`, `.knowledge-grid`, `.knowledge-card`, `.knowledge-formula-box`, `.references-section`, `.references-grid`).
+    - Kartu referensi buku acuan resmi (Rinaldi Munir, Chapra & Canale, Burden & Faires) dibungkus rapi dengan metadata penerbit, tahun, dan sub-bab terkait.
+  * **Pengujian dan Validasi**:
+    - `npm run test:engine` lulus $100\%$.
+    - `npm run build` berhasil sempurna tanpa error.

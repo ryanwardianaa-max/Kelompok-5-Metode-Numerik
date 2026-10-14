@@ -1719,37 +1719,215 @@ function Team(){
  </section>
 }
 
+interface TermItem {
+ title: string;
+ category: 'Varian LU' | 'Karakteristik Matriks' | 'Solusi SPL';
+ desc: string;
+ math: string;
+ badgeClass: string;
+}
+
 function Knowledge(){
- const terms=[
-  ['Dekomposisi Reduksi Crout','Pemfaktoran A = L · U dengan menetapkan elemen diagonal utama matriks segitiga atas U bernilai 1.','u_{ii} = 1'],
-  ['Dekomposisi Cholesky','Pemfaktoran khusus matriks simetris definit positif menjadi A = L · Lᵀ (U identik transpos L).','A = L \cdot L^T'],
-  ['Matriks Simetris','Matriks bujursangkar yang nilainya sama persis dengan matriks transposnya.','A = A^T \iff a_{ij} = a_{ji}'],
-  ['Definit Positif','Sifat matriks di mana perkalian bentuk kuadrat xᵀ A x bernilai positif murni untuk semua vektor tak-nol x.','\mathbf{x}^T A \mathbf{x} > 0,\ \forall \mathbf{x} \ne \mathbf{0}'],
-  ['Kriteria Sylvester (Minor Utama)','Pengujian definit positif dengan memastikan seluruh determinan submatriks utama berurutan bernilai positif.','\det(A_k) > 0,\ k=1,\dots,n'],
-  ['Dekomposisi LU Doolittle','Metode faktorisasi LU standar dengan menetapkan elemen diagonal matriks segitiga bawah L bernilai 1.','l_{ii} = 1'],
-  ['Substitusi Maju Crout & Cholesky','Menyelesaikan L y = b dari atas ke bawah untuk memperoleh vektor perantara y.','L\mathbf{y} = \mathbf{b}'],
-  ['Substitusi Mundur Crout & Cholesky','Menyelesaikan U x = y (atau Lᵀ x = y) dari baris terbawah ke teratas untuk solusi akhir x.','U\mathbf{x} = \mathbf{y} \quad / \quad L^T\mathbf{x} = \mathbf{y}']
+ const [filter, setFilter] = useState<string>('all');
+ const [search, setSearch] = useState<string>('');
+
+ const terms: TermItem[] = [
+  {
+   title: 'Dekomposisi Reduksi Crout',
+   category: 'Varian LU',
+   badgeClass: 'badge-variant',
+   desc: 'Faktorisasi A = L · U dengan menetapkan elemen diagonal utama matriks segitiga atas U bernilai 1. Dihitung secara rekursif kolom per kolom pada L dan baris per baris pada U.',
+   math: 'A = L \\cdot U, \\quad u_{ii} = 1'
+  },
+  {
+   title: 'Dekomposisi Cholesky',
+   category: 'Varian LU',
+   badgeClass: 'badge-variant',
+   desc: 'Faktorisasi khusus matriks simetris definit positif menjadi A = L · Lᵀ (di mana U = Lᵀ). Menghemat 50% memori dan sekitar setengah operasi floating point dibanding Crout atau Gauss.',
+   math: 'A = L \\cdot L^{\\mathrm{T}}, \\quad l_{jj} = \\sqrt{a_{jj} - \\sum_{k=1}^{j-1} l_{jk}^2}'
+  },
+  {
+   title: 'Dekomposisi LU Doolittle',
+   category: 'Varian LU',
+   badgeClass: 'badge-variant',
+   desc: 'Metode faktorisasi LU standar dengan menetapkan elemen diagonal utama matriks segitiga bawah L bernilai 1. Elemen di bawah diagonal L merepresentasikan faktor pengali eliminasi Gauss.',
+   math: 'A = L \\cdot U, \\quad l_{ii} = 1'
+  },
+  {
+   title: 'Faktorisasi Simetris LDLᵀ',
+   category: 'Varian LU',
+   badgeClass: 'badge-variant',
+   desc: 'Alternatif faktorisasi Cholesky tanpa operasi akar kuadrat (square-root-free), menguraikan matriks menjadi L · D · Lᵀ dengan L segitiga bawah satuan dan D matriks diagonal.',
+   math: 'A = L \\cdot D \\cdot L^{\\mathrm{T}}, \\quad l_{ii} = 1, \\quad D = \\operatorname{diag}(d_1, \\dots, d_n)'
+  },
+  {
+   title: 'Matriks Simetris',
+   category: 'Karakteristik Matriks',
+   badgeClass: 'badge-matrix',
+   desc: 'Matriks bujursangkar yang nilainya sama persis dengan matriks transposnya. Setiap elemen pada baris ke-i kolom ke-j selalu identik dengan cerminannya pada baris ke-j kolom ke-i terhadap diagonal utama.',
+   math: 'A = A^{\\mathrm{T}} \\iff a_{ij} = a_{ji}, \\quad \\forall i, j'
+  },
+  {
+   title: 'Definit Positif (Positive Definite)',
+   category: 'Karakteristik Matriks',
+   badgeClass: 'badge-matrix',
+   desc: 'Sifat matriks riil simetris di mana bentuk kuadrat xᵀ A x selalu bernilai positif murni untuk semua vektor tak-nol x. Menjamin akar kuadrat diagonal Cholesky selalu riil positif.',
+   math: '\\mathbf{x}^{\\mathrm{T}} A \\mathbf{x} > 0, \\quad \\forall \\mathbf{x} \\neq \\mathbf{0}'
+  },
+  {
+   title: 'Kriteria Sylvester (Minor Utama)',
+   category: 'Karakteristik Matriks',
+   badgeClass: 'badge-matrix',
+   desc: 'Pengujian praktis definit positif dengan memeriksa determinan submatriks utama berurutan pojok kiri-atas (leading principal minors) bernilai positif murni.',
+   math: '\\det(A_k) > 0, \\quad \\forall k \\in \\{1, 2, \\dots, n\\}'
+  },
+  {
+   title: 'Substitusi Maju (Forward Substitution)',
+   category: 'Solusi SPL',
+   badgeClass: 'badge-spl-solve',
+   desc: 'Tahap pertama penyelesaian SPL setelah faktorisasi: menyelesaikan L y = b dari baris pertama ke baris terbawah untuk memperoleh vektor perantara y.',
+   math: 'L\\mathbf{y} = \\mathbf{b} \\implies y_i = \\dfrac{b_i - \\sum_{k=1}^{i-1} l_{ik}y_k}{l_{ii}}'
+  },
+  {
+   title: 'Substitusi Mundur (Backward Substitution)',
+   category: 'Solusi SPL',
+   badgeClass: 'badge-spl-solve',
+   desc: 'Tahap kedua penyelesaian SPL: menyelesaikan U x = y (pada Crout) atau Lᵀ x = y (pada Cholesky) dari baris terbawah ke teratas untuk mendapatkan vektor solusi akhir x.',
+   math: 'U\\mathbf{x} = \\mathbf{y} \\quad \\text{atau} \\quad L^{\\mathrm{T}}\\mathbf{x} = \\mathbf{y}'
+  },
+  {
+   title: 'Efisiensi Komputasi & Operasi FLOPs',
+   category: 'Solusi SPL',
+   badgeClass: 'badge-spl-solve',
+   desc: 'Kompleksitas algoritma penyelesaian SPL ordo n x n. Dekomposisi Cholesky membutuhkan ~n³/6 perkalian/pembagian, dua kali lebih cepat dibanding Gauss atau Crout (~n³/3).',
+   math: '\\text{Cholesky: } \\approx \\dfrac{n^3}{6} \\text{ FLOPs} \\quad \\text{vs} \\quad \\text{Crout: } \\approx \\dfrac{n^3}{3} \\text{ FLOPs}'
+  }
  ];
- const refs=[
-  'Munir, Rinaldi. (2015). Metode Numerik (Revisi). Informatika Bandung. (Bab 4: Solusi Sistem Persamaan Lanjar, Sub-bab 4.5.2 Metode Reduksi Crout).',
-  'Chapra, S. C., & Canale, R. P. (2015). Numerical Methods for Engineers (7th ed.). McGraw-Hill Education.',
-  'Burden, R. L., & Faires, J. D. (2010). Numerical Analysis (9th ed.). Brooks/Cole.'
+
+ const refs = [
+  {
+   author: 'Munir, Rinaldi',
+   year: '2015',
+   title: 'Metode Numerik (Edisi Revisi)',
+   publisher: 'Informatika Bandung',
+   detail: 'Bab 4: Solusi Sistem Persamaan Lanjar — Sub-bab 4.5.2 Metode Reduksi Crout',
+   badge: 'Rujukan Utama Teori'
+  },
+  {
+   author: 'Chapra, S. C., & Canale, R. P.',
+   year: '2015',
+   title: 'Numerical Methods for Engineers (7th Edition)',
+   publisher: 'McGraw-Hill Education',
+   detail: 'Chapter 10: LU Decomposition and Matrix Inversion — Cholesky Decomposition & Applications',
+   badge: 'Standar Internasional'
+  },
+  {
+   author: 'Burden, R. L., & Faires, J. D.',
+   year: '2010',
+   title: 'Numerical Analysis (9th Edition)',
+   publisher: 'Brooks/Cole, Cengage Learning',
+   detail: 'Chapter 6: Direct Methods for Solving Linear Systems — Crout and Cholesky Factorization',
+   badge: 'Analisis Matematika Murni'
+  }
  ];
- return <section className="knowledge">
-  <div className="pagehead">
-   <div><small>GLOSARIUM &amp; REFERENSI</small><h1>Konsep Crout &amp; Cholesky</h1></div>
-  </div>
-  <div className="terms">
-   {terms.map(([title,desc,math])=><article key={title}>
-    <div><strong>{title}</strong><p>{desc}</p></div>
-    <div className="math-badge"><InlineMath math={math}/></div>
-   </article>)}
-  </div>
-  <div className="references">
-   <h2>Buku Acuan &amp; Rujukan Resmi</h2>
-   <ol>{refs.map(r=><li key={r}>{r}</li>)}</ol>
-  </div>
- </section>
+
+ const filtered = terms.filter(t => {
+  const matchCategory = filter === 'all' || t.category === filter;
+  const matchSearch = search.trim() === '' || 
+   t.title.toLowerCase().includes(search.toLowerCase()) || 
+   t.desc.toLowerCase().includes(search.toLowerCase());
+  return matchCategory && matchSearch;
+ });
+
+ return (
+  <section className="knowledge">
+   <div className="knowledge-head">
+    <div className="knowledge-head-info">
+     <small>BASIS PENGETAHUAN &amp; GLOSARIUM RESMI</small>
+     <h1>Konsep Crout &amp; Cholesky</h1>
+     <p>Fondasi matematis, varian dekomposisi LU, uji matriks definit positif, dan efisiensi algoritma.</p>
+    </div>
+    <div className="knowledge-controls">
+     <div className="knowledge-search-bar">
+      <input 
+       type="text" 
+       placeholder="🔍 Cari konsep atau formula (misal: Cholesky, Sylvester, FLOPs, Crout)..." 
+       value={search} 
+       onChange={e => setSearch(e.target.value)}
+      />
+      {search && (
+       <button 
+        type="button"
+        style={{padding:'2px 8px', minHeight:'auto', fontSize:'0.75rem'}}
+        onClick={() => setSearch('')}
+       >
+        ✕ Reset
+       </button>
+      )}
+     </div>
+     <div className="knowledge-category-tabs">
+      <button type="button" className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>
+       Semua Konsep ({terms.length})
+      </button>
+      <button type="button" className={filter==='Varian LU'?'active':''} onClick={()=>setFilter('Varian LU')}>
+       Varian LU (4)
+      </button>
+      <button type="button" className={filter==='Karakteristik Matriks'?'active':''} onClick={()=>setFilter('Karakteristik Matriks')}>
+       Karakteristik Matriks (3)
+      </button>
+      <button type="button" className={filter==='Solusi SPL'?'active':''} onClick={()=>setFilter('Solusi SPL')}>
+       Solusi SPL &amp; FLOPs (3)
+      </button>
+     </div>
+    </div>
+   </div>
+
+   <div className="knowledge-grid">
+    {filtered.map(t => (
+     <article key={t.title} className="knowledge-card">
+      <div>
+       <div className="knowledge-card-header">
+        <h3 className="knowledge-card-title">{t.title}</h3>
+        <span className={`knowledge-badge ${t.badgeClass}`}>{t.category}</span>
+       </div>
+       <p className="knowledge-desc" style={{marginTop:'8px'}}>{t.desc}</p>
+      </div>
+      <div className="knowledge-formula-box">
+       <InlineMath math={t.math} />
+      </div>
+     </article>
+    ))}
+    {filtered.length === 0 && (
+     <div style={{gridColumn:'1/-1', textAlign:'center', padding:'30px', background:'#fff', border:'2px dashed #94a3b8', borderRadius:'10px'}}>
+      <p style={{margin:0, color:'#64748b', fontWeight:600}}>Tidak ada konsep yang cocok dengan kata kunci "{search}".</p>
+     </div>
+    )}
+   </div>
+
+   <div className="references-section">
+    <h2>
+     <BookOpen style={{width:20, height:20, color:'#b45309'}} />
+     Buku Acuan &amp; Rujukan Resmi
+    </h2>
+    <div className="references-grid">
+     {refs.map(r => (
+      <div key={r.title} className="reference-card">
+       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+        <span className="reference-badge">{r.badge}</span>
+        <small style={{fontWeight:700, color:'#64748b'}}>{r.year}</small>
+       </div>
+       <strong>{r.author} ({r.year})</strong>
+       <span style={{fontStyle:'italic', color:'#0f172a', fontWeight:600}}>{r.title}</span>
+       <span>{r.publisher}</span>
+       <span style={{fontSize:'0.75rem', color:'#475569', background:'#fff', padding:'4px 8px', borderRadius:'4px', border:'1px solid #cbd5e1', marginTop:'4px'}}>
+        📌 {r.detail}
+       </span>
+      </div>
+     ))}
+    </div>
+   </div>
+  </section>
+ );
 }
 export default function App(){
  const [tab,setTab]=useState<'deck'|'lab'|'team'|'knowledge'>('deck');
