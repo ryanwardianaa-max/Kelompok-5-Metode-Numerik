@@ -60,3 +60,20 @@ ightarrow$ baris perhitungan: `Minor M₃ (3×3): det(A) = 4(56) - 2(16) - 2(24)
   * **Notasi Pangkat $L^{\mathrm{T}}$**: Seluruh judul, subjudul, dan keterangan yang sebelumnya menggunakan karakter caret literal `L^T` diperbaiki menjadi notasi formal LaTeX $L^{\mathrm{T}}$ (`L^{\mathrm{T}}`).
   * **Fix Card Fullscreen & Margin Bawah**: Matriks dinaikkan ke $y = 0{,}60$ dan card Catatan Efisiensi dinaikkan ke $y = -1{,}70$ sehingga tercipta buffer margin bawah $\sim 205\text{ px}$ (sangat aman dari control bar video player 80–120 px saat mode fullscreen). Teks baris kedua diganti kuning terang (`YELLOW_C`) dengan font 20 pt agar kontras tajam.
   * **Render & Verifikasi**: Video 1080p60 Manim dikompilasi ulang ke `public/videos/contoh_soal_metode_cholesky.mp4`, diverifikasi frame visualnya via `vision_analyze` (margin bawah lolos $>200\text{ px}$, kontras tinggi, bebas overlap), build engine/web lulus.
+
+## Bab 18: Revisi Babak 3.a (Tahap 1 SPL: Substitusi Maju L · y = b, Tektokan Matriks-Perhitungan, Font Besar, & Format Vektor Antara Formal)
+- **Tujuan**: Mengimplementasikan visualisasi tektokan bertempo pada Babak 3.a antara ruas matriks kiri ($L \cdot \mathbf{y} = \mathbf{b}$) dan card langkah perhitungan aljabar di kanan, memperbesar ukuran font secara proporsional tanpa dead space, memformat Baris 3 dua tingkat terstruktur, serta menyajikan Hasil Vektor Antara $\mathbf{y} = [1, 7, -1]^\mathrm{T}$ dalam badge kontras tinggi ber-superscript formal LaTeX.
+- **Perubahan**:
+  * **Animasi Tektokan Sinkron**:
+    - Baris 1: Kotak kuning menyorot baris 1 matriks $L$ `[2, 0, 0]` dan baris 1 vektor $\mathbf{b}$ `[2]` $
+ightarrow$ card kanan menuliskan $\text{Baris 1: } 2y_1 = 2 \implies y_1 = 1$ $
+ightarrow$ entri $y_1$ pada vektor $\mathbf{y}$ di kiri otomatis bertransformasi menjadi angka `1` hijau.
+    - Baris 2: Kotak kuning menyorot baris 2 matriks $L$ `[1, 3, 0]` dan baris 2 vektor $\mathbf{b}$ `[22]` $
+ightarrow$ card kanan menuliskan $\text{Baris 2: } 1(1) + 3y_2 = 22 \implies 3y_2 = 21 \implies y_2 = 7$ $
+ightarrow$ entri $y_2$ bertransformasi menjadi angka `7` hijau.
+    - Baris 3: Kotak kuning menyorot baris 3 matriks $L$ `[-1, 1, 2]` dan baris 3 vektor $\mathbf{b}$ `[4]` $
+ightarrow$ card kanan menampilkan penjabaran dua tingkat: $-1(1) + 1(7) + 2y_3 = 4 \implies 6 + 2y_3 = 4 \implies 2y_3 = -2 \implies y_3 = -1$ $
+ightarrow$ entri $y_3$ bertransformasi menjadi angka `-1` hijau.
+  * **Badge Hasil Vektor Antara**: Kotak hijau melingkupi seluruh vektor $\mathbf{y}$ di ruas kiri, diiringi kemunculan sub-badge berlatar slate gelap bergaris tepi emas: $\mathbf{y} = \begin{bmatrix} 1 & 7 & -1 \end{bmatrix}^{\mathrm{T}}$ dengan notasi superskrip formal (bebas caret `^`).
+  * **Optimalisasi Card & Font**: Ukuran font dinaikkan drastis (`font_size=22-24`), container card membungkus konten rapat tanpa ruang kosong berlebih, dan posisi dinaikkan sehingga sisa jarak bawah layar $\approx 310\text{ px}$ (sangat aman dari control bar video player fullscreen).
+  * **Render & Verifikasi**: Video 1080p60 Manim dirender ulang ke `public/videos/contoh_soal_metode_cholesky.mp4`, diverifikasi visual frame aktual via `vision_analyze` (keterbacaan sempurna, aljabar lengkap, notasi formal, aman kontrol bar), dan seluruh test engine/build Vite lulus 100%.

@@ -532,57 +532,134 @@ class CholeskyUnifiedExplainer(Scene):
         # 3. PENYELESAIAN SPL 2-TAHAP (SUBSTITUSI MAJU & MUNDUR)
         # ========================================================
         # 3.A SUBSTITUSI MAJU L y = b
-        header_spl1 = Text("Tahap 1 SPL: Substitusi Maju L · y = b", font_size=23, color=GREEN_C, weight=BOLD).to_edge(UP, buff=0.45)
+        header_spl1 = Tex(
+            r"\textbf{Tahap 1 SPL: Substitusi Maju } $L \cdot \mathbf{y} = \mathbf{b}$",
+            font_size=30,
+            color=GREEN_C,
+        ).to_edge(UP, buff=0.38)
         self.play(Write(header_spl1), run_time=0.7)
 
-        mat_L_fwd = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], h_buff=0.75, v_buff=0.65).scale(0.7)
-        vec_y_fwd = Matrix([["y_1"], ["y_2"], ["y_3"]], h_buff=0.55, v_buff=0.65).scale(0.7)
-        eq_fwd = MathTex(r"=", font_size=28, color=WHITE_C)
-        vec_b_fwd = Matrix([["2"], ["22"], ["4"]], h_buff=0.55, v_buff=0.65).scale(0.7)
+        mat_L_fwd = Matrix([["2", "0", "0"], ["1", "3", "0"], ["-1", "1", "2"]], bracket_h_buff=0.1, bracket_v_buff=0.1, h_buff=0.85, v_buff=0.75).scale(0.86)
+        for i, val in enumerate(["2", "0", "0", "1", "3", "0", "-1", "1", "2"]):
+            c = MUTED_C if val == "0" else GREEN_C
+            mat_L_fwd.get_entries()[i].set_color(c)
 
-        row_fwd = VGroup(mat_L_fwd, vec_y_fwd, eq_fwd, vec_b_fwd).arrange(RIGHT, buff=0.35).move_to(LEFT * 3.8 + DOWN * 0.25)
+        vec_y_fwd = Matrix([["y_1"], ["y_2"], ["y_3"]], bracket_h_buff=0.08, bracket_v_buff=0.1, h_buff=0.6, v_buff=0.75).scale(0.86)
+        for entry in vec_y_fwd.get_entries():
+            entry.set_color(YELLOW_C)
+
+        eq_fwd = MathTex(r"=", font_size=34, color=WHITE_C)
+
+        vec_b_fwd = Matrix([["2"], ["22"], ["4"]], bracket_h_buff=0.08, bracket_v_buff=0.1, h_buff=0.6, v_buff=0.75).scale(0.86)
+        for entry in vec_b_fwd.get_entries():
+            entry.set_color(WHITE_C)
+
+        lbl_sys_fwd = Tex(r"$L \cdot \mathbf{y} = \mathbf{b}$", font_size=22, color=MUTED_C)
+
+        row_fwd = VGroup(mat_L_fwd, vec_y_fwd, eq_fwd, vec_b_fwd).arrange(RIGHT, buff=0.22)
         eq_fwd.set_y(mat_L_fwd.get_rows()[1].get_center()[1])
-        self.play(FadeIn(row_fwd), run_time=0.7)
+        lbl_sys_fwd.next_to(row_fwd, UP, buff=0.22)
+
+        grp_left_fwd = VGroup(lbl_sys_fwd, row_fwd).move_to(LEFT * 3.8 + DOWN * 0.10)
+        self.play(FadeIn(grp_left_fwd), run_time=0.7)
+
+        # Konten Card Kanan
+        t_sub1_head = Tex(r"\textbf{Perhitungan Maju (Atas ke Bawah):}", font_size=24, color=GREEN_C)
+
+        line_b1 = MathTex(
+            r"\textbf{Baris 1: } 2y_1 = 2 \implies \mathbf{y_1 = 1}",
+            font_size=23,
+            color=WHITE_C,
+        )
+
+        line_b2 = MathTex(
+            r"\textbf{Baris 2: } 1(1) + 3y_2 = 22 \implies 3y_2 = 21 \implies \mathbf{y_2 = 7}",
+            font_size=23,
+            color=WHITE_C,
+        )
+
+        line_b3 = MathTex(
+            r"\begin{aligned}"
+            r"\textbf{Baris 3: } & -1(1) + 1(7) + 2y_3 = 4 \\"
+            r"& \implies 6 + 2y_3 = 4 \implies 2y_3 = -2 \implies \mathbf{y_3 = -1}"
+            r"\end{aligned}",
+            font_size=22,
+            color=WHITE_C,
+        )
+
+        badge_y_txt = MathTex(
+            r"\textbf{Hasil Vektor Antara: } \mathbf{y} = \begin{bmatrix} 1 & 7 & -1 \end{bmatrix}^{\mathrm{T}}",
+            font_size=22,
+            color=YELLOW_C,
+        )
+        badge_y_bg = RoundedRectangle(
+            corner_radius=0.10,
+            width=badge_y_txt.width + 0.40,
+            height=badge_y_txt.height + 0.22,
+            fill_color="#0F172A",
+            fill_opacity=0.9,
+            stroke_color=YELLOW_C,
+            stroke_width=1.8,
+        )
+        badge_y_grp = VGroup(badge_y_bg, badge_y_txt)
+        badge_y_txt.move_to(badge_y_bg.get_center())
+
+        card_content_fwd = VGroup(t_sub1_head, line_b1, line_b2, line_b3, badge_y_grp).arrange(DOWN, buff=0.24, aligned_edge=LEFT)
 
         card_sub1 = RoundedRectangle(
-            corner_radius=0.15,
-            width=6.5,
-            height=4.4,
+            corner_radius=0.16,
+            width=card_content_fwd.width + 0.65,
+            height=card_content_fwd.height + 0.48,
             fill_color=CARD_BG,
-            fill_opacity=0.95,
+            fill_opacity=0.98,
             stroke_color=GREEN_C,
-            stroke_width=2.0
-        ).move_to(RIGHT * 3.1 + DOWN * 0.25)
-        t_sub1_head = Text("Perhitungan Maju (Atas ke Bawah):", font_size=15, color=GREEN_C, weight=BOLD).move_to(card_sub1.get_top() + DOWN * 0.35)
-        self.play(Create(card_sub1), Write(t_sub1_head), run_time=0.5)
+            stroke_width=2.5,
+        ).move_to(RIGHT * 3.05 + DOWN * 0.10)
+        card_content_fwd.move_to(card_sub1.get_center())
 
-        calc_fwd = MathTex(
-            r"\begin{aligned}"
-            r"2y_1 &= 2 \implies \mathbf{y_1 = 1} \\[6pt]"
-            r"1(1) + 3y_2 &= 22 \implies 3y_2 = 21 \implies \mathbf{y_2 = 7} \\[6pt]"
-            r"-1(1) + 1(7) + 2y_3 &= 4 \implies 6 + 2y_3 = 4 \implies \mathbf{y_3 = -1}"
-            r"\end{aligned}",
-            font_size=17,
-            color=WHITE_C
-        ).next_to(t_sub1_head, DOWN, buff=0.3).align_to(card_sub1, LEFT).shift(RIGHT * 0.4)
+        self.play(Create(card_sub1), FadeIn(t_sub1_head), run_time=0.6)
 
-        badge_y = MathTex(
-            r"\text{Vektor Solusi Antara: } \mathbf{y} = \begin{bmatrix} 1 & 7 & -1 \end{bmatrix}^T",
-            font_size=16,
-            color=YELLOW_C
-        ).next_to(calc_fwd, DOWN, buff=0.35).align_to(calc_fwd, LEFT)
+        # Baris 1: Tektokan kotak baris 1
+        box_L1 = SurroundingRectangle(mat_L_fwd.get_rows()[0], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_b1 = SurroundingRectangle(vec_b_fwd.get_rows()[0], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_L1), Create(box_b1), run_time=0.4)
+        self.play(Write(line_b1), run_time=0.7)
+        y1_solved = MathTex("1", font_size=mat_L_fwd.get_entries()[0].font_size, color=GREEN_C).move_to(vec_y_fwd.get_entries()[0].get_center())
+        self.play(Transform(vec_y_fwd.get_entries()[0], y1_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_L1), FadeOut(box_b1), run_time=0.3)
 
-        self.play(Write(calc_fwd), run_time=1.5)
-        self.play(FadeIn(badge_y), run_time=0.5)
-        self.wait(2.5)
+        # Baris 2: Tektokan kotak baris 2
+        box_L2 = SurroundingRectangle(mat_L_fwd.get_rows()[1], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_b2 = SurroundingRectangle(vec_b_fwd.get_rows()[1], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_L2), Create(box_b2), run_time=0.4)
+        self.play(Write(line_b2), run_time=0.7)
+        y2_solved = MathTex("7", font_size=mat_L_fwd.get_entries()[0].font_size, color=GREEN_C).move_to(vec_y_fwd.get_entries()[1].get_center())
+        self.play(Transform(vec_y_fwd.get_entries()[1], y2_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_L2), FadeOut(box_b2), run_time=0.3)
+
+        # Baris 3: Tektokan kotak baris 3
+        box_L3 = SurroundingRectangle(mat_L_fwd.get_rows()[2], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        box_b3 = SurroundingRectangle(vec_b_fwd.get_rows()[2], color=YELLOW_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_L3), Create(box_b3), run_time=0.4)
+        self.play(Write(line_b3), run_time=0.9)
+        y3_solved = MathTex("-1", font_size=mat_L_fwd.get_entries()[0].font_size, color=GREEN_C).move_to(vec_y_fwd.get_entries()[2].get_center())
+        self.play(Transform(vec_y_fwd.get_entries()[2], y3_solved), run_time=0.4)
+        self.wait(1.0)
+        self.play(FadeOut(box_L3), FadeOut(box_b3), run_time=0.3)
+
+        # Hasil Vektor Antara
+        box_y_all = SurroundingRectangle(vec_y_fwd, color=GREEN_C, buff=0.08, stroke_width=2.5)
+        self.play(Create(box_y_all), FadeIn(badge_y_grp, scale=0.95), run_time=0.6)
+        self.wait(2.2)
+        self.play(FadeOut(box_y_all), run_time=0.3)
 
         self.play(
             FadeOut(header_spl1),
-            FadeOut(row_fwd),
+            FadeOut(grp_left_fwd),
             FadeOut(card_sub1),
-            FadeOut(t_sub1_head),
-            FadeOut(calc_fwd),
-            FadeOut(badge_y),
+            FadeOut(card_content_fwd),
             run_time=0.5
         )
 
